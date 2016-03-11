@@ -1,0 +1,116 @@
+.form-control ,.navbar, .btn, .alert, .input-group, .input-group-addon{
+	border-radius: 0;
+}
+header{
+	margin-bottom: 75px;
+}
+.navbar-brand{
+	font-size: 30px;
+	font-weight: bold;
+}
+a:hover{
+	cursor: pointer;
+	text-decoration: none;
+}
+.jumbotron{
+	background-color: white;
+}
+.right{
+	float: right;
+}
+.left{
+	float: left;
+}
+.center{
+	position:absolute;
+    left:50%;
+}
+a.list-group-item:selection{
+	background-color: red;
+}
+.red-text{
+	color:red;
+}
+.option-content{
+white-space: pre-line;
+}
+.options{
+	margin-top: 3px;
+}
+a{
+	text-decoration: none;
+}
+.sidemenurow
+{
+	max-height: 650px;
+	overflow-y: auto;
+	margin: auto;
+}
+ul.sidemenu{
+	cursor: pointer;
+	list-style-type: none;
+}
+ul.sidemenu > li{
+	margin-top: 20px;
+}
+.ng-error
+{ 
+	color:red;
+}
+.verticalLine {
+  border-right: thick solid greenyellow;
+}
+.quizstack-heading > th{
+	font-size: 12px;
+}
+.ui-menu .ui-menu-item a.ui-corner-all:hover, .ui-menu .ui-menu-item a.ui-corner-all:focus, .ui-menu .ui-menu-item a.ui-corner-all:active {
+    background:#ff8a00!important;
+    color:#000;
+    border-radius:0;
+}
+.removefromstackbutton{
+	font-size: 30px;
+	color:red;
+}
+.addtostackbutton{
+	cursor: pointer;
+	font-size: 30px;
+	color:green;
+}
+.editable{
+	cursor: text;
+}
+.inline{
+	display: inline-block;
+}
+.blank {
+    min-width: 50px;
+    height: 20px;
+    border-bottom: 1px dotted #000000;
+    margin: 0 5px;
+    outline: none;
+    vertical-align: initial;
+}
+.pointer{
+	cursor: pointer;
+}
+.black-text{
+	color: black;
+}
+.green-text{
+	color: green;
+}
+.blue-text{
+	color: blue;
+}
+.next-step-arrow{
+	position: relative;
+	top: 60px;
+}
+.next-step-arrow-xs{
+	position: relative;
+	top: 10px;
+}
+/*.question-image:hover{
+	transform: scale3d(2,2,2);
+}*/

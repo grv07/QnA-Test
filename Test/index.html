@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="Test" ng-cloak>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>QnA Test Window</title>
+    <!-- build:css styles/main.css  -->
+    <link href="css/bootstrap.css" rel="stylesheet">
+    <link href="css/styles.css" rel="stylesheet">
+    <!-- endbuild -->
+    <!-- build:js scripts/main.js  -->
+    <script src="js/jquery.js"></script>
+    <script src="js/bootstrap.js"></script>    
+    <script src="js/angular.js"></script>
+    <!-- endbuild -->
+</head>
+<body>
+<header>
+  <div ui-view="header"></div>
+</header>
+<main>
+  <div ui-view="content">
+    <div class="row">
+      <h1 class="text-center hidden-xs">Please fill up the following details.</h1>
+      <h3 class="text-center visible-xs">Please fill up the following details.</h3> 
+    </div>
+    <div class="row">
+      <br><br><br><br><br>      
+    </div>
+    <div class="row text-center">
+        <div class="col-lg-2 col-md-2 col-sm-2"></div>
+        <div class="col-lg-8 col-md-8 col-sm-8">
+            <div ng-include src="'views/alert_msg.html'"></div>
+            <div class="jumbotron">
+                <div class="row text-center">
+                    <h4>To start the test for quiz <b>{{quizName|capitalize}}</b>.<br>Please provide some details.</h4>
+                </div>
+                <div class="row">
+                    <form class="col-md-12" ng-app="QnA" ng-submit="postUserDetails()" name="loginForm" novalidate >
+                        <div class="form-group">
+                            <span ng-show="isFormInvalid" style='color:red;'>{{ errors }}</span>                      
+                        </div>
+                        <div class="form-group" ng-class="{ 'has-error' : loginForm.name.$touched && loginForm.name.$error.required || isFormInvalid }">
+                          <input type="text" class="form-control input-lg" name="name" ng-model="userData.name" placeholder="Name" required>
+                            <span ng-show="loginForm.name.$touched && loginForm.name.$error.required">Name is required.</span>
+                        </div>                        
+                        <div class="form-group" ng-class="{ 'has-error' : loginForm.email.$touched && loginForm.email.$error.required || isFormInvalid }">
+                            <input type="email" name='email' ng-model="userData.email" class="form-control input-lg" placeholder="Email" required>
+                            <span ng-show="loginForm.email.$touched && loginForm.email.$error.required">Email is required.</span>
+                        </div>
+                        <div class="form-group">
+                            <button class="btn btn-primary btn-lg btn-block" ng-disabled='loginForm.$invalid'>Submit</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-2 col-md-2 col-sm-2"></div>
+    </div>
+  </div>
+</main>
+<footer>
+  <div ui-view="footer"></div>
+</footer>
+
+  <!-- build:js scripts/main.js  -->
+    <script src="js/angular-ui-router.js"></script>
+    <script src="js/angular-resource.js"></script>
+    <script src="js/angular-cookies.js"></script>
+
+    <script src="scripts/settings.js"></script>
+    <script src="scripts/interceptors.js"></script>
+
+    <script src="scripts/app.js"></script>
+    <!-- <script src="scripts/directives.js"></script> -->
+    <script src="scripts/services.js"></script>
+    <script src="scripts/controllers.js"></script>
+
+
+    <script src="scripts/filters.js"></script>
+    <script src="scripts/ui.js"></script>
+  <!-- endbuild -->
+
+</body>
+</html>

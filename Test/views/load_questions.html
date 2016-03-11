@@ -1,0 +1,10 @@
+<div class="container-fluid">
+<div ng-include src="'views/alert_msg.html'"></div>
+	<div class="row">
+		{{questions}} <button ng-click="closeTestWindow()">EXIT</button>
+	</div>
+	<div class="row">
+		<button ng-click="startTest()" ng-if="!unableToGetAllSavedStacks">Click to start the test</button>
+		<h3 ng-if="unableToGetAllSavedStacks">Unable to load questions</h3>
+	</div>
+</div>
