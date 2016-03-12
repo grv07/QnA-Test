@@ -10,7 +10,6 @@ appmodule.config(function($stateProvider, $urlRouterProvider, $httpProvider) {
                         templateUrl : 'views/header.html'
                     },
                     'content': {
-                        controller  : 'UserDataController',
                         templateUrl : 'index.html'
                     },
                     'footer': {
@@ -19,7 +18,7 @@ appmodule.config(function($stateProvider, $urlRouterProvider, $httpProvider) {
                 },
             })
             .state('app.load-questions', {
-                url:'load/',
+                url:'start/',
                 views :{
                     'content@': {
                         controller  : 'LoadQuestionsController',
@@ -29,7 +28,7 @@ appmodule.config(function($stateProvider, $urlRouterProvider, $httpProvider) {
                 params: {obj: null},
             })
             .state('app.start-test', {
-                url:'start/',
+                url:'load/',
                 views :{
                     'header@': {
                         controller  : 'TestPageHeaderController',

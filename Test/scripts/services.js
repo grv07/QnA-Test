@@ -1,6 +1,6 @@
 /* global $ */
 appmodule
-  .service('testUserDataFactory', ['$resource', function($resource) {
+  .service('TestUserDataFactory', ['$resource', function($resource) {
     this.saveTestUser = function(key){
           return $resource(serverURL+"user/data/", null,
                   {'save':  
@@ -9,9 +9,7 @@ appmodule
                   },
                   { stripTrailingSlashes: false }
                   );
-      };      
-  }])
-  .service('LoadQuestionsFactory', ['$resource', function($resource) {
+      };
     // function to fetch either all quiz stacks or with a specifid id.
     this.getQuizStack = function(quizid, quizstackid){
       return $resource(serverURL+"stack/get/"+quizid+"/"+quizstackid+"/", null,
@@ -24,7 +22,9 @@ appmodule
       },
       { stripTrailingSlashes: false }
       );
-    };
+    };    
+  }])
+  .service('LoadQuestionsFactory', ['$resource', function($resource) {
     this.loadAllQuestions = function(quizid, sectionName){
       return $resource(serverURL+"stack/get/questions/"+quizid+"/", { sectionName: sectionName},
           {
@@ -42,6 +42,7 @@ appmodule
         var allQuestions = {}
         var progressData = {}
         var data = {};
+
         this.addQuestionsForSection = function(sectionName, data){
             allQuestions[sectionName] = data;
             return data;
@@ -49,19 +50,13 @@ appmodule
         this.getAnswersForSection = function(sectionName){
             return data[sectionName];
         }
-        this.getQuestionsForASection = function(sectionName){
+        this.getQuestionsForSection = function(sectionName){
             return allQuestions[sectionName];
         }
-        this.saveProgressValues = function(sectionName, data){
-            progressData[sectionName] = data;
+        this.getAnswerForQuestion = function(sectionName, questionId){
+            return data[sectionName][questionId];
         }
-        this.getProgressValues = function(){
-            return progressData;
-        }
-        this.getProgressValuesSectionWise = function(sectionName){
-            return progressData[sectionName];
-        }
-        this.getAQuestion = function(sectionName, count){
+        this.getQuestion = function(sectionName, count){
             return allQuestions[sectionName][count-1][count];
         }
         this.saveOrChangeAnswer = function(sectionName, count, answerid, value){
@@ -75,23 +70,31 @@ appmodule
            }
         }
         // Save all questions answered with section name as key including progress values
-        this.saveQuestionsAnsweredSectionWise = function(sectionName, answers, progressValues){
-            result = {};
-            result[sectionName] = { answers : {} };
-            for(var question_id in progressValues){
-                result[sectionName]['answers'][question_id] = { status: progressValues[question_id]['status']  , value: answers[question_id]['value']};
-            }
-            console.log(result[sectionName]);
-            return result[sectionName];
-        }
+        // this.changeAnswerFormat = function(sectionName, answer, progressValue){
+        //     result = {};
+        //     result[sectionName] = { answers : {} };
+        //     for(var question_id in progressValues){
+        //         result[sectionName]['answers'][question_id] = { status: progressValues[question_id]['status']  , value: answers[question_id]['value']};
+        //     }
+        //     return result[sectionName];
+        // }
 
         // Save section-wise questions-answers
         this.saveSectionQuestion = function(sectionName, answers){
             data[sectionName] = answers;
         }
 
-        this.addQuizData = function(quizid){
-            data['quiz'] = quizid;
+        this.saveProgressValues = function(sectionName, data){
+            progressData[sectionName] = data;
+        }
+        this.getProgressValues = function(){
+            return progressData;
+        }
+        this.getProgressValuesSectionWise = function(sectionName){
+            return progressData[sectionName];
+        }
+        this.getAnswerProgressValue = function(sectionName, questionId){
+            return progressData[sectionName][questionId];
         }
 
         // Send the answers to server on answering the question
@@ -105,7 +108,4 @@ appmodule
                 );
         };
 
-        this.getAQuestion = function(sectionName, count){
-            return allQuestions[sectionName][count-1][count];
-        }
   }]);

@@ -8,16 +8,24 @@ appmodule
             $state.go('app.login-user');
         }
     }])
-    .controller('UserDataController',['$scope','$state', '$http', '$cookies', 'testUserDataFactory','$controller', '$window', function($scope, $state, $http, $cookies, testUserDataFactory, $controller, $window) {
+    .controller('UserDataController',['$scope','$state', '$http', '$cookies', '$window', 'TestUserDataFactory', function($scope, $state, $http, $cookies, $window, TestUserDataFactory) {
             $cookies.put('KEY', 'abcd1234');
             $cookies.put('SITENAME', 'equest');
             $scope.quizName = 'maths';
-            $scope.userData = { name:'', email:'', quiz_id: "13", quiz_name: 'Maths', test_key: 'f86d61d474de2b13499c' };
+            // Below object is required from source.
+            $scope.userData = { name:'', email:'', quiz_id: "13", quiz_name: 'Maths', 'total_questions': 47, test_key: 'f86d61d474de2b13499c', 'quizStacks': undefined };
             $scope.postUserDetails = function(){
-                testUserDataFactory.saveTestUser($cookies.get('KEY')).save($scope.data).$promise.then(
+                TestUserDataFactory.saveTestUser($cookies.get('KEY')).save($scope.data).$promise.then(
                 function(response){
                     $scope.isFormInvalid = false;
                     // $cookies.put('token', response.token);
+                    TestUserDataFactory.getQuizStack(13, 'all').query(
+                        function(response) {
+                            $scope.userData['quizStacks'] = response;
+                        },
+                        function(response) {
+                            $scope.unableToGetAllSavedStacks= true;
+                    });
                     $window.data = $scope.userData;
                     $window.open($state.href('app.load-questions', {parameter: "parameter"}), "Test Window", "width=1280,height=890,resizable=0");
                     // $state.go('app.load-questions', {obj:{'quizName':$scope.quizName }});                     
@@ -29,41 +37,48 @@ appmodule
                 });
             }
     }])
-    .controller('LoadQuestionsController', ['$scope', '$window', '$state', 'LoadQuestionsFactory', function($scope, $window, $state, LoadQuestionsFactory) {
-        $scope.questions = 'ppppp';
-        var allQuestions = {};
+    .controller('LoadQuestionsController', ['$scope', '$window', '$state', 'LoadQuestionsFactory', 'TestPageFactory', function($scope, $window, $state, LoadQuestionsFactory, TestPageFactory) {
         var allSections = [];
-        data = { test_key: 'f86d61d474de2b13499c', 'quiz': $window.opener.data.quiz_id , 'quizName': $window.opener.data.quiz_name, 'quizStacks' : [], 'details' : {} };
+        var allQuestions = {}; 
+        $scope.progressValue = 0.00;
+        var data = { test_key: 'f86d61d474de2b13499c', 'quiz': $window.opener.data.quiz_id , 'quizName': $window.opener.data.quiz_name, 'quizStacks' : $window.opener.data.quizStacks, 'details' : {} };
         $scope.closeTestWindow = function(){
             $window.close();
         }
-        var currentSectionCount = 0;
-        LoadQuestionsFactory.getQuizStack($window.opener.data.quiz_id, 'all').query(
-            function(response) {
-                data['quizStacks'] = response;
-                console.log('pppp');
-            },
-            function(response) {
-                $scope.unableToGetAllSavedStacks= true;
-        });
-        console.log(data['quizStacks'], typeof(data['quizStacks']));
-        // for(i=0;i<data['quizStacks'].length;i++){
-        //     if(allSections.indexOf(response[i].section_name)===-1){
-        //         data['details'][response[i].section_name] = { 'duration': 0, 'questions' : 0};
-        //         allSections[currentSectionCount]=response[i].section_name;
-        //         currentSectionCount += 1;
-        //     }
-        //     data['details'][response[i].section_name]['duration'] += parseInt(response[i].duration);
-        //     data['details'][response[i].section_name]['questions'] += parseInt(response[i].no_questions);
-        // }
-}])  
+        for(var i=0;i<data['quizStacks'].length;i++){
+            var stack = data['quizStacks'][i];
+            if(allSections.indexOf(data['quizStacks'][i].section_name)===-1){
+                data['details'][stack.section_name] = { 'duration': 0, 'questions' : 0};
+                allSections.push(stack.section_name);
+            }
+            data['details'][stack.section_name]['duration'] += parseInt(stack.duration);
+            data['details'][stack.section_name]['questions'] += parseInt(stack.no_questions);
+        }
+        function loadQuestions(sectionName){
+            LoadQuestionsFactory.loadAllQuestions($window.opener.data.quiz_id, sectionName).query(
+                function(response){
+                    TestPageFactory.addQuestionsForSection(sectionName, response.questions);
+                    $scope.progressValue +=  (response.questions.length/$window.opener.data.total_questions)*100;
+                    if($scope.progressValue>=100){
+                        $scope.progressValue = 100;
+                        $scope.startTest = function(){
+                            $state.go('app.start-test', { obj: data});
+                        }
+                    }
+                },
+                function(response){
+                    alert('Problem in getting questions from server-side.');
+                    $window.close();
+                });
+        }
+        for(var i=0;i<allSections.length;i++){
+            loadQuestions(allSections[i]);
+        }           
+    }])
     .controller('TestPageHeaderController', ['$scope', '$controller', '$window', '$stateParams', function($scope, $controller, $window, $stateParams) {
             // console.log($window.opener.data.quiz)
             if(isNotEmpty($stateParams.obj)){
                 $scope.quizName = $stateParams.obj.quizName;
-                $scope.closePreviewWindow = function(){
-                    $window.close();
-                }
                 $scope.dataPresent = true;      
             }
             else{
@@ -74,31 +89,21 @@ appmodule
         $scope.allQuestions = {};
         var firstItemVisited= false;
         $scope.serverURL = 'http://localhost:8000';
-        $scope.getQuestionsBasedOnSection = function(sectionName, quizid){
-            console.log($stateParams.obj,'888');
-            console.log($scope.questions,'9999');
-
-            // TestPageFactory.getQuestionsBasedOnSection(quizid, sectionName).query(
-            //     function(response){
-            //         $scope.total_questions = response.total_questions;
-            //         $scope.sliced_questions = $scope.total_questions.slice(0,15);
-            //         $scope.sliceFactor = 0;
-            //         $scope.slicingLimit = Math.floor($scope.total_questions.length/15);
-            //         $scope.answersModel = {};
-            //         firstItemVisited = false;
-            //         $scope.progressValuesModel = {};
-            //         var questionsAdded = TestPageFactory.addQuestionsForSection(sectionName, response.questions);
-            //         for(var i=0;i<questionsAdded.length;i++){
-            //             $scope.answersModel[questionsAdded[i][i+1].id] = { value:null };
-            //             $scope.progressValuesModel[questionsAdded[i][i+1].id] = { status:'NV' };
-            //         }
-            //         TestPageFactory.saveSectionQuestion(sectionName, $scope.answersModel);
-            //         TestPageFactory.saveProgressValues(sectionName, $scope.progressValuesModel);
-            //         $scope.changeQuestion(1);
-            //     },
-            //     function(response){
-            //         alert('Problem in getting questions from server-side.');
-            // });
+        function getQuestionsBasedOnSection(sectionName){
+            $scope.total_questions = TestPageFactory.getQuestionsForSection(sectionName);
+            $scope.sliced_questions = range(0, $scope.total_questions.slice(0,15).length);
+            $scope.sliceFactor = 0;
+            $scope.slicingLimit = Math.floor($scope.total_questions.length/15);
+            $scope.answersModel = {};
+            firstItemVisited = false;
+            $scope.progressValuesModel = {};
+            for(var i=0;i<$scope.total_questions.length;i++){
+                $scope.answersModel[$scope.total_questions[i][i+1].id] = { value:null };
+                $scope.progressValuesModel[$scope.total_questions[i][i+1].id] = { status:'NV' };
+            }
+            TestPageFactory.saveSectionQuestion(sectionName, $scope.answersModel);
+            TestPageFactory.saveProgressValues(sectionName, $scope.progressValuesModel);
+            $scope.changeQuestion(1);
         }
         $scope.openWarningModal = function(action){
             $scope.action = action;
@@ -140,7 +145,7 @@ appmodule
         }
         $scope.addQuestions = function(sectionName){
             $scope.sliceFactor = 0;
-            $scope.getQuestionsBasedOnSection(sectionName, $scope.quiz);
+            getQuestionsBasedOnSection(sectionName);
         }
         $scope.getQuestionsForThisSection = function(sectionName){
             console.log(TestPageFactory.getQuestionsForASection(sectionName));
@@ -153,7 +158,7 @@ appmodule
             {
                 // var question = TestPageFactory.getAQuestion($scope.selectedSection, count);
                 $scope.currentCount = count;
-                $scope.currentQuestion = TestPageFactory.getAQuestion($scope.selectedSection, count);
+                $scope.currentQuestion = TestPageFactory.getQuestion($scope.selectedSection, count);
                 if(isMCQ($scope.currentQuestion.que_type)){
                     $scope.currentOptions = $scope.currentQuestion.options;
                 }else{
@@ -217,7 +222,11 @@ appmodule
             }catch(err){}
         }, true);
         function sliceOutQuestions(){
-            $scope.sliced_questions = $scope.total_questions.slice($scope.sliceFactor*15, ($scope.sliceFactor+1)*15);
+            if($scope.sliceFactor===$scope.slicingLimit){
+                $scope.sliced_questions = range($scope.sliceFactor*15, $scope.total_questions.length);
+            }else{
+                $scope.sliced_questions = range($scope.sliceFactor*15, ($scope.sliceFactor+1)*15);
+            }
         }
         $scope.decreaseSlicing = function(){
             $scope.sliceFactor -= 1;
@@ -233,7 +242,11 @@ appmodule
         }
 
         $scope.submitTestDetails = function(isSaveToDB, currentSection){
-            var data = TestPageFactory.saveQuestionsAnsweredSectionWise($scope.selectedSection, TestPageFactory.getAnswersForSection(currentSection), TestPageFactory.getProgressValuesSectionWise(currentSection));
+            var data = { 'answer' : {} };
+            data['answer'][$scope.currentQuestion.id] = {
+                        value: TestPageFactory.getAnswerForQuestion(currentSection, $scope.currentQuestion.id).value, 
+                        status: TestPageFactory.getAnswerProgressValue(currentSection, $scope.currentQuestion.id).status 
+                        };
             // if(isSaveToDB){
             //     data['sections'] = Object.keys($window.opener.data['details']).sort();
             // }
@@ -247,12 +260,9 @@ appmodule
         }
         try{
             if(isNotEmpty($stateParams.obj)){
-                console.log($stateParams.obj,'====');
                 $scope.quiz = $stateParams.obj.quiz;
-                TestPageFactory.addQuizData($scope.quiz);
-                console.log(Object.keys($stateParams.obj.details).sort());
+                // TestPageFactory.addQuizData($scope.quiz);
                 $scope.sectionNames = Object.keys($stateParams.obj.details).sort();
-                console.log($scope.sectionNames);
                 if($scope.sectionNames.length<=1){
                     $scope.hideNextSectionButton = true;
                 }
@@ -277,7 +287,6 @@ appmodule
             $scope.dataPresent = false;
         }
         $scope.$on('$locationChangeStart', function( event ) {
-            console.log('kk');
             var answer = confirm("Do you want to start the test?");
             if(answer){
                 event.preventDefault();

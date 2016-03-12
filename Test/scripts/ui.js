@@ -8,6 +8,11 @@ function isNotEmpty(object){
    	for(var i in object){ return true;}
   	return false;
 }
+function range(start, end, step, offset){ 
+    start = start + 1;
+    return Array.apply(null, Array((Math.abs(end - start) + ((offset||0)*2))/(step||1)+1)) .map(function(_, i) { return start < end ? i*(step||1) + start - (offset||0) :  (start - (i*(step||1))) + (offset||0) });
+}    
+
 // in seconds
 function findTotalDuration(list){
     var total = 0;

@@ -28,7 +28,7 @@
     <div class="row">
       <br><br><br><br><br>      
     </div>
-    <div class="row text-center">
+    <div class="row text-center" ng-controller="UserDataController">
         <div class="col-lg-2 col-md-2 col-sm-2"></div>
         <div class="col-lg-8 col-md-8 col-sm-8">
             <div ng-include src="'views/alert_msg.html'"></div>
@@ -37,7 +37,7 @@
                     <h4>To start the test for quiz <b>{{quizName|capitalize}}</b>.<br>Please provide some details.</h4>
                 </div>
                 <div class="row">
-                    <form class="col-md-12" ng-app="QnA" ng-submit="postUserDetails()" name="loginForm" novalidate >
+                    <form class="col-md-12" ng-submit="postUserDetails()" name="loginForm" novalidate>
                         <div class="form-group">
                             <span ng-show="isFormInvalid" style='color:red;'>{{ errors }}</span>                      
                         </div>
