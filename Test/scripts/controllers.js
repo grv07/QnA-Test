@@ -1,12 +1,7 @@
 /* global $ */
 appmodule
     .controller('CookiesController', ['$scope', '$rootScope', '$cookies', '$state', function($scope, $rootScope, $cookies, $state) {
-        $rootScope.user = $cookies.get('user');
-        $rootScope.username = $cookies.get('username');
-        $rootScope.token = $cookies.get('token');
-        if($rootScope.token === undefined){    
-            $state.go('app.login-user');
-        }
+
     }])
     .controller('UserDataController',['$scope','$state', '$http', '$cookies', '$window', 'TestUserDataFactory', function($scope, $state, $http, $cookies, $window, TestUserDataFactory) {
             $cookies.put('KEY', 'abcd1234');
