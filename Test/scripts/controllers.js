@@ -6,7 +6,7 @@ appmodule
     .controller('UserDataController',['$scope','$state', '$http', '$cookies', '$window', '$stateParams', 'TestUserDataFactory', function($scope, $state, $http, $cookies, $window, $stateParams, TestUserDataFactory) {
             TestUserDataFactory.getQuizAccordingToKey($stateParams.quizKey).get().$promise.then(
                 function(response){
-                        $scope.userData = { name:'', email:'', quiz_id: response.id, quiz_name: response.title, total_questions: response.total_questions, quiz_key: response.quiz_key, 'quizStacks': undefined };
+                        $scope.userData = { name:'', email:'', quiz_id: response.id, quiz_name: response.title, total_questions: response.total_questions, test_key: response.quiz_key, 'quizStacks': undefined };
                     },
                 function(response){
                         alert("Error in retrieving quiz details!");                     
@@ -37,7 +37,7 @@ appmodule
         var allSections = [];
         var allQuestions = {}; 
         $scope.progressValue = 0.00;
-        var data = { quiz_key: $window.opener.data.quiz_key, 'quiz': $window.opener.data.quiz_id , 'quizName': $window.opener.data.quiz_name, 'quizStacks' : $window.opener.data.quizStacks, 'details' : {} };
+        var data = { test_key: $window.opener.data.test_key, 'quiz': $window.opener.data.quiz_id , 'quizName': $window.opener.data.quiz_name, 'quizStacks' : $window.opener.data.quizStacks, 'details' : {} };
         $scope.closeTestWindow = function(){
             $window.close();
         }
@@ -238,7 +238,7 @@ appmodule
         }
 
         $scope.submitTestDetails = function(isSaveToDB, currentSection){
-            var data = { 'answer' : {} };
+            var data = { 'answer' : {}, 'is_save_to_db': isSaveToDB  ,'test_key': $stateParams.obj.test_key, 'quiz_id': $stateParams.obj.quiz, 'section_name': currentSection };
             data['answer'][$scope.currentQuestion.id] = {
                         value: TestPageFactory.getAnswerForQuestion(currentSection, $scope.currentQuestion.id).value, 
                         status: TestPageFactory.getAnswerProgressValue(currentSection, $scope.currentQuestion.id).status 
@@ -246,13 +246,16 @@ appmodule
             // if(isSaveToDB){
             //     data['sections'] = Object.keys($window.opener.data['details']).sort();
             // }
-            TestPageFactory.postTestDetails(isSaveToDB, $stateParams.obj.quiz_key, $scope.quiz, currentSection).save(data).$promise.then(
-                function(response){
-                    console.log('success');                    
-                },
-                function(response) {
-                    console.log('failed');
-                });
+            // TestPageFactory.postTestDetails(isSaveToDB, $stateParams.obj.test_key, $scope.quiz, currentSection).save(data).$promise.then(
+            //     function(response){
+            //         console.log('success');                    
+            //     },
+            //     function(response) {
+            //         console.log('failed');
+            //     });
+            TestPageFactory.longPoll(data).then(function(data){
+                console.log('success');
+            });
         }
         try{
             if(isNotEmpty($stateParams.obj)){

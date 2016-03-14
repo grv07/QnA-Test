@@ -48,7 +48,7 @@ appmodule
           );
     }
   }])
-  .service('TestPageFactory', ['$resource', function($resource) {
+  .service('TestPageFactory', ['$resource', '$http', '$q', function($resource, $http, $q) {
         var allQuestions = {}
         var progressData = {}
         var data = {};
@@ -108,14 +108,23 @@ appmodule
         }
 
         // Send the answers to server on answering the question
-        this.postTestDetails = function(isSaveToDB, testUser, quizId, sectionName){
-            return $resource(serverURL+"save/test/", { 'is_save_to_db': isSaveToDB  ,'test_key': testUser, 'quiz_id': quizId, 'section_name': sectionName },
-                {'save':   
-                { method:'POST', 
-                } 
-                },
-                { stripTrailingSlashes: false }
-                );
-        };
+        // this.postTestDetails = function(isSaveToDB, testUser, quizId, sectionName){
+        //     return $resource(serverURL+"save/test/", { 'is_save_to_db': isSaveToDB  ,'test_key': testUser, 'quiz_id': quizId, 'section_name': sectionName },
+        //         {'save':   
+        //         { method:'POST', 
+        //         } 
+        //         },
+        //         { stripTrailingSlashes: false }
+        //         );
+        // };
+
+        this.longPoll = function(data){
+            console.log(data);
+            var deferred = $q.defer();
+            $http.post(serverURL+"save/test/", data).then(function (response) {
+              deferred.resolve(response.data);
+            });
+            return deferred.promise;
+        }
 
   }]);
