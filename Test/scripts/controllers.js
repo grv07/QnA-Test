@@ -13,20 +13,18 @@ appmodule
                 });
             // Below object is required from source.
             $scope.postUserDetails = function(){
-                TestUserDataFactory.saveTestUser($cookies.get('KEY')).save($scope.data).$promise.then(
+                TestUserDataFactory.saveTestUser($cookies.get('KEY')).save($scope.userData).$promise.then(
                 function(response){
                     $scope.isFormInvalid = false;
-                    // $cookies.put('token', response.token);
-                    TestUserDataFactory.getQuizStack(13, 'all').query(
+                    TestUserDataFactory.getQuizStack($scope.userData.quiz_id, 'all').query(
                         function(response) {
                             $scope.userData['quizStacks'] = response;
                         },
                         function(response) {
-                            $scope.unableToGetAllSavedStacks= true;
+                            $scope.unableToGetAllSavedStacks = true;
                     });
                     $window.data = $scope.userData;
                     $window.open($state.href('app.load-questions', {parameter: "parameter"}), "Test Window", "width=1280,height=890,resizable=0");
-                    // $state.go('app.load-questions', {obj:{'quizName':$scope.quizName }});                     
                 },
                 function(response) {
                     $scope.isFormInvalid = true;
