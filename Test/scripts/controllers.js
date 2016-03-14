@@ -3,12 +3,15 @@ appmodule
     .controller('CookiesController', ['$scope', '$rootScope', '$cookies', '$state', function($scope, $rootScope, $cookies, $state) {
 
     }])
-    .controller('UserDataController',['$scope','$state', '$http', '$cookies', '$window', 'TestUserDataFactory', function($scope, $state, $http, $cookies, $window, TestUserDataFactory) {
-            $cookies.put('KEY', 'abcd1234');
-            $cookies.put('SITENAME', 'equest');
-            $scope.quizName = 'maths';
+    .controller('UserDataController',['$scope','$state', '$http', '$cookies', '$window', '$stateParams', 'TestUserDataFactory', function($scope, $state, $http, $cookies, $window, $stateParams, TestUserDataFactory) {
+            TestUserDataFactory.getQuizAccordingToKey($stateParams.quizKey).get().$promise.then(
+                function(response){
+                        $scope.userData = { name:'', email:'', quiz_id: response.id, quiz_name: response.title, total_questions: response.total_questions, quiz_key: response.quiz_key, 'quizStacks': undefined };
+                    },
+                function(response){
+                        alert("Error in retrieving quiz details!");                     
+                });
             // Below object is required from source.
-            $scope.userData = { name:'', email:'', quiz_id: "13", quiz_name: 'Maths', 'total_questions': 47, test_key: 'f86d61d474de2b13499c', 'quizStacks': undefined };
             $scope.postUserDetails = function(){
                 TestUserDataFactory.saveTestUser($cookies.get('KEY')).save($scope.data).$promise.then(
                 function(response){
@@ -36,7 +39,7 @@ appmodule
         var allSections = [];
         var allQuestions = {}; 
         $scope.progressValue = 0.00;
-        var data = { test_key: 'f86d61d474de2b13499c', 'quiz': $window.opener.data.quiz_id , 'quizName': $window.opener.data.quiz_name, 'quizStacks' : $window.opener.data.quizStacks, 'details' : {} };
+        var data = { quiz_key: $window.opener.data.quiz_key, 'quiz': $window.opener.data.quiz_id , 'quizName': $window.opener.data.quiz_name, 'quizStacks' : $window.opener.data.quizStacks, 'details' : {} };
         $scope.closeTestWindow = function(){
             $window.close();
         }
@@ -245,7 +248,7 @@ appmodule
             // if(isSaveToDB){
             //     data['sections'] = Object.keys($window.opener.data['details']).sort();
             // }
-            TestPageFactory.postTestDetails(isSaveToDB, $stateParams.obj.test_key, $scope.quiz, currentSection).save(data).$promise.then(
+            TestPageFactory.postTestDetails(isSaveToDB, $stateParams.obj.quiz_key, $scope.quiz, currentSection).save(data).$promise.then(
                 function(response){
                     console.log('success');                    
                 },
@@ -281,14 +284,14 @@ appmodule
         }catch(e){
             $scope.dataPresent = false;
         }
-        $scope.$on('$locationChangeStart', function( event ) {
-            var answer = confirm("Do you want to start the test?");
-            if(answer){
-                event.preventDefault();
-            }else{
-                $window.close();
-            }
-        });
+        // $scope.$on('$locationChangeStart', function( event ) {
+        //     var answer = confirm("Do you want to start the test?");
+        //     if(answer){
+        //         event.preventDefault();
+        //     }else{
+        //         $window.close();
+        //     }
+        // });
     }]);   
 
 

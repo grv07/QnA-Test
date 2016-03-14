@@ -1,14 +1,24 @@
 /* global $ */
 appmodule
   .service('TestUserDataFactory', ['$resource', function($resource) {
+    this.getQuizAccordingToKey = function(quizKey){
+      return $resource(serverURL+"quiz/get/key/", { quiz_key: quizKey },
+        {
+          get: {
+          method : 'GET',
+          isArray : false,
+          }
+        },
+        { stripTrailingSlashes: false }
+        );
+    }
     this.saveTestUser = function(key){
-          return $resource(serverURL+"user/data/", null,
-                  {'save':  
-                  { method:'POST', 
-                  } 
-                  },
-                  { stripTrailingSlashes: false }
-                  );
+      return $resource(serverURL+"user/data/", null,
+          {'save':  
+            { method:'POST',} 
+          },
+          { stripTrailingSlashes: false }
+          );
       };
     // function to fetch either all quiz stacks or with a specifid id.
     this.getQuizStack = function(quizid, quizstackid){
