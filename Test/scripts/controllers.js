@@ -6,18 +6,19 @@ appmodule
     .controller('UserDataController',['$scope','$state', '$http', '$cookies', '$window', '$stateParams', 'TestUserDataFactory', function($scope, $state, $http, $cookies, $window, $stateParams, TestUserDataFactory) {
             TestUserDataFactory.getQuizAccordingToKey($stateParams.quizKey).get().$promise.then(
                 function(response){
-                        $scope.userData = { name:'', email:'', quiz_id: response.id, quiz_name: response.title, total_questions: response.total_questions, quiz_key: response.quiz_key, 'quizStacks': undefined };
+                        // console.log(response.id)
+                        $scope.userData = { username:'', email:'', quiz_id: response.id, quiz_name: response.title, total_questions: response.total_questions,
+                         test_key: response.quiz_key, 'quizStacks': undefined };
                     },
                 function(response){
                         alert("Error in retrieving quiz details!");                     
                 });
             // Below object is required from source.
             $scope.postUserDetails = function(){
-                TestUserDataFactory.saveTestUser($cookies.get('KEY')).save($scope.data).$promise.then(
+                TestUserDataFactory.saveTestUser($cookies.get('KEY')).save($scope.userData).$promise.then(
                 function(response){
                     $scope.isFormInvalid = false;
-                    // $cookies.put('token', response.token);
-                    TestUserDataFactory.getQuizStack(13, 'all').query(
+                    TestUserDataFactory.getQuizStack($scope.userData.quiz_id, 'all').query(
                         function(response) {
                             $scope.userData['quizStacks'] = response;
                         },
@@ -39,7 +40,8 @@ appmodule
         var allSections = [];
         var allQuestions = {}; 
         $scope.progressValue = 0.00;
-        var data = { quiz_key: $window.opener.data.quiz_key, 'quiz': $window.opener.data.quiz_id , 'quizName': $window.opener.data.quiz_name, 'quizStacks' : $window.opener.data.quizStacks, 'details' : {} };
+        var data = { quiz_key: $window.opener.data.quiz_key, 'quiz': $window.opener.data.quiz_id , 'quizName': $window.opener.data.quiz_name, 
+                    'quizStacks' : $window.opener.data.quizStacks, 'details' : {} };
         $scope.closeTestWindow = function(){
             $window.close();
         }
