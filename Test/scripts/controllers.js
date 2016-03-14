@@ -6,7 +6,7 @@ appmodule
     .controller('UserDataController',['$scope','$state', '$http', '$cookies', '$window', '$stateParams', 'TestUserDataFactory', function($scope, $state, $http, $cookies, $window, $stateParams, TestUserDataFactory) {
             TestUserDataFactory.getQuizAccordingToKey($stateParams.quizKey).get().$promise.then(
                 function(response){
-                        $scope.userData = { name:'', email:'', quiz_id: response.id, quiz_name: response.title, total_questions: response.total_questions, test_key: response.quiz_key, 'quizStacks': undefined };
+                        $scope.userData = { username:'', email:'', quiz_id: response.id, quiz_name: response.title, total_questions: response.total_questions, test_key: response.quiz_key, 'quizStacks': undefined, 'testToken': undefined };
                     },
                 function(response){
                         alert("Error in retrieving quiz details!");                     
@@ -16,6 +16,8 @@ appmodule
                 TestUserDataFactory.saveTestUser($cookies.get('KEY')).save($scope.userData).$promise.then(
                 function(response){
                     $scope.isFormInvalid = false;
+                    $cookies.put('testToken', response.token);
+                    $scope.userData['testToken'] = response.token;
                     TestUserDataFactory.getQuizStack($scope.userData.quiz_id, 'all').query(
                         function(response) {
                             $scope.userData['quizStacks'] = response;
@@ -33,11 +35,12 @@ appmodule
                 });
             }
     }])
-    .controller('LoadQuestionsController', ['$scope', '$window', '$state', 'LoadQuestionsFactory', 'TestPageFactory', function($scope, $window, $state, LoadQuestionsFactory, TestPageFactory) {
+    .controller('LoadQuestionsController', ['$scope', '$window', '$state', '$cookies', 'LoadQuestionsFactory', 'TestPageFactory', function($scope, $window, $state, $cookies, LoadQuestionsFactory, TestPageFactory) {
         var allSections = [];
         var allQuestions = {}; 
         $scope.progressValue = 0.00;
-        var data = { test_key: $window.opener.data.test_key, 'quiz': $window.opener.data.quiz_id , 'quizName': $window.opener.data.quiz_name, 'quizStacks' : $window.opener.data.quizStacks, 'details' : {} };
+        $cookies.put('testToken', $window.opener.data.testToken);
+        var data = { test_key: $window.opener.data.test_key, 'quiz': $window.opener.data.quiz_id , 'quizName': $window.opener.data.quiz_name, 'quizStacks' : $window.opener.data.quizStacks, 'testToken': $window.opener.data.testToken , 'details' : {} };
         $scope.closeTestWindow = function(){
             $window.close();
         }

@@ -2,8 +2,9 @@
 appmodule.factory('APIInterceptor', [ '$cookies', '$q', function($cookies, $q){
 	return {	
 		    request: function(config) {
-		    	if($cookies.get('key')){
-		    	config.headers.authorization = 'Authorization '+$cookies.get('key');
+		    	if($cookies.get('testToken')){
+		    	console.log($cookies.get('testToken'));
+		    	config.headers.authorization = 'Authorization '+$cookies.get('testToken');
 		    	}else{
 		    	}
 		     	return config;
