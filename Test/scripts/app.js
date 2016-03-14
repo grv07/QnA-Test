@@ -4,12 +4,13 @@ appmodule.config(function($stateProvider, $urlRouterProvider, $httpProvider) {
         $stateProvider	        
             // route for the home page
             .state('app', {
-                url:'/open/test/',
+                url:'/open/test/:quizKey',
                 views: {
                     'header': {
                         templateUrl : 'views/header.html'
                     },
                     'content': {
+                        controller : 'UserDataController',
                         templateUrl : 'index.html'
                     },
                     'footer': {
