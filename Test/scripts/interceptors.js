@@ -4,7 +4,7 @@ appmodule.factory('APIInterceptor', [ '$cookies', '$q', function($cookies, $q){
 		    request: function(config) {
 		    	if($cookies.get('testToken')){
 		    	console.log($cookies.get('testToken'));
-		    	config.headers.authorization = 'Authorization '+$cookies.get('testToken');
+		    	config.headers.authorization = 'JWT '+$cookies.get('testToken');
 		    	}else{
 		    	}
 		     	return config;
