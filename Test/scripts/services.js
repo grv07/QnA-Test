@@ -12,7 +12,7 @@ appmodule
         { stripTrailingSlashes: false }
         );
     }
-    this.saveTestUser = function(key){
+    this.saveTestUser = function(){
       return $resource(serverURL+"user/data/", null,
           {'save':  
             { method:'POST',} 

@@ -13,7 +13,7 @@ appmodule
                 });
             // Below object is required from source.
             $scope.postUserDetails = function(){
-                TestUserDataFactory.saveTestUser($cookies.get('KEY')).save($scope.userData).$promise.then(
+                TestUserDataFactory.saveTestUser().save($scope.userData).$promise.then(
                 function(response){
                     $scope.isFormInvalid = false;
                     $cookies.put('testToken', response.token);
