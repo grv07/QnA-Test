@@ -119,7 +119,6 @@ appmodule
         // };
 
         this.longPoll = function(data){
-            console.log(data);
             var deferred = $q.defer();
             $http.post(serverURL+"save/test/", data).then(function (response) {
               deferred.resolve(response.data);

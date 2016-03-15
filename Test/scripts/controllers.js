@@ -39,6 +39,8 @@ appmodule
         var allSections = [];
         var allQuestions = {}; 
         $scope.progressValue = 0.00;
+        $scope.total_questions = $window.opener.data.total_questions;
+        $scope.sectionsDetails = {};
         $cookies.put('testToken', $window.opener.data.testToken);
         var data = { test_key: $window.opener.data.test_key, 'quiz': $window.opener.data.quiz_id , 'quizName': $window.opener.data.quiz_name, 'quizStacks' : $window.opener.data.quizStacks, 'testToken': $window.opener.data.testToken , 'details' : {} };
         $scope.closeTestWindow = function(){
@@ -52,6 +54,10 @@ appmodule
             }
             data['details'][stack.section_name]['duration'] += parseInt(stack.duration);
             data['details'][stack.section_name]['questions'] += parseInt(stack.no_questions);
+        }
+        allSections.sort();
+        for(var i=0;i<allSections.length;i++){
+            $scope.sectionsDetails[allSections[i]] = { 'duration': data['details'][allSections[i]]['duration'], 'questions': data['details'][allSections[i]]['questions'] };
         }
         function loadQuestions(sectionName){
             LoadQuestionsFactory.loadAllQuestions($window.opener.data.quiz_id, sectionName).query(
@@ -246,6 +252,7 @@ appmodule
                         value: TestPageFactory.getAnswerForQuestion(currentSection, $scope.currentQuestion.id).value, 
                         status: TestPageFactory.getAnswerProgressValue(currentSection, $scope.currentQuestion.id).status 
                         };
+            data['duration'] = $scope.totalDuration;
             // if(isSaveToDB){
             //     data['sections'] = Object.keys($window.opener.data['details']).sort();
             // }

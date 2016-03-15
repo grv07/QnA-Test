@@ -1,15 +1,40 @@
 <div class="container-fluid text-center">
 <div ng-include src="'views/alert_msg.html'"></div>
-	<div class="row">
-		<button class="btn btn-warning btn-md" ng-click="closeTestWindow()">EXIT</button>
+	<br>
+	<div class="row text-left">
+		<div class="col-lg-2 col-md-2 col-sm-2"></div>
+		<div class="col-lg-8 col-md-8 col-sm-8">
+			<ol class="instructionsList">
+				<li>This quiz contains <b>{{ total_questions }}</b> questions.</li>
+				<li>Below is the section-wise distribution
+					<div class="table-responsive sectionsDetails">
+					  <table class="table">
+					    <thead>
+					    	<th>Section Name</th>
+					    	<th>Total Questions</th>
+					    	<th>Duration (in minutes)</th>
+					    </thead>
+					    <tbody>
+					    	<tr ng-repeat="(section, detail) in sectionsDetails">
+					    		<td>{{section}}</td>
+					    		<td>{{detail.questions}}</td>
+					    		<td>{{detail.duration}}</td>
+					    	</tr>
+					    </tbody>
+					  </table>
+					</div>
+				</li>
+			</ol>
+		</div>
+		<div class="col-lg-2 col-md-2 col-sm-2"></div>
 	</div>
-	<div class="row" style="margin-top: 180px;">
-		<h3 ng-if="!unableToGetAllSavedStacks"><b>Your questions have been loaded.</b></h3>
+	<div class="row" style="margin-top: 20px;">
+		<h3 ng-if="!unableToGetAllSavedStacks"><b>Your questions <span ng-if="progressValue===100">have been loaded</span><span ng-if="progressValue!=100">are loading</span>.</b></h3>
 	</div>
 	<div class="container-fluid">
 		<div class="row">
-			<div class="progress">
-			  <div class="progress-bar" role="progressbar" aria-valuenow="{{progressValue}}"
+			<div class="progress" style="height: 50px;">
+			  <div class="progress-bar" role="progressbar" aria-valuenow="{{progressValue}}" id="questionsProgressBar"
 			  aria-valuemin="0" aria-valuemax="100" style="width:{{progressValue}}%">
 			    <span class="sr-only">{{progressValue}} Complete</span>
 			  </div>
@@ -17,7 +42,12 @@
 		</div>
 	</div>
 	<div class="row">
-		<button class="btn btn-large btn-primary pointer" ng-click="startTest()" ng-if="!unableToGetAllSavedStacks && progressValue===100">Click to start the test</button>
+		<div class="col-lg-4 col-md-4 col-sm-4"></div>
+		<div class="col-lg-4 col-md-4 col-sm-4">
+			<button class="btn btn-lg btn-primary pointer left" ng-click="startTest()" ng-if="!unableToGetAllSavedStacks && progressValue===100">Click to start the test</button>
+			<button class="btn btn-danger btn-lg right" ng-click="closeTestWindow()">EXIT</button>
+		</div>
+		<div class="col-lg-4 col-md-4 col-sm-4"></div>
 		<h3 ng-if="unableToGetAllSavedStacks">Unable to load questions</h3>
 	</div>
 </div>
