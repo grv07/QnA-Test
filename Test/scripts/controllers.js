@@ -6,7 +6,7 @@ appmodule
     .controller('UserDataController',['$scope','$state', '$http', '$cookies', '$window', '$stateParams', 'TestUserDataFactory', function($scope, $state, $http, $cookies, $window, $stateParams, TestUserDataFactory) {
             TestUserDataFactory.getQuizAccordingToKey($stateParams.quizKey).get().$promise.then(
                 function(response){
-                        $scope.userData = { username:'', email:'', quiz_id: response.id, quiz_name: response.title, total_questions: response.total_questions, test_key: response.quiz_key, 'quizStacks': undefined, 'testToken': undefined };
+                    $scope.userData = { username:'', email:'', quiz_id: response.id, quiz_name: response.title, total_questions: response.total_questions, test_key: response.quiz_key, 'quizStacks': undefined, 'testToken': undefined };
                     },
                 function(response){
                         alert("Error in retrieving quiz details!");                     
