@@ -18,6 +18,7 @@ appmodule
                     $scope.isFormInvalid = false;
                     $cookies.put('testToken', response.token);
                     $scope.userData['testToken'] = response.token;
+                    $scope.userData['testUser'] = response.testUser;
                     TestUserDataFactory.getQuizStack($scope.userData.quiz_id, 'all').query(
                         function(response) {
                             $scope.userData['quizStacks'] = response;
@@ -26,7 +27,7 @@ appmodule
                             $scope.unableToGetAllSavedStacks = true;
                     });
                     $window.data = $scope.userData;
-                    $window.open($state.href('app.load-questions', {parameter: "parameter"}), "Test Window", "width=1280,height=890,resizable=0");
+                    $window.open($state.href('app.load-questions', {quizKey: $stateParams.quizKey}), "Test Window", "width=1280,height=890,resizable=0");
                 },
                 function(response) {
                     $scope.isFormInvalid = true;
@@ -42,7 +43,7 @@ appmodule
         $scope.total_questions = $window.opener.data.total_questions;
         $scope.sectionsDetails = {};
         $cookies.put('testToken', $window.opener.data.testToken);
-        var data = { test_key: $window.opener.data.test_key, 'quiz': $window.opener.data.quiz_id , 'quizName': $window.opener.data.quiz_name, 'quizStacks' : $window.opener.data.quizStacks, 'testToken': $window.opener.data.testToken , 'details' : {} };
+        var data = { test_key: $window.opener.data.test_key, test_user: $window.opener.data.testUser, 'quiz': $window.opener.data.quiz_id , 'quizName': $window.opener.data.quiz_name, 'quizStacks' : $window.opener.data.quizStacks, 'testToken': $window.opener.data.testToken , 'details' : {} };
         $scope.closeTestWindow = function(){
             $window.close();
         }
@@ -247,7 +248,8 @@ appmodule
         }
 
         $scope.submitTestDetails = function(isSaveToDB, currentSection){
-            var data = { 'answer' : {}, 'is_save_to_db': isSaveToDB  ,'test_key': $stateParams.obj.test_key, 'quiz_id': $stateParams.obj.quiz, 'section_name': currentSection };
+            var data = { 'answer' : {}, 'is_save_to_db': isSaveToDB , 'test_user': $stateParams.obj.test_user, 'test_key': $stateParams.obj.test_key, 'quiz_id': $stateParams.obj.quiz, 'section_name': currentSection };
+            console.log(data);
             data['answer'][$scope.currentQuestion.id] = {
                         value: TestPageFactory.getAnswerForQuestion(currentSection, $scope.currentQuestion.id).value, 
                         status: TestPageFactory.getAnswerProgressValue(currentSection, $scope.currentQuestion.id).status 
