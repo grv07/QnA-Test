@@ -4,8 +4,11 @@ appmodule
 
     }])
     .controller('UserDataController',['$scope','$state', '$http', '$cookies', '$window', '$stateParams', 'TestUserDataFactory', function($scope, $state, $http, $cookies, $window, $stateParams, TestUserDataFactory) {
+            // console.log($stateParams.quizKey);
             TestUserDataFactory.getQuizAccordingToKey($stateParams.quizKey).get().$promise.then(
                 function(response){
+                    console.log(response.quiz_key);
+                    $scope.quiz_key = response.quiz_key;
                     $scope.userData = { username:'', email:'', quiz_id: response.id, quiz_name: response.title, total_questions: response.total_questions, test_key: response.quiz_key, 'quizStacks': undefined, 'testToken': undefined };
                     },
                 function(response){
@@ -13,7 +16,8 @@ appmodule
                 });
             // Below object is required from source.
             $scope.postUserDetails = function(){
-                TestUserDataFactory.saveTestUser($cookies.get('KEY')).save($scope.userData).$promise.then(
+                console.log($stateParams.quizKey);
+                TestUserDataFactory.saveTestUser($scope.quiz_key).save($scope.userData).$promise.then(
                 function(response){
                     $scope.isFormInvalid = false;
                     $cookies.put('testToken', response.token);

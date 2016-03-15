@@ -13,7 +13,7 @@ appmodule.config(function($stateProvider, $urlRouterProvider, $httpProvider) {
                         controller : 'UserDataController',
                         templateUrl : 'index.html'
                     },
-                    'footer': {
+                    'footer': { 
                         templateUrl : 'views/footer.html'
                     }
                 },
