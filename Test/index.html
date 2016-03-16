@@ -21,9 +21,24 @@
 </header>
 <main>
   <div ui-view="content">
-    <div class="row">
-      <h1 class="text-center hidden-xs">Please fill up the following details.</h1>
-      <h3 class="text-center visible-xs">Please fill up the following details.</h3> 
+    <div class="col-md-12">
+        <div class="col-md-8 ">
+            <h1 class="hidden-xs text-center">Please fill up the following details.</h1>
+            <h3 class="visible-xs text-center jumbotron">Please fill up details.</h3>
+            <div class="col-md-4">
+            </div>
+            <div class="col-md-4 col-xs-12">
+            <p style="color: red;">Note: When test is on progress.</p>
+            <ul style="color: red;">
+                <li>Please Do not close window.</li>
+                <li>Please test your internet connection before procced to test.</li>
+            </ul>
+            </div>
+        </div>
+      <div class="col-md-2"></div>      
+    </div>
+    <div>
+
     </div>
     <div class="row">
       <br><br><br><br><br>      
@@ -32,9 +47,9 @@
         <div class="col-lg-2 col-md-2 col-sm-2"></div>
         <div class="col-lg-8 col-md-8 col-sm-8">
             <div ng-include src="'views/alert_msg.html'"></div>
-            <div class="jumbotron">
-                <div class="row text-center">
-                    <h4>To start the test for quiz <b>{{userData.quiz_name|capitalize}}</b>.<br>Please provide some details.</h4>
+            <div class="jumbotron panel panel-default container">
+                <div class="text-center panel-heading">
+                    <h4>Please provide some details.</h4>
                 </div>
                 <div class="row">
                     <form class="col-md-12" ng-submit="postUserDetails()" name="loginForm" novalidate>
