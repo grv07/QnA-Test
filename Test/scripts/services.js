@@ -21,8 +21,8 @@ appmodule
           );
       };
     // function to fetch either all quiz stacks or with a specifid id.
-    this.getQuizStack = function(quizid, quizstackid){
-      return $resource(serverURL+"stack/get/"+quizid+"/"+quizstackid+"/", null,
+    this.getQuizStack = function(quizId, quizStackId){
+      return $resource(serverURL+"stack/get/"+quizId+"/"+quizStackId+"/", null,
       {
           query: {
           // headers: {'Authorization': 'JWT ' + token},
@@ -32,7 +32,19 @@ appmodule
       },
       { stripTrailingSlashes: false }
       );
-    };    
+    };
+    this.getQuizStackForUncompleteTest = function(quizId, sectionNoWhereLeft){
+      return $resource(serverURL+"stack/get/uncompletetest/"+quizId+"/", { sectionNoWhereLeft: sectionNoWhereLeft },
+      {
+          query: {
+          // headers: {'Authorization': 'JWT ' + token},
+          method : 'GET',
+          isArray : true,
+          }
+      },
+      { stripTrailingSlashes: false }
+      );
+    }    
   }])
   .service('LoadQuestionsFactory', ['$resource', function($resource) {
     this.loadAllQuestions = function(quizid, sectionName){
@@ -56,6 +68,9 @@ appmodule
         this.addQuestionsForSection = function(sectionName, data){
             allQuestions[sectionName] = data;
             return data;
+        }
+        this.getAllQuestionsForAllSections = function(){
+          return allQuestions;
         }
         this.getAnswersForSection = function(sectionName){
             return data[sectionName];
