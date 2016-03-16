@@ -258,8 +258,8 @@ appmodule
             sliceOutQuestions();
         }
 
-        function submitEachQuestion(){
-            
+        function showFinishPage(){
+            $state.go('app.finish-test', { obj: {"quizName": $stateParams.obj.quizName}});
         }
 
         $scope.submitTestDetails = function(isSaveToDB, currentSection){
@@ -268,7 +268,7 @@ appmodule
                         value: TestPageFactory.getAnswerForQuestion(currentSection, $scope.currentQuestion.id).value, 
                         status: TestPageFactory.getAnswerProgressValue(currentSection, $scope.currentQuestion.id).status 
                         };
-            data['duration'] = $scope.totalDuration;
+            data['remaining_duration'] = $scope.totalDuration;
             // if(isSaveToDB){
             //     data['sections'] = Object.keys($window.opener.data['details']).sort();
             // }
@@ -281,7 +281,20 @@ appmodule
             //     });
             if(isSaveToDB){
                 var testCompleted = false;
-                data['progressValues'] = TestPageFactory.getProgressValues();
+                var progressData= {};
+                var progressValues = TestPageFactory.getProgressValues();
+                for(var sectionName in progressValues){
+                    progressData[sectionName] = { NV: [], NA: [] };
+                    for(var questionId in progressValues[sectionName]){
+                        var status = progressValues[sectionName][questionId].status;
+                        if(status === 'NA'){
+                            progressData[sectionName]['NA'].push(questionId);
+                        }else if(status === 'NV'){
+                            progressData[sectionName]['NV'].push(questionId);
+                        }
+                    }
+                }
+                data['progressValues'] = progressData;
                 TestPageFactory.saveResultToDB().save(data).$promise.then(
                     function(response){
                         testCompleted = true;
@@ -290,6 +303,7 @@ appmodule
                         testCompleted = false;
                     }
                 );
+                // showFinishPage();
                 // if(testCompleted){
                 // console.log('lll');
                 // }else{
