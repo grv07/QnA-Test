@@ -19,7 +19,7 @@ appmodule.config(function($stateProvider, $urlRouterProvider, $httpProvider) {
                 },
             })
             .state('app.load-questions', {
-                url:'start/',
+                url:'/start',
                 views :{
                     'content@': {
                         controller  : 'LoadQuestionsController',
@@ -29,7 +29,7 @@ appmodule.config(function($stateProvider, $urlRouterProvider, $httpProvider) {
                 params: {obj: null},
             })
             .state('app.start-test', {
-                url:'load/',
+                url:'/load',
                 views :{
                     'header@': {
                         controller  : 'TestPageHeaderController',
@@ -42,6 +42,19 @@ appmodule.config(function($stateProvider, $urlRouterProvider, $httpProvider) {
                 },
                 params: {obj: null},
             })
+            .state('app.finish-test', {
+                url:'/finish',
+                views :{
+                    'header@': {
+                        templateUrl : 'views/header.html'
+                    },
+                    'content@': {
+                        controller  : 'TestFinishController',
+                        templateUrl : 'views/test_finish.html'
+                    }
+                },
+                params: {obj: null},
+            });
 
 
 		// $locationProvider.html5Mode(true);

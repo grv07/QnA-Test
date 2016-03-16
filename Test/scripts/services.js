@@ -12,7 +12,7 @@ appmodule
         { stripTrailingSlashes: false }
         );
     }
-    this.saveTestUser = function(key){
+    this.saveTestUser = function(){
       return $resource(serverURL+"user/data/", null,
           {'save':  
             { method:'POST',} 
@@ -118,12 +118,23 @@ appmodule
         //         );
         // };
 
-        this.longPoll = function(data){
+        this.saveResultToCache = function(data){
             var deferred = $q.defer();
-            $http.post(serverURL+"save/test/", data).then(function (response) {
+            $http.post(serverURL+"save/test/cache/", data).then(function (response) {
               deferred.resolve(response.data);
             });
             return deferred.promise;
+        }
+
+        this.saveResultToDB = function(quizKey){
+          return $resource(serverURL+"save/test/db/", null,
+            {
+              save: {
+              method : 'POST',
+              }
+            },
+            { stripTrailingSlashes: false }
+            );
         }
 
   }]);
