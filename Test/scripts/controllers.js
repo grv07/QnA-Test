@@ -26,8 +26,8 @@ appmodule
                         var result = confirm('You have a uncompleted test! Click to give it.');
                         if(result){
                             $scope.userData['existingAnswers'] = response.existingAnswers;
-                            $scope.userData['sectionWhereLeft'] = response.sectionWhereLeft;
-                            TestUserDataFactory.getQuizStackForUncompleteTest($scope.userData.quiz_id, response.sectionWhereLeft.split('|')[2]).query(
+                            $scope.userData['sectionNoWhereLeft'] = response.sectionNoWhereLeft;
+                            TestUserDataFactory.getQuizStackForUncompleteTest($scope.userData.quiz_id, response.sectionNoWhereLeft).query(
                                 function(response) {
                                     $scope.userData['quizStacks'] = response;
                                 },
@@ -68,8 +68,11 @@ appmodule
         $cookies.put('testToken', $window.opener.data.testToken);
         var data = { test_key: $window.opener.data.test_key, test_user: $window.opener.data.testUser, 'quiz': $window.opener.data.quiz_id , 'quizName': $window.opener.data.quiz_name, 'quizStacks' : $window.opener.data.quizStacks, 'testToken': $window.opener.data.testToken , 'details' : {} };
         data['isTestNotCompleted'] = $window.opener.data.isTestNotCompleted;
-        data['existingAnswers'] = $window.opener.data.existingAnswers;
-        data['sectionWhereLeft'] = "Section#"+$window.opener.data.sectionWhereLeft.split('|')[2];
+        if(data['isTestNotCompleted']){
+            data['existingAnswers'] = $window.opener.data.existingAnswers;
+            data['sectionNameWhereLeft'] = "Section#"+$window.opener.data.sectionNoWhereLeft;
+            ;
+        }
         $scope.closeTestWindow = function(){
             $window.close();
         }
@@ -134,14 +137,13 @@ appmodule
                 $scope.progressValuesModel = {};
                 var existingAnswersKeys = null;
                 var existingAnswers = null;
-                if((sectionName===$stateParams.obj.sectionWhereLeft) && $stateParams.obj.isTestNotCompleted){
+                if((sectionName===$stateParams.obj.sectionNameWhereLeft) && $stateParams.obj.isTestNotCompleted){
                     existingAnswers = $stateParams.obj.existingAnswers['answers'][sectionName];
                     existingAnswersKeys = Object.keys(existingAnswers);
                 }
-
                 for(var i=0;i<$scope.total_questions.length;i++){
                     var qKey = $scope.total_questions[i][i+1].id;
-                    if((sectionName===$stateParams.obj.sectionWhereLeft) && existingAnswersKeys.indexOf(qKey.toString())!=-1){
+                    if((sectionName===$stateParams.obj.sectionNameWhereLeft) && existingAnswersKeys.indexOf(qKey.toString())!=-1){
                         $scope.answersModel[qKey] = { value: existingAnswers[qKey].value  };
                         $scope.progressValuesModel[qKey] = { status: existingAnswers[qKey].status };
                     }else{
@@ -152,7 +154,7 @@ appmodule
                 }
                 TestPageFactory.saveSectionQuestion(sectionName, $scope.answersModel);
                 TestPageFactory.saveProgressValues(sectionName, $scope.progressValuesModel);
-                if((sectionName===$stateParams.obj.sectionWhereLeft) && $stateParams.obj.isTestNotCompleted){
+                if((sectionName===$stateParams.obj.sectionNameWhereLeft) && $stateParams.obj.isTestNotCompleted){
                     $scope.progressValues = changeProgressValues($scope.progressValuesModel);
                 }
                 $scope.changeQuestion(1);
@@ -214,7 +216,6 @@ appmodule
                 // var question = TestPageFactory.getAQuestion($scope.selectedSection, count);
                 $scope.currentCount = count;
                 $scope.currentQuestion = TestPageFactory.getQuestion($scope.selectedSection, count);
-                console.log($scope.currentQuestion);
                 if(isMCQ($scope.currentQuestion.que_type)){
                     $scope.currentOptions = $scope.currentQuestion.options;
                 }else{
