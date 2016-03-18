@@ -68,6 +68,7 @@ appmodule
         $scope.total_questions = 0;
         $scope.sectionsDetails = {};
         $cookies.put('testToken', $window.opener.data.testToken);
+
         var data = { test_key: $window.opener.data.test_key, test_user: $window.opener.data.testUser, 'quiz': $window.opener.data.quiz_id , 'quizName': $window.opener.data.quiz_name, 'quizStacks' : $window.opener.data.quizStacks, 'testToken': $window.opener.data.testToken , 'details' : {} };
         data['isTestNotCompleted'] = $window.opener.data.isTestNotCompleted;
         
@@ -141,6 +142,7 @@ appmodule
         $scope.testSubmitted = false;
         var allQuestionsIds = [];
         var total_time = 0;
+        var data = { 'test_user': $stateParams.obj.test_user, 'test_key': $stateParams.obj.test_key };
         if($stateParams.obj.isTestNotCompleted && $stateParams.obj.timeRemaining){
             total_time = parseInt($stateParams.obj.timeRemaining);
         }else{
@@ -326,7 +328,6 @@ appmodule
         }
 
         $scope.submitTestDetails = function(isSaveToDB, currentSection){
-            var data = { 'test_user': $stateParams.obj.test_user, 'test_key': $stateParams.obj.test_key };
             if(isSaveToDB){
                 var testCompleted = false;
                 data['time_spent'] = total_time - $scope.totalDuration;
@@ -371,7 +372,6 @@ appmodule
                 TestPageFactory.saveResultToCache(data).then(function(data){
                     console.log('success');
                     allQuestionsIds = [];
-                    console.log(data);
                 });
             }
         }
