@@ -61,16 +61,23 @@ appmodule
     }
   }])
   .service('TestPageFactory', ['$resource', '$http', '$q', function($resource, $http, $q) {
-        var allQuestions = {}
-        var progressData = {}
+        var allQuestions = {};
+        var progressData = {};
         var data = {};
+        var allQuestionsIds = [];
 
         this.addQuestionsForSection = function(sectionName, data){
             allQuestions[sectionName] = data;
             return data;
         }
-        this.getAllQuestionsForAllSections = function(){
-          return allQuestions;
+        this.getAllQuestionsForAllSection = function(sectionName){
+            return allQuestions;
+        }
+        this.saveQuestionIdsList = function(allQuestionsIdsList){
+          allQuestionsIds = allQuestionsIds;
+        }
+        this.getQuestionIdsList = function(){
+          return allQuestionsIds;
         }
         this.getAnswersForSection = function(sectionName){
             return data[sectionName];
