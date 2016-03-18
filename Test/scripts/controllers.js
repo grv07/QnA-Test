@@ -103,7 +103,7 @@ appmodule
                     if(!data['isTestNotCompleted']){
                         for(var i=1;i<=response.added_questions.length;i++){
                             $scope.progressValue +=  (i/$scope.total_questions)*100;
-                            data['allQuestionsIds'].push(response.added_questions[i]);
+                            data['allQuestionsIds'].push(response.added_questions[i-1]);
                         }    
                     }else{
                        for(var i=1;i<=response.added_questions.length;i++){
@@ -141,15 +141,14 @@ appmodule
         var firstItemVisited = false;
         $scope.testSubmitted = false;
         var allQuestionsIds = [];
-        var total_time = 0;
-        var data = { 'test_user': $stateParams.obj.test_user, 'test_key': $stateParams.obj.test_key };
+        var totalTime = 0;
+        var timeCounter = 0;
         if($stateParams.obj.isTestNotCompleted && $stateParams.obj.timeRemaining){
-            total_time = parseInt($stateParams.obj.timeRemaining);
+            totalTime = parseInt($stateParams.obj.timeRemaining);
         }else{
-            total_time = findTotalDuration($stateParams.obj.quizStacks);
+            totalTime = findTotalDuration($stateParams.obj.quizStacks);
             allQuestionsIds = $stateParams.obj.allQuestionsIds;
         }
-        console.log(total_time, allQuestionsIds);
         $scope.serverURL = 'http://localhost:8000';
         TestPageFactory.saveQuestionIdsList(allQuestionsIds);
         function getQuestionsBasedOnSection(sectionName){
@@ -328,9 +327,10 @@ appmodule
         }
 
         $scope.submitTestDetails = function(isSaveToDB, currentSection){
+            var data = { 'test_user': $stateParams.obj.test_user, 'test_key': $stateParams.obj.test_key };
             if(isSaveToDB){
                 var testCompleted = false;
-                data['time_spent'] = total_time - $scope.totalDuration;
+                data['time_spent'] = $scope.totalDuration;
                 // var progressData= {};
                 // var progressValues = TestPageFactory.getProgressValues();
                 // for(var sectionName in progressValues){
@@ -367,14 +367,22 @@ appmodule
                     }; 
                 data['quiz_id'] = $stateParams.obj.quiz;
                 data['section_name'] = currentSection;
-                data['remaining_duration'] = $scope.totalDuration;
                 data['questions_list'] = allQuestionsIds;
-                TestPageFactory.saveResultToCache(data).then(function(data){
+                TestPageFactory.saveResultToCache(data).then(function(response){
                     console.log('success');
                     allQuestionsIds = [];
                 });
             }
         }
+
+        function updateTimeRemaining(timeData){
+            TestPageFactory.saveTimeRemainingToCache(timeData).then(
+                function(response){
+                    console.log('time updated');
+                }
+            );
+        }
+
         try{
             if(isNotEmpty($stateParams.obj)){
                 $scope.quiz = $stateParams.obj.quiz;
@@ -389,13 +397,17 @@ appmodule
                 // for(var i=0;i<sectionNames.length;i++){
                 //     angular.element(document.querySelector('#sectionnames')).append('<option value='+sectionNames[i]+'>'+sectionNames[i]+'</option>');
                 // }
-                $scope.totalDuration = total_time;
+                $scope.totalDuration = totalTime;
                 $interval(function(){
                     $scope.totalDuration -= 1;
+                    timeCounter += 1;
+                    if(timeCounter % 5 === 0){
+                        updateTimeRemaining({'test_user': $stateParams.obj.test_user, 'test_key': $stateParams.obj.test_key, 'remaining_duration': $scope.totalDuration, 'section_name': $scope.selectedSection });
+                    }
                     if($scope.totalDuration===0){
                         alert('Time Over');
                     }
-                },1000, $scope.totalDuration);
+                },1000, totalTime);
                 $scope.dataPresent = true;
             }else{
                 $scope.dataPresent = false;

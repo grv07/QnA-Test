@@ -159,4 +159,12 @@ appmodule
             );
         }
 
+        this.saveTimeRemainingToCache = function(data){
+          var deferred = $q.defer();
+          $http.put(serverURL+"save/time/remaining/", data).then(function (response) {
+            deferred.resolve(response.data);
+          });
+          return deferred.promise;
+        }
+
   }]);
