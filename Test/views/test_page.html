@@ -67,7 +67,7 @@
 				   <li ng-if="sliceFactor+1<=slicingLimit"><a href="javascript:void(0)" ng-click="increaseSlicing()">&raquo;</a></li>
 				</ul>
 			</div>
-			</div>
+		</div>
 		</div>
 		<div class="row" style="height: 300px">
 			<div class="row left">
@@ -96,7 +96,7 @@
 				    </div>
 				</div>
 			</div>
-		</div>
+		</div><br><br>
 		<div class="row">
 			<button ng-if="currentCount>0 && currentCount<total_questions.length" class="btn btn-info btn-md right" ng-click="changeQuestion(currentCount+1)">Next Question</button>
 			<button ng-if="currentCount>1" class="btn btn-info btn-md left" ng-click="changeQuestion(currentCount-1)">Previous Question</button>

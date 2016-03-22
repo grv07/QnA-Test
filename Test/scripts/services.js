@@ -21,8 +21,8 @@ appmodule
           );
       };
     // function to fetch either all quiz stacks or with a specifid id.
-    this.getQuizStack = function(quizid, quizstackid){
-      return $resource(serverURL+"stack/get/"+quizid+"/"+quizstackid+"/", null,
+    this.getQuizStack = function(quizId, quizStackId){
+      return $resource(serverURL+"stack/get/"+quizId+"/"+quizStackId+"/", null,
       {
           query: {
           // headers: {'Authorization': 'JWT ' + token},
@@ -32,7 +32,19 @@ appmodule
       },
       { stripTrailingSlashes: false }
       );
-    };    
+    };
+    this.getQuizStackForUncompleteTest = function(quizId, sectionNoWhereLeft){
+      return $resource(serverURL+"stack/get/uncompletetest/"+quizId+"/", { sectionNoWhereLeft: sectionNoWhereLeft },
+      {
+          query: {
+          // headers: {'Authorization': 'JWT ' + token},
+          method : 'GET',
+          isArray : true,
+          }
+      },
+      { stripTrailingSlashes: false }
+      );
+    }    
   }])
   .service('LoadQuestionsFactory', ['$resource', function($resource) {
     this.loadAllQuestions = function(quizid, sectionName){
@@ -49,13 +61,23 @@ appmodule
     }
   }])
   .service('TestPageFactory', ['$resource', '$http', '$q', function($resource, $http, $q) {
-        var allQuestions = {}
-        var progressData = {}
+        var allQuestions = {};
+        var progressData = {};
         var data = {};
+        var allQuestionsIds = [];
 
         this.addQuestionsForSection = function(sectionName, data){
             allQuestions[sectionName] = data;
             return data;
+        }
+        this.getAllQuestionsForAllSection = function(sectionName){
+            return allQuestions;
+        }
+        this.saveQuestionIdsList = function(allQuestionsIdsList){
+          allQuestionsIds = allQuestionsIds;
+        }
+        this.getQuestionIdsList = function(){
+          return allQuestionsIds;
         }
         this.getAnswersForSection = function(sectionName){
             return data[sectionName];
@@ -135,6 +157,14 @@ appmodule
             },
             { stripTrailingSlashes: false }
             );
+        }
+
+        this.saveTimeRemainingToCache = function(data){
+          var deferred = $q.defer();
+          $http.put(serverURL+"save/time/remaining/", data).then(function (response) {
+            deferred.resolve(response.data);
+          });
+          return deferred.promise;
         }
 
   }]);

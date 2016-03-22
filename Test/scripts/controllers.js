@@ -19,26 +19,46 @@ appmodule
                     $scope.isFormInvalid = false;
                     $cookies.put('testToken', response.token);
                     $scope.userData['testToken'] = response.token;
+                    $scope.userData['isTestNotCompleted'] = response.isTestNotCompleted;
                     $scope.userData['testUser'] = response.testUser;
-                    TestUserDataFactory.getQuizStack($scope.userData.quiz_id, 'all').query(
-                        function(response) {
-                            $scope.userData['quizStacks'] = response;
-                        },
-                        function(response) {
-                            $scope.unableToGetAllSavedStacks = true;
-                    });
+
+                    if(response.isTestNotCompleted){
+                        var result = confirm('You have a uncompleted test! Click to give it.');
+                        if(result){
+                            $scope.userData['existingAnswers'] = response.existingAnswers;
+                            $scope.userData['sectionNoWhereLeft'] = response.sectionNoWhereLeft;
+                            $scope.userData['timeRemaining'] = response.timeRemaining;
+                            TestUserDataFactory.getQuizStackForUncompleteTest($scope.userData.quiz_id, response.sectionNoWhereLeft).query(
+                                function(response) {
+                                    $scope.userData['quizStacks'] = response;
+                                },
+                                function(response) {
+                                    $scope.unableToGetAllSavedStacks = true;
+                                    return false;
+                            });
+                        }else{
+                            console.log('Re-attempt test cancelled.');
+                            return false;
+                        }
+                    }else{
+                        TestUserDataFactory.getQuizStack($scope.userData.quiz_id, 'all').query(
+                            function(response) {
+                                $scope.userData['quizStacks'] = response;
+
+                            },
+                            function(response) {
+                                $scope.unableToGetAllSavedStacks = true;
+                        });
+                    }
                     $window.data = $scope.userData;
                     $window.open($state.href('app.load-questions', {quizKey: $stateParams.quizKey}), "Test Window", "width=1280,height=890,resizable=0");
                 },
                 function(response) {
                     $scope.isFormInvalid = true;
                     $scope.alertType = "danger";
-                    if(response.data.attempt_over){
-                        $scope.alertMsg = response.data.attempt_over;
-                    }
-                    else{
-                        $scope.alertMsg = "Unable to find the user - please try again.";
-                    }
+                    $scope.alertMsg = response.data.errors;
+                    console.log(response.data.errors)
+                    // setTimeout(closeAlert, 5000);
                 });
             }
     }])
@@ -49,7 +69,17 @@ appmodule
         $scope.total_questions = 0;
         $scope.sectionsDetails = {};
         $cookies.put('testToken', $window.opener.data.testToken);
+
         var data = { test_key: $window.opener.data.test_key, test_user: $window.opener.data.testUser, 'quiz': $window.opener.data.quiz_id , 'quizName': $window.opener.data.quiz_name, 'quizStacks' : $window.opener.data.quizStacks, 'testToken': $window.opener.data.testToken , 'details' : {} };
+        data['isTestNotCompleted'] = $window.opener.data.isTestNotCompleted;
+        
+        if(data['isTestNotCompleted']){
+            data['existingAnswers'] = $window.opener.data.existingAnswers;
+            data['sectionNameWhereLeft'] = "Section#"+$window.opener.data.sectionNoWhereLeft;
+            data['timeRemaining'] = $window.opener.data.timeRemaining;
+        }else{
+            data['allQuestionsIds'] = [];
+        }
         $scope.closeTestWindow = function(){
             $window.close();
         }
@@ -71,11 +101,17 @@ appmodule
             LoadQuestionsFactory.loadAllQuestions($window.opener.data.quiz_id, sectionName).query(
                 function(response){
                     TestPageFactory.addQuestionsForSection(sectionName, response.questions);
-                    $scope.progressValue +=  (response.questions.length/$scope.total_questions)*100;
-                    $scope.startTest = function(){
-                            $state.go('app.start-test', { obj: data});
-                        }
-                    if($scope.progressValue >= 100){
+                    if(!data['isTestNotCompleted']){
+                        for(var i=1;i<=response.added_questions.length;i++){
+                            $scope.progressValue +=  (i/$scope.total_questions)*100;
+                            data['allQuestionsIds'].push(response.added_questions[i-1]);
+                        }    
+                    }else{
+                       for(var i=1;i<=response.added_questions.length;i++){
+                            $scope.progressValue +=  (i/$scope.total_questions)*100;
+                        }  
+                    }
+                    if($scope.progressValue>=100){
                         $scope.progressValue = 100;
                         $scope.startTest = function(){
                             $state.go('app.start-test', { obj: data});
@@ -103,23 +139,54 @@ appmodule
         }])
     .controller('TestPageController', ['$scope', '$controller', '$window', '$interval', '$stateParams', '$state', 'TestPageFactory', function($scope, $controller, $window, $interval, $stateParams, $state, TestPageFactory) {
         $scope.allQuestions = {};
-        var firstItemVisited= false;
+        var firstItemVisited = false;
+        $scope.testSubmitted = false;
+        var allQuestionsIds = [];
+        var totalTime = 0;
+        var timeCounter = 0;
+        if($stateParams.obj.isTestNotCompleted && $stateParams.obj.timeRemaining){
+            totalTime = parseInt($stateParams.obj.timeRemaining);
+        }else{
+            totalTime = findTotalDuration($stateParams.obj.quizStacks);
+            allQuestionsIds = $stateParams.obj.allQuestionsIds;
+        }
         $scope.serverURL = 'http://localhost:8000';
+        TestPageFactory.saveQuestionIdsList(allQuestionsIds);
         function getQuestionsBasedOnSection(sectionName){
-            $scope.total_questions = TestPageFactory.getQuestionsForSection(sectionName);
-            $scope.sliced_questions = range(0, $scope.total_questions.slice(0,15).length);
-            $scope.sliceFactor = 0;
-            $scope.slicingLimit = Math.floor($scope.total_questions.length/15);
-            $scope.answersModel = {};
-            firstItemVisited = false;
-            $scope.progressValuesModel = {};
-            for(var i=0;i<$scope.total_questions.length;i++){
-                $scope.answersModel[$scope.total_questions[i][i+1].id] = { value:null };
-                $scope.progressValuesModel[$scope.total_questions[i][i+1].id] = { status:'NV' };
+            try{
+                $scope.total_questions = TestPageFactory.getQuestionsForSection(sectionName);
+                $scope.sliced_questions = range(0, $scope.total_questions.slice(0,15).length);
+                $scope.sliceFactor = 0;
+                $scope.slicingLimit = Math.floor($scope.total_questions.length/15);
+                $scope.answersModel = {};
+                firstItemVisited = false;
+                $scope.progressValuesModel = {};
+                var existingAnswersKeys = null;
+                var existingAnswers = null;
+                if((sectionName===$stateParams.obj.sectionNameWhereLeft) && $stateParams.obj.isTestNotCompleted){
+                    existingAnswers = $stateParams.obj.existingAnswers['answers'][sectionName];
+                    existingAnswersKeys = Object.keys(existingAnswers);
+                }
+                for(var i=0;i<$scope.total_questions.length;i++){
+                    var qKey = $scope.total_questions[i][i+1].id;
+                    if((sectionName===$stateParams.obj.sectionNameWhereLeft) && existingAnswersKeys.indexOf(qKey.toString())!=-1){
+                        $scope.answersModel[qKey] = { value: existingAnswers[qKey].value  };
+                        $scope.progressValuesModel[qKey] = { status: existingAnswers[qKey].status };
+                    }else{
+                        $scope.answersModel[qKey] = { value:null };
+                        $scope.progressValuesModel[qKey] = { status:'NV' };
+                    }
+                    
+                }
+                TestPageFactory.saveSectionQuestion(sectionName, $scope.answersModel);
+                TestPageFactory.saveProgressValues(sectionName, $scope.progressValuesModel);
+                if((sectionName===$stateParams.obj.sectionNameWhereLeft) && $stateParams.obj.isTestNotCompleted){
+                    $scope.progressValues = changeProgressValues($scope.progressValuesModel);
+                }
+                $scope.changeQuestion(1);
+            }catch(err){
+                console.log(err);
             }
-            TestPageFactory.saveSectionQuestion(sectionName, $scope.answersModel);
-            TestPageFactory.saveProgressValues(sectionName, $scope.progressValuesModel);
-            $scope.changeQuestion(1);
         }
         $scope.openWarningModal = function(action){
             $scope.action = action;
@@ -241,16 +308,6 @@ appmodule
             }
         }, true);
 
-
-        // Watch for test to complete
-        // $scope.$watch(function() {
-        //    return $scope.testCompleted;
-        //  },                       
-        //   function(newVal, oldVal) {
-        //     if(newVal!=oldVal){
-        //         $state.go('app.finish-test', { obj: {"quizName": $stateParams.obj.quizName}});
-        //     }
-        // }, true);
         function sliceOutQuestions(){
             if($scope.sliceFactor===$scope.slicingLimit){
                 $scope.sliced_questions = range($scope.sliceFactor*15, $scope.total_questions.length);
@@ -272,44 +329,30 @@ appmodule
         }
 
         $scope.submitTestDetails = function(isSaveToDB, currentSection){
-            var data = { 'answer' : {}, 'test_user': $stateParams.obj.test_user, 'test_key': $stateParams.obj.test_key, 'quiz_id': $stateParams.obj.quiz, 'section_name': currentSection };
-            data['answer'][$scope.currentQuestion.id] = {
-                        value: TestPageFactory.getAnswerForQuestion(currentSection, $scope.currentQuestion.id).value, 
-                        status: TestPageFactory.getAnswerProgressValue(currentSection, $scope.currentQuestion.id).status 
-                        };
-            data['remaining_duration'] = $scope.totalDuration;
-            // if(isSaveToDB){
-            //     data['sections'] = Object.keys($window.opener.data['details']).sort();
-            // }
-            // TestPageFactory.postTestDetails(isSaveToDB, $stateParams.obj.test_key, $scope.quiz, currentSection).save(data).$promise.then(
-            //     function(response){
-            //         console.log('success');                    
-            //     },
-            //     function(response) {
-            //         console.log('failed');
-            //     });
+            var data = { 'test_user': $stateParams.obj.test_user, 'test_key': $stateParams.obj.test_key };
             if(isSaveToDB){
                 var testCompleted = false;
-                var progressData= {};
-                var progressValues = TestPageFactory.getProgressValues();
-                for(var sectionName in progressValues){
-                    progressData[sectionName] = { NV: [], NA: [] };
-                    for(var questionId in progressValues[sectionName]){
-                        var status = progressValues[sectionName][questionId].status;
-                        if(status === 'NA'){
-                            progressData[sectionName]['NA'].push(questionId);
-                        }else if(status === 'NV'){
-                            progressData[sectionName]['NV'].push(questionId);
-                        }
-                    }
-                }
-                data['progressValues'] = progressData;
+                data['time_spent'] = $scope.totalDuration;
+                // var progressData= {};
+                // var progressValues = TestPageFactory.getProgressValues();
+                // for(var sectionName in progressValues){
+                //     progressData[sectionName] = { NV: [], NA: [] };
+                //     for(var questionId in progressValues[sectionName]){
+                //         var status = progressValues[sectionName][questionId].status;
+                //         if(status === 'NA'){
+                //             progressData[sectionName]['NA'].push(questionId);
+                //         }else if(status === 'NV'){
+                //             progressData[sectionName]['NV'].push(questionId);
+                //         }
+                //     }
+                // }
+                // data['progressValues'] = progressData;
                 TestPageFactory.saveResultToDB().save(data).$promise.then(
                     function(response){
-                        testCompleted = true;
+                        alert("You have completed your test successfully.");
                     },
                     function(response){
-                        testCompleted = false;
+                        // testCompleted = false;
                     }
                 );
                 // showFinishPage();
@@ -319,11 +362,29 @@ appmodule
                 //     $state.go('app.finish-test', { obj: {"quizName": $stateParams.obj.quizName}});
                 // }
             }else{
-                TestPageFactory.saveResultToCache(data).then(function(data){
+                data['answer'] = {};
+                data['answer'][$scope.currentQuestion.id] = {
+                    value: TestPageFactory.getAnswerForQuestion(currentSection, $scope.currentQuestion.id).value, 
+                    status: TestPageFactory.getAnswerProgressValue(currentSection, $scope.currentQuestion.id).status 
+                    }; 
+                data['quiz_id'] = $stateParams.obj.quiz;
+                data['section_name'] = currentSection;
+                data['questions_list'] = allQuestionsIds;
+                TestPageFactory.saveResultToCache(data).then(function(response){
                     console.log('success');
+                    allQuestionsIds = [];
                 });
             }
         }
+
+        function updateTimeRemaining(timeData){
+            TestPageFactory.saveTimeRemainingToCache(timeData).then(
+                function(response){
+                    console.log('time updated');
+                }
+            );
+        }
+
         try{
             if(isNotEmpty($stateParams.obj)){
                 $scope.quiz = $stateParams.obj.quiz;
@@ -338,13 +399,17 @@ appmodule
                 // for(var i=0;i<sectionNames.length;i++){
                 //     angular.element(document.querySelector('#sectionnames')).append('<option value='+sectionNames[i]+'>'+sectionNames[i]+'</option>');
                 // }
-                $scope.totalDuration = findTotalDuration($stateParams.obj.quizStacks);
+                $scope.totalDuration = totalTime;
                 $interval(function(){
                     $scope.totalDuration -= 1;
+                    timeCounter += 1;
+                    if(timeCounter % 5 === 0){
+                        updateTimeRemaining({'test_user': $stateParams.obj.test_user, 'test_key': $stateParams.obj.test_key, 'remaining_duration': $scope.totalDuration, 'section_name': $scope.selectedSection });
+                    }
                     if($scope.totalDuration===0){
                         alert('Time Over');
                     }
-                },1000, $scope.totalDuration);
+                },1000, totalTime);
                 $scope.dataPresent = true;
             }else{
                 $scope.dataPresent = false;
