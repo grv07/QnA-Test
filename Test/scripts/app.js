@@ -11,7 +11,6 @@ appmodule.config(function($stateProvider, $urlRouterProvider, $httpProvider) {
                     },
                     'content': {
                         controller : 'UserDataController',
-                        templateUrl : 'index.html'
                     },
                     'footer': { 
                         templateUrl : 'views/footer.html'
