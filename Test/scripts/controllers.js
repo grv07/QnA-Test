@@ -358,7 +358,8 @@ appmodule
                 // data['progressValues'] = progressData;
                 TestPageFactory.saveResultToDB().save(data).$promise.then(
                     function(response){
-                        alert("You have completed your test successfully.");
+                        $cookies.remove('testToken');
+                        alert("You have completed your test successfully. You can now close this window!");
                     },
                     function(response){
                         // testCompleted = false;
@@ -422,6 +423,7 @@ appmodule
                     }
                     if($scope.totalDuration===0){
                         alert('Time Over');
+                        submitTestDetails(true, $scope.currentSection);
                     }
                 },1000, totalTime);
                 $scope.dataPresent = true;
