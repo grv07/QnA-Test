@@ -28,7 +28,8 @@ appmodule
                             $scope.userData['existingAnswers'] = response.existingAnswers;
                             $scope.userData['sectionNoWhereLeft'] = response.sectionNoWhereLeft;
                             $scope.userData['timeRemaining'] = response.timeRemaining;
-                            TestUserDataFactory.getQuizStackForUncompleteTest($scope.userData.quiz_id, response.sectionNoWhereLeft).query(
+                            $scope.userData['sectionsRemaining'] = response.sectionsRemaining;
+                            TestUserDataFactory.getQuizStackForUncompleteTest().save($scope.userData).$promise.then(
                                 function(response) {
                                     $scope.userData['quizStacks'] = response;
                                 },
@@ -75,6 +76,7 @@ appmodule
         if(data['isTestNotCompleted']){
             data['existingAnswers'] = $window.opener.data.existingAnswers;
             data['sectionNameWhereLeft'] = "Section#"+$window.opener.data.sectionNoWhereLeft;
+            data['sectionsRemaining'] = $window.opener.data.sectionsRemaining;
             data['timeRemaining'] = $window.opener.data.timeRemaining;
         }else{
             data['allQuestionsIds'] = [];
@@ -170,7 +172,7 @@ appmodule
                     var qKey = $scope.total_questions[i][i+1].id;
                     if((sectionName===$stateParams.obj.sectionNameWhereLeft) && existingAnswersKeys.indexOf(qKey.toString())!=-1){
                         $scope.answersModel[qKey] = { value: existingAnswers[qKey].value  };
-                        $scope.progressValuesModel[qKey] = { status: existingAnswers[qKey].status };
+                        $scope.progressValuesModel[qKey] = { status: 'A' };
                     }else{
                         $scope.answersModel[qKey] = { value:null };
                         $scope.progressValuesModel[qKey] = { status:'NV' };
@@ -208,11 +210,18 @@ appmodule
         $scope.changeSection = function(currentSection){
             // $scope.submitTestDetails(true, currentSection);
             $scope.nextSection = $scope.selectedSection;
-            if($scope.sectionNames.indexOf($scope.selectedSection)<$scope.sectionNames.length){
+            if($scope.sectionNames.indexOf($scope.selectedSection)<$scope.sectionNames.length && $scope.sectionNames.length>1){
                 if($scope.currentSection === $scope.nextSection){
-                    $scope.selectedSection = $scope.sectionNames[$scope.sectionNames.indexOf($scope.selectedSection)+1];
+                    if($scope.sectionNames.indexOf($scope.selectedSection)===$scope.sectionNames.length - 1){
+                        $scope.selectedSection = $scope.sectionNames[0];
+
+                    }else{
+                        $scope.selectedSection = $scope.sectionNames[$scope.sectionNames.indexOf($scope.selectedSection)+1];
+                    }
+                    
                 }else{
                     $scope.selectedSection = $scope.sectionNames[$scope.sectionNames.indexOf($scope.nextSection)];
+                    console.log('ppp');
                 }
                 $scope.sectionNames.splice($scope.sectionNames.indexOf($scope.currentSection), 1);
                 $scope.addQuestions($scope.selectedSection);
@@ -283,6 +292,9 @@ appmodule
                     if($scope.currentQuestion.que_type === 'objective'){
                         if(!firstItemVisited){
                             firstItemVisited = true;
+                            if($stateParams.obj.isTestNotCompleted){
+                                $scope.progressValuesModel[$scope.currentQuestion.id].status = 'A';
+                            }
                         }else{
                             if($scope.progressValuesModel[$scope.currentQuestion.id].status === 'NA'){
                             $scope.progressValuesModel[$scope.currentQuestion.id].status = 'A';
@@ -388,10 +400,16 @@ appmodule
                 $scope.quiz = $stateParams.obj.quiz;
                 // TestPageFactory.addQuizData($scope.quiz);
                 $scope.sectionNames = Object.keys($stateParams.obj.details).sort();
+                console.log($scope.sectionNames);
                 if($scope.sectionNames.length<=1){
                     $scope.hideNextSectionButton = true;
                 }
-                $scope.selectedSection = $scope.sectionNames[0];
+                if($stateParams.obj.isTestNotCompleted && $stateParams.obj.timeRemaining){
+                    $scope.selectedSection = $stateParams.obj.sectionNameWhereLeft;
+                }
+                else{
+                    $scope.selectedSection = $scope.sectionNames[0];
+                }
                 $scope.currentSection = $scope.selectedSection;
                 $scope.addQuestions($scope.selectedSection);
                 // for(var i=0;i<sectionNames.length;i++){

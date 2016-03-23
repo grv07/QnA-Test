@@ -33,12 +33,14 @@ appmodule
       { stripTrailingSlashes: false }
       );
     };
-    this.getQuizStackForUncompleteTest = function(quizId, sectionNoWhereLeft){
-      return $resource(serverURL+"stack/get/uncompletetest/"+quizId+"/", { sectionNoWhereLeft: sectionNoWhereLeft },
+
+    // Actually a POST call
+    this.getQuizStackForUncompleteTest = function(){
+      return $resource(serverURL+"stack/get/uncompletetest/", null,
       {
-          query: {
+          save: {
           // headers: {'Authorization': 'JWT ' + token},
-          method : 'GET',
+          method : 'POST',
           isArray : true,
           }
       },
