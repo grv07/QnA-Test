@@ -3,8 +3,20 @@ appmodule
     .controller('CookiesController', ['$scope', '$rootScope', '$cookies', '$state', function($scope, $rootScope, $cookies, $state) {
 
     }])
-    .controller('UserDataController',['$scope','$state', '$http', '$cookies', '$window', '$stateParams', 'TestUserDataFactory', function($scope, $state, $http, $cookies, $window, $stateParams, TestUserDataFactory) {
+    .controller('UserDataController',['$scope', '$state', '$http', '$cookies', '$window', '$stateParams', 'TestUserDataFactory', function($scope, $state, $http, $cookies, $window, $stateParams, TestUserDataFactory) {
             // console.log($stateParams.quizKey);
+            $scope.message = '';
+            $scope.$on('from-iframe', function(e, message) {
+                if(message==='TestLoading')
+                    $scope.message = 'Your questions are loading right now.';
+                else if(message==='TestLoaded')
+                    $scope.message = 'Your questions have been loaded.';
+                else if(message==='TestStarted')
+                    $scope.message = 'Your test has started.';
+                $('#stateModalBody').html($scope.message);
+                angular.element(document.querySelector('#stateModal')).modal('show');
+            });
+
             TestUserDataFactory.getQuizAccordingToKey($stateParams.quizKey).get().$promise.then(
                 function(response){
                     $scope.userData = { username:'', email:'', quiz_id: response.id, quiz_name: response.title, test_key: response.quiz_key, 'quizStacks': undefined, 'testToken': undefined };
@@ -12,6 +24,11 @@ appmodule
                 function(response){
                         alert("Error in retrieving quiz details!");                     
                 });
+
+            $scope.redirectToResultPage = function(resultPageURL){
+                $window.location = resultPageURL;
+            }
+
             // Below object is required from source.
             $scope.postUserDetails = function(){
                 TestUserDataFactory.saveTestUser().save($scope.userData).$promise.then(
@@ -52,6 +69,7 @@ appmodule
                         });
                     }
                     $window.data = $scope.userData;
+                    $window.$windowScope = $scope;
                     $window.open($state.href('app.load-questions', {quizKey: $stateParams.quizKey}), "Test Window", "width=1280,height=890,resizable=0");
                 },
                 function(response) {
@@ -62,9 +80,14 @@ appmodule
                 });
             }
     }])
-    .controller('LoadQuestionsController', ['$scope', '$window', '$state', '$cookies', 'LoadQuestionsFactory', 'TestPageFactory', function($scope, $window, $state, $cookies, LoadQuestionsFactory, TestPageFactory) {
+    .controller('LoadQuestionsController', ['$scope', '$rootScope', '$window', '$state', '$cookies', 'LoadQuestionsFactory', 'TestPageFactory', function($scope, $rootScope, $window, $state, $cookies, LoadQuestionsFactory, TestPageFactory) {
         var allSections = [];
         var allQuestions = {}; 
+        var parentScope = $window.opener.$windowScope;
+        parentScope.$emit('from-iframe','TestLoading');
+        parentScope.$apply();
+        parentScope.$digest();
+
         $scope.progressValue = 0.00;
         $scope.total_questions = 0;
         $scope.sectionsDetails = {};
@@ -113,8 +136,13 @@ appmodule
                         }  
                     }
                     if($scope.progressValue>=100){
+                        parentScope.$emit('from-iframe','TestLoaded');
                         $scope.progressValue = 100;
                         $scope.startTest = function(){
+                            $rootScope.parentScope = parentScope;
+                            parentScope.$emit('from-iframe','TestStarted');
+                            parentScope.$apply();
+                            parentScope.$digest();
                             $state.go('app.start-test', { obj: data});
                         }
                     }
@@ -138,7 +166,7 @@ appmodule
                 $scope.dataPresent = false;
             }   
         }])
-    .controller('TestPageController', ['$scope', '$controller', '$window', '$interval', '$stateParams', '$state', 'TestPageFactory', function($scope, $controller, $window, $interval, $stateParams, $state, TestPageFactory) {
+    .controller('TestPageController', ['$scope', '$controller', '$cookies', '$window', '$interval', '$stateParams', '$state', 'TestPageFactory', function($scope, $controller, $cookies, $window, $interval, $stateParams, $state, TestPageFactory) {
         $scope.allQuestions = {};
         var firstItemVisited = false;
         $scope.testSubmitted = false;
@@ -359,7 +387,9 @@ appmodule
                 TestPageFactory.saveResultToDB().save(data).$promise.then(
                     function(response){
                         $cookies.remove('testToken');
+                        $scope.parentScope.redirectToResultPage(serverURL+'user/result/'+$stateParams.obj.test_user+'/'+$stateParams.obj.test_key+'/');
                         alert("You have completed your test successfully. You can now close this window!");
+                        $window.close();
                     },
                     function(response){
                         // testCompleted = false;
