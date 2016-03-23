@@ -221,7 +221,6 @@ appmodule
                     
                 }else{
                     $scope.selectedSection = $scope.sectionNames[$scope.sectionNames.indexOf($scope.nextSection)];
-                    console.log('ppp');
                 }
                 $scope.sectionNames.splice($scope.sectionNames.indexOf($scope.currentSection), 1);
                 $scope.addQuestions($scope.selectedSection);
@@ -400,7 +399,6 @@ appmodule
                 $scope.quiz = $stateParams.obj.quiz;
                 // TestPageFactory.addQuizData($scope.quiz);
                 $scope.sectionNames = Object.keys($stateParams.obj.details).sort();
-                console.log($scope.sectionNames);
                 if($scope.sectionNames.length<=1){
                     $scope.hideNextSectionButton = true;
                 }
