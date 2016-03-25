@@ -1,2 +1,2 @@
-var baseURL= 'http://localhost:5000/';
-var serverURL= 'http://localhost:8000/';
+var baseURL= 'http://52.77.85.150/test/';
+var serverURL= 'http://52.77.85.150/api/';
