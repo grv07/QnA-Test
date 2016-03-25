@@ -91,8 +91,7 @@ appmodule
                     $scope.isFormInvalid = true;
                     $scope.alertType = "danger";
                     $scope.alertMsg = response.data.errors;
-                    console.log(response.data.errors)
-                    // setTimeout(closeAlert, 5000);
+                    setTimeout(closeAlert, 5000);
                 });
             }
     }])
