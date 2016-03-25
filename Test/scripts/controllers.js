@@ -91,7 +91,8 @@ appmodule
                     $scope.isFormInvalid = true;
                     $scope.alertType = "danger";
                     $scope.alertMsg = response.data.errors;
-                    setTimeout(closeAlert, 5000);
+                    console.log(response.data.errors)
+                    // setTimeout(closeAlert, 5000);
                 });
             }
     }])
@@ -351,6 +352,7 @@ appmodule
                     }   
                 }
                 $scope.progressValues = changeProgressValues($scope.progressValuesModel);
+                console.log($scope.progressValuesModel);
                 TestPageFactory.saveProgressValues($scope.selectedSection, $scope.progressValuesModel);
                 $scope.submitTestDetails(false, $scope.selectedSection);
             }catch(err){}
