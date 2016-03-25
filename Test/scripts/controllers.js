@@ -6,14 +6,22 @@ appmodule
     .controller('UserDataController',['$scope', '$state', '$http', '$cookies', '$window', '$stateParams', 'TestUserDataFactory', function($scope, $state, $http, $cookies, $window, $stateParams, TestUserDataFactory) {
             // console.log($stateParams.quizKey);
             $scope.message = '';
+            $scope.image = '';
             $scope.$on('from-iframe', function(e, message) {
-                if(message==='TestLoading')
+                if(message==='TestLoading'){
                     $scope.message = 'Your questions are loading right now.';
-                else if(message==='TestLoaded')
-                    $scope.message = 'Your questions have been loaded.';
-                else if(message==='TestStarted')
+                    $scope.image = '../images/ellipsis.svg';
+                }
+                else if(message==='TestLoaded'){
+                    $scope.message = 'Your questions have been loaded. Now you can start the test.';
+                    $scope.image = '../images/start.png';
+                }
+                else if(message==='TestStarted'){
                     $scope.message = 'Your test has started.';
-                $('#stateModalBody').html($scope.message);
+                    $scope.image = '../images/hourglass.svg';
+                }
+                $('#stateModalBodyMessage').html($scope.message);
+                $('#stateModalBodyImage').attr('src', $scope.image);
                 angular.element(document.querySelector('#stateModal')).modal('show');
             });
 
@@ -29,6 +37,17 @@ appmodule
                 $window.location = resultPageURL;
             }
 
+            function loadQuizStacks(){
+                TestUserDataFactory.getQuizStack($scope.userData.quiz_id, 'all').query(
+                    function(response) {
+                        $scope.userData['quizStacks'] = response;
+
+                    },
+                    function(response) {
+                        $scope.unableToGetAllSavedStacks = true;
+                });
+            }
+
             // Below object is required from source.
             $scope.postUserDetails = function(){
                 TestUserDataFactory.saveTestUser().save($scope.userData).$promise.then(
@@ -38,35 +57,31 @@ appmodule
                     $scope.userData['testToken'] = response.token;
                     $scope.userData['isTestNotCompleted'] = response.isTestNotCompleted;
                     $scope.userData['testUser'] = response.testUser;
-
-                    if(response.isTestNotCompleted){
+                    $scope.userData['sectionsRemaining'] = response.sectionsRemaining;
+                    $scope.userData['sectionNoWhereLeft'] = response.sectionNoWhereLeft;
+                    $scope.userData['existingAnswers'] = response.existingAnswers;
+                    $scope.userData['timeRemaining'] = response.timeRemaining;
+                    if(!response.isTestNotCompleted){
+                        loadQuizStacks();
+                    }else{
                         var result = confirm('You have a uncompleted test! Click to give it.');
                         if(result){
-                            $scope.userData['existingAnswers'] = response.existingAnswers;
-                            $scope.userData['sectionNoWhereLeft'] = response.sectionNoWhereLeft;
-                            $scope.userData['timeRemaining'] = response.timeRemaining;
-                            $scope.userData['sectionsRemaining'] = response.sectionsRemaining;
-                            TestUserDataFactory.getQuizStackForUncompleteTest().save($scope.userData).$promise.then(
-                                function(response) {
-                                    $scope.userData['quizStacks'] = response;
-                                },
-                                function(response) {
-                                    $scope.unableToGetAllSavedStacks = true;
-                                    return false;
-                            });
+                            if(response.sectionsRemaining.length===0 && response.sectionNoWhereLeft===null) {
+                                loadQuizStacks();
+                            }else{                          
+                                TestUserDataFactory.getQuizStackForUncompleteTest().save($scope.userData).$promise.then(
+                                    function(response) {
+                                        $scope.userData['quizStacks'] = response;
+                                    },
+                                    function(response) {
+                                        $scope.unableToGetAllSavedStacks = true;
+                                        return false;
+                                });
+                            }
                         }else{
                             console.log('Re-attempt test cancelled.');
                             return false;
                         }
-                    }else{
-                        TestUserDataFactory.getQuizStack($scope.userData.quiz_id, 'all').query(
-                            function(response) {
-                                $scope.userData['quizStacks'] = response;
-
-                            },
-                            function(response) {
-                                $scope.unableToGetAllSavedStacks = true;
-                        });
                     }
                     $window.data = $scope.userData;
                     $window.$windowScope = $scope;
@@ -95,14 +110,12 @@ appmodule
 
         var data = { test_key: $window.opener.data.test_key, test_user: $window.opener.data.testUser, 'quiz': $window.opener.data.quiz_id , 'quizName': $window.opener.data.quiz_name, 'quizStacks' : $window.opener.data.quizStacks, 'testToken': $window.opener.data.testToken , 'details' : {} };
         data['isTestNotCompleted'] = $window.opener.data.isTestNotCompleted;
-        
+        data['allQuestionsIds'] = [];
         if(data['isTestNotCompleted']){
             data['existingAnswers'] = $window.opener.data.existingAnswers;
             data['sectionNameWhereLeft'] = "Section#"+$window.opener.data.sectionNoWhereLeft;
             data['sectionsRemaining'] = $window.opener.data.sectionsRemaining;
             data['timeRemaining'] = $window.opener.data.timeRemaining;
-        }else{
-            data['allQuestionsIds'] = [];
         }
         $scope.closeTestWindow = function(){
             $window.close();
@@ -125,16 +138,12 @@ appmodule
             LoadQuestionsFactory.loadAllQuestions($window.opener.data.quiz_id, sectionName).query(
                 function(response){
                     TestPageFactory.addQuestionsForSection(sectionName, response.questions);
-                    if(!data['isTestNotCompleted']){
-                        for(var i=1;i<=response.added_questions.length;i++){
-                            $scope.progressValue +=  (i/$scope.total_questions)*100;
+                    for(var i=1;i<=response.added_questions.length;i++){
+                        $scope.progressValue +=  (i/$scope.total_questions)*100;
+                        if(!data['isTestNotCompleted'] || data['sectionsRemaining'].length===0 ){
                             data['allQuestionsIds'].push(response.added_questions[i-1]);
-                        }    
-                    }else{
-                       for(var i=1;i<=response.added_questions.length;i++){
-                            $scope.progressValue +=  (i/$scope.total_questions)*100;
-                        }  
-                    }
+                        }
+                    }    
                     if($scope.progressValue>=100){
                         parentScope.$emit('from-iframe','TestLoaded');
                         $scope.progressValue = 100;
@@ -173,8 +182,11 @@ appmodule
         var allQuestionsIds = [];
         var totalTime = 0;
         var timeCounter = 0;
-        if($stateParams.obj.isTestNotCompleted && $stateParams.obj.timeRemaining){
+        if($stateParams.obj.isTestNotCompleted){
             totalTime = parseInt($stateParams.obj.timeRemaining);
+            if($stateParams.obj.sectionsRemaining){
+                allQuestionsIds = $stateParams.obj.allQuestionsIds;
+            }
         }else{
             totalTime = findTotalDuration($stateParams.obj.quizStacks);
             allQuestionsIds = $stateParams.obj.allQuestionsIds;
@@ -192,7 +204,7 @@ appmodule
                 $scope.progressValuesModel = {};
                 var existingAnswersKeys = null;
                 var existingAnswers = null;
-                if((sectionName===$stateParams.obj.sectionNameWhereLeft) && $stateParams.obj.isTestNotCompleted){
+                if(sectionName===$stateParams.obj.sectionNameWhereLeft && $stateParams.obj.isTestNotCompleted){
                     existingAnswers = $stateParams.obj.existingAnswers['answers'][sectionName];
                     existingAnswersKeys = Object.keys(existingAnswers);
                 }
@@ -214,7 +226,7 @@ appmodule
                 }
                 $scope.changeQuestion(1);
             }catch(err){
-                console.log(err);
+                console.log(err,'------------');
             }
         }
         $scope.openWarningModal = function(action){
@@ -433,11 +445,11 @@ appmodule
                 if($scope.sectionNames.length<=1){
                     $scope.hideNextSectionButton = true;
                 }
-                if($stateParams.obj.isTestNotCompleted && $stateParams.obj.timeRemaining){
-                    $scope.selectedSection = $stateParams.obj.sectionNameWhereLeft;
+                if(!$stateParams.obj.isTestNotCompleted || $stateParams.obj.sectionsRemaining.length===0){
+                    $scope.selectedSection = $scope.sectionNames[0];
                 }
                 else{
-                    $scope.selectedSection = $scope.sectionNames[0];
+                    $scope.selectedSection = $stateParams.obj.sectionNameWhereLeft;
                 }
                 $scope.currentSection = $scope.selectedSection;
                 $scope.addQuestions($scope.selectedSection);
