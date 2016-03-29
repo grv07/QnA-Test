@@ -19,7 +19,15 @@ appmodule
           },
           { stripTrailingSlashes: false }
           );
-      };
+    };
+    this.getTestUser = function(testUserID, token){
+      return $resource(serverURL+"user/data/", { test_user_id: testUserID, token: token },
+          {'get':  
+            { method:'GET',} 
+          },
+          { stripTrailingSlashes: false }
+          );
+    };
     // function to fetch either all quiz stacks or with a specifid id.
     this.getQuizStack = function(quizId, quizStackId){
       return $resource(serverURL+"stack/get/"+quizId+"/"+quizStackId+"/", null,
@@ -61,6 +69,19 @@ appmodule
           { stripTrailingSlashes: false }
           );
     }
+    this.saveSittingUser = function(){
+      return $resource(serverURL+"save/sitting/user/", null,
+        {
+            save: {
+            // headers: {'Authorization': 'JWT ' + token},
+            method : 'POST',
+            isArray : true,
+            }
+        },
+        { stripTrailingSlashes: false }
+      );
+    } 
+
   }])
   .service('TestPageFactory', ['$resource', '$http', '$q', function($resource, $http, $q) {
         var allQuestions = {};
