@@ -1,0 +1,44 @@
+<div class="container">
+	<div class="row">
+	    <div class="col-md-12 text-center">
+	    	<h3>{{userData.quiz_name|capitalize}}</h3>
+	        <p class="red-text">Note: When test is on progress</p>
+	        <ul style="list-style-type: none;" class="red-text">
+	            <li>Please do not close window while giving the test.</li>
+	            <li>Please make sure your internet connection is working right before you proceed for the test.</li>
+	        </ul>
+	    </div>
+	</div>
+	<div class="row">
+	    <br>
+	</div>
+	<div class="row text-center">
+	    <div class="col-lg-2 col-md-2 col-sm-2"></div>
+	    <div class="col-lg-8 col-md-8 col-sm-8">
+	        <div ng-include src="'views/alert_msg.html'"></div>
+	        <div class="panel panel-default">
+	            <div class="text-center panel-heading" style="margin-top: -35px;">
+	            </div>
+	            <div class="row">
+	                <button class="btn btn-md btn-block btn-primary" ng-click="getUserDetails()">Open Test</button>
+	            </div>
+	        </div>
+	    </div>
+	    <div class="col-lg-2 col-md-2 col-sm-2">
+	    </div>
+	</div>
+</div>
+<div id="stateLiveModal" class="modal fade" role="dialog" data-keyboard="false" data-backdrop="static">
+	<div class="modal-dialog">
+		<div class="modal-content">
+		  <div class="modal-header">
+		  </div>
+		  <div class="modal-body text-center">
+		    <p id="stateLiveModalBodyMessage"><b>{{message}}</b></p>
+		    <p><img id="stateLiveModalBodyImage" src="" alt="Image not available"></p>
+		  </div>
+		  <div class="modal-footer">
+		  </div>
+		</div>
+	</div>
+</div>

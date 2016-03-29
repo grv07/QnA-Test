@@ -53,9 +53,21 @@ appmodule.config(function($stateProvider, $urlRouterProvider, $httpProvider) {
                     }
                 },
                 params: {obj: null},
-            });
+            })
+            .state('thirdpartytest', {          // State name should not be changed
+                url:'/start/test/:quizKey/:testID/:token',
+                views: {
+                    'header@': {
+                        templateUrl : 'views/header.html'
+                    },
+                    'content@': {
+                        controller : 'UserDataThirdPartyController',
+                        templateUrl : 'views/third_party_test.html'
+                    },
+                },
+            })
 
 
 		// $locationProvider.html5Mode(true);
-		// $urlRouterProvider.otherwise('/');
+		$urlRouterProvider.otherwise('/');
 	});
