@@ -55,6 +55,7 @@ appmodule
                     // $cookies.put('testToken', response.token);
                     $scope.userData['testToken'] = response.token;
                     $scope.userData['isTestNotCompleted'] = response.test.isTestNotCompleted;
+                    $scope.userData['attempt_no'] = response.test.attempt_no;
                     $scope.userData['testUser'] = response.testUser;
                     $scope.userData['sectionsRemaining'] = response.test.sectionsRemaining;
                     $scope.userData['sectionNoWhereLeft'] = response.test.sectionNoWhereLeft;
@@ -87,7 +88,6 @@ appmodule
                     $window.open($state.href('app.load-questions', {quizKey: $stateParams.quizKey}), "Test Window", "width=1280,height=890,resizable=0");
                 },
                 function(response) {
-                    console.log(response);
                     $scope.isFormInvalid = true;
                     $scope.alertType = "danger";
                     $scope.alertMsg = response.data.errors;
@@ -147,6 +147,7 @@ appmodule
                     $scope.isFormInvalid = false;
                     $cookies.put('testToken', response.token);
                     $scope.userData['testToken'] = response.token;
+                    $scope.userData['attempt_no'] = response.test.attempt_no;
                     $scope.userData['isTestNotCompleted'] = response.test.isTestNotCompleted;
                     $scope.userData['testUser'] = response.testUser;
                     $scope.userData['sectionsRemaining'] = response.test.sectionsRemaining;
@@ -202,6 +203,7 @@ appmodule
 
         var data = { test_key: $window.opener.data.test_key, test_user: $window.opener.data.testUser, 'quiz': $window.opener.data.quiz_id , 'quizName': $window.opener.data.quiz_name, 'quizStacks' : $window.opener.data.quizStacks, 'testToken': $window.opener.data.testToken , 'details' : {} };
         data['isTestNotCompleted'] = $window.opener.data.isTestNotCompleted;
+        data['attempt_no'] = $window.opener.data.attempt_no;
         data['allQuestionsIds'] = [];
         if(data['isTestNotCompleted']){
             data['existingAnswers'] = $window.opener.data.existingAnswers;
@@ -250,6 +252,7 @@ appmodule
                                     parentScope.$emit('from-iframe','TestStarted');
                                     parentScope.$apply();
                                     parentScope.$digest();
+                                    data['attempt_no'] = $window.opener.data.attempt_no+1;
                                     $state.go('app.start-test', { obj: data});
                                 });
                         }
@@ -451,7 +454,6 @@ appmodule
                     }   
                 }
                 $scope.progressValues = changeProgressValues($scope.progressValuesModel);
-                console.log($scope.progressValuesModel);
                 TestPageFactory.saveProgressValues($scope.selectedSection, $scope.progressValuesModel);
                 $scope.submitTestDetails(false, $scope.selectedSection);
             }catch(err){}
@@ -500,7 +502,7 @@ appmodule
                 TestPageFactory.saveResultToDB().save(data).$promise.then(
                     function(response){
                         $cookies.remove('testToken');
-                        $scope.parentScope.redirectToResultPage(serverURL+'user/result/'+$stateParams.obj.test_user+'/'+$stateParams.obj.test_key+'/');
+                        $scope.parentScope.redirectToResultPage(serverURL+'user/result/'+$stateParams.obj.test_user+'/'+$stateParams.obj.test_key+'/'+$stateParams.obj.attempt_no);
                         alert("You have completed your test successfully. You can now close this window!");
                         $window.close();
                     },
