@@ -88,7 +88,6 @@ appmodule
                     $window.open($state.href('app.load-questions', {quizKey: $stateParams.quizKey}), "Test Window", "width=1280,height=890,resizable=0");
                 },
                 function(response) {
-                    console.log(response);
                     $scope.isFormInvalid = true;
                     $scope.alertType = "danger";
                     $scope.alertMsg = response.data.errors;
@@ -253,6 +252,7 @@ appmodule
                                     parentScope.$emit('from-iframe','TestStarted');
                                     parentScope.$apply();
                                     parentScope.$digest();
+                                    data['attempt_no'] = $window.opener.data.attempt_no+1;
                                     $state.go('app.start-test', { obj: data});
                                 });
                         }
@@ -453,7 +453,6 @@ appmodule
                     }   
                 }
                 $scope.progressValues = changeProgressValues($scope.progressValuesModel);
-                console.log($scope.progressValuesModel);
                 TestPageFactory.saveProgressValues($scope.selectedSection, $scope.progressValuesModel);
                 $scope.submitTestDetails(false, $scope.selectedSection);
             }catch(err){}
