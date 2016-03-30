@@ -9,15 +9,15 @@ appmodule
             $scope.$on('from-iframe', function(e, message) {
                 if(message==='TestLoading'){
                     $scope.message = 'Your questions are loading right now.';
-                    $scope.image = '../images/ellipsis.svg';
+                    $scope.image = baseURL+'/images/ellipsis.svg';
                 }
                 else if(message==='TestLoaded'){
                     $scope.message = 'Your questions have been loaded. Now you can start the test.';
-                    $scope.image = '../images/start.png';
+                    $scope.image = baseURL+'/images/start.png';
                 }
                 else if(message==='TestStarted'){
                     $scope.message = 'Your test has started.';
-                    $scope.image = '../images/hourglass.svg';
+                    $scope.image = baseURL+'/images/hourglass.svg';
                 }
                 $('#stateLiveModalBodyMessage').html($scope.message);
                 $('#stateLiveModalBodyImage').attr('src', $scope.image);
