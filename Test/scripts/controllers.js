@@ -502,6 +502,7 @@ appmodule
                 TestPageFactory.saveResultToDB().save(data).$promise.then(
                     function(response){
                         $cookies.remove('testToken');
+			console.log($stateParams.obj.attempt_no);
                         if($stateParams.obj.attempt_no===NaN){
                             $stateParams.obj.attempt_no = 1;
                         }
