@@ -201,7 +201,7 @@ appmodule
 
         var data = { test_key: $window.opener.data.test_key, test_user: $window.opener.data.testUser, 'quiz': $window.opener.data.quiz_id , 'quizName': $window.opener.data.quiz_name, 'quizStacks' : $window.opener.data.quizStacks, 'testToken': $window.opener.data.testToken , 'details' : {} };
         data['isTestNotCompleted'] = $window.opener.data.isTestNotCompleted;
-        data['allQuestionsIds'] = [];
+        // data['allQuestionsIds'] = [];
         if(data['isTestNotCompleted']){
             data['existingAnswers'] = $window.opener.data.existingAnswers;
             data['sectionNameWhereLeft'] = "Section#"+$window.opener.data.sectionNoWhereLeft;
@@ -231,15 +231,15 @@ appmodule
                     TestPageFactory.addQuestionsForSection(sectionName, response.questions);
                     for(var i=1;i<=response.added_questions.length;i++){
                         $scope.progressValue +=  (i/$scope.total_questions)*100;
-                        if(!data['isTestNotCompleted'] || data['sectionsRemaining'].length===0 ){
-                            data['allQuestionsIds'].push(response.added_questions[i-1]);
-                        }
+                        // if(!data['isTestNotCompleted'] || data['sectionsRemaining'].length===0 ){
+                        //     data['allQuestionsIds'].push(response.added_questions[i-1]);
+                        // }
                     }    
                     if($scope.progressValue>=100){
                         parentScope.$emit('from-iframe','TestLoaded');
                         $scope.progressValue = 100;
                         $scope.startTest = function(){
-                            LoadQuestionsFactory.saveSittingUser().save({ test_user: $window.opener.data.testUser, quiz_id: $window.opener.data.quiz_id, questions_list: data['allQuestionsIds']}).$promise.then(
+                            LoadQuestionsFactory.saveSittingUser().save({ test_user: $window.opener.data.testUser, quiz_id: $window.opener.data.quiz_id }).$promise.then(
                                 function(response){
                                     alert('Error in getting test details.');
                                     $window.close();
