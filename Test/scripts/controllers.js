@@ -9,15 +9,15 @@ appmodule
             $scope.$on('from-iframe', function(e, message) {
                 if(message==='TestLoading'){
                     $scope.message = 'Your questions are loading right now.';
-                    $scope.image = baseURL+'/images/ellipsis.svg';
+                    $scope.image = '../images/ellipsis.svg';
                 }
                 else if(message==='TestLoaded'){
                     $scope.message = 'Your questions have been loaded. Now you can start the test.';
-                    $scope.image = baseURL+'/images/start.png';
+                    $scope.image = '../images/start.png';
                 }
                 else if(message==='TestStarted'){
                     $scope.message = 'Your test has started.';
-                    $scope.image = baseURL+'/images/hourglass.svg';
+                    $scope.image = '../images/hourglass.svg';
                 }
                 $('#stateLiveModalBodyMessage').html($scope.message);
                 $('#stateLiveModalBodyImage').attr('src', $scope.image);
@@ -385,7 +385,6 @@ appmodule
         $scope.changeQuestion = function(count){
             if(count>=1 && count<=$scope.total_questions.length)
             {
-                // var question = TestPageFactory.getAQuestion($scope.selectedSection, count);
                 $scope.currentCount = count;
                 $scope.currentQuestion = TestPageFactory.getQuestion($scope.selectedSection, count);
                 if(isMCQ($scope.currentQuestion.que_type)){
@@ -479,22 +478,16 @@ appmodule
         $scope.submitTestDetails = function(isSaveToDB, currentSection){
             var data = { 'test_user': $stateParams.obj.test_user, 'test_key': $stateParams.obj.test_key };
             if(isSaveToDB){
+
+                // $scope.parentScope from $rootScope (set in LoadQuestionsController)
+                $scope.parentScope.message = 'Your have submitted the test. Please wait for the result. Do not refresh the page.';
+                $scope.parentScope.image = '../images/ellipsis.svg';
+                $scope.parentScope.$emit('from-iframe','TestFinished');
+                $scope.parentScope.$apply();
+                $scope.parentScope.$digest();
+
                 var testCompleted = false;
                 data['time_spent'] = $scope.totalDuration;
-                // var progressData= {};
-                // var progressValues = TestPageFactory.getProgressValues();
-                // for(var sectionName in progressValues){
-                //     progressData[sectionName] = { NV: [], NA: [] };
-                //     for(var questionId in progressValues[sectionName]){
-                //         var status = progressValues[sectionName][questionId].status;
-                //         if(status === 'NA'){
-                //             progressData[sectionName]['NA'].push(questionId);
-                //         }else if(status === 'NV'){
-                //             progressData[sectionName]['NV'].push(questionId);
-                //         }
-                //     }
-                // }
-                // data['progressValues'] = progressData;
                 TestPageFactory.saveResultToDB().save(data).$promise.then(
                     function(response){
                         $cookies.remove('testToken');
@@ -506,12 +499,6 @@ appmodule
                         // testCompleted = false;
                     }
                 );
-                // showFinishPage();
-                // if(testCompleted){
-                // console.log('lll');
-                // }else{
-                //     $state.go('app.finish-test', { obj: {"quizName": $stateParams.obj.quizName}});
-                // }
             }else{
                 data['answer'] = {};
                 data['answer'][$scope.currentQuestion.id] = {
@@ -520,10 +507,8 @@ appmodule
                     }; 
                 data['quiz_id'] = $stateParams.obj.quiz;
                 data['section_name'] = currentSection;
-                // data['questions_list'] = allQuestionsIds;
                 TestPageFactory.saveResultToCache(data).then(function(response){
                     console.log('success');
-                    // allQuestionsIds = [];
                 });
             }
         }
@@ -539,7 +524,6 @@ appmodule
         try{
             if(isNotEmpty($stateParams.obj)){
                 $scope.quiz = $stateParams.obj.quiz;
-                // TestPageFactory.addQuizData($scope.quiz);
                 $scope.sectionNames = Object.keys($stateParams.obj.details).sort();
                 if($scope.sectionNames.length<=1){
                     $scope.hideNextSectionButton = true;
@@ -552,9 +536,6 @@ appmodule
                 }
                 $scope.currentSection = $scope.selectedSection;
                 $scope.addQuestions($scope.selectedSection);
-                // for(var i=0;i<sectionNames.length;i++){
-                //     angular.element(document.querySelector('#sectionnames')).append('<option value='+sectionNames[i]+'>'+sectionNames[i]+'</option>');
-                // }
                 $scope.totalDuration = totalTime;
                 $interval(function(){
                     $scope.totalDuration -= 1;
@@ -574,14 +555,6 @@ appmodule
         }catch(e){
             $scope.dataPresent = false;
         }
-        // $scope.$on('$locationChangeStart', function( event ) {
-        //     var answer = confirm("Do you want to start the test?");
-        //     if(answer){
-        //         event.preventDefault();
-        //     }else{
-        //         $window.close();
-        //     }
-        // });
     }])
     .controller('TestFinishController',['$scope', '$stateParams', '$window', function($scope, $stateParams, $window) {
         $scope.alertType = "success";
