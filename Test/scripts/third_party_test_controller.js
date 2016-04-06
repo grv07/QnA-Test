@@ -1,147 +1,59 @@
 /* global $ */
 appmodule
-    .controller('CookiesController', ['$scope', '$rootScope', '$cookies', '$state', function($scope, $rootScope, $cookies, $state) {
+    .controller('IndexThirdPartyController', ['$scope', '$rootScope', '$cookies', '$state', '$window', '$stateParams', function($scope, $rootScope, $cookies, $state, $window, $stateParams) {
+        $scope.openLiveTest = function(){
+            $window.$windowScope = $scope;
+            $window.data = {quizKey: $stateParams.quizKey};
+            $window.open($state.href('thirdpartytest-open', {quizKey: $stateParams.quizKey, testID: $stateParams.testID, token:$stateParams.token}), "Test Window", "width=1280,height=890,resizable=0");
+        }
+        $scope.message = '';
+        $scope.image = '';
+        $scope.$on('from-iframe', function(e, message) {
+            if(message==='TestStart'){
+                $scope.message = 'You can start the test.';
+                $scope.image = '../images/ellipsis.svg';
+            }
+            else if(message==='TestLoading'){
+                $scope.message = 'Your questions are loading right now.';
+                $scope.image = '../images/ellipsis.svg';
+            }
+            else if(message==='TestLoaded'){
+                $scope.message = 'Your questions have been loaded. Now you can start the test.';
+                $scope.image = '../images/start.png';
+            }
+            else if(message==='TestStarted'){
+                $scope.message = 'Your test has started.';
+                $scope.image = '../images/hourglass.svg';
+            }
+            $('#stateModalBodyMessage').html($scope.message);
+            $('#stateModalBodyImage').attr('src', $scope.image);
+            angular.element(document.querySelector('#stateModal')).modal('show');
+        });
 
+        $scope.redirectToResultPage = function(resultPageURL){
+            $window.location = resultPageURL;
+        }
     }])
-    .controller('UserDataThirdPartyController',['$scope', '$state', '$http', '$cookies', '$window', '$stateParams', 'TestUserDataFactory', function($scope, $state, $http, $cookies, $window, $stateParams, TestUserDataFactory) {
-            $scope.message = '';
-            $scope.image = '';
-            $scope.$on('from-iframe', function(e, message) {
-                if(message==='TestLoading'){
-                    $scope.message = 'Your questions are loading right now.';
-                    $scope.image = '../images/ellipsis.svg';
-                }
-                else if(message==='TestLoaded'){
-                    $scope.message = 'Your questions have been loaded. Now you can start the test.';
-                    $scope.image = '../images/start.png';
-                }
-                else if(message==='TestStarted'){
-                    $scope.message = 'Your test has started.';
-                    $scope.image = '../images/hourglass.svg';
-                }
-                $('#stateLiveModalBodyMessage').html($scope.message);
-                $('#stateLiveModalBodyImage').attr('src', $scope.image);
-                angular.element(document.querySelector('#stateLiveModal')).modal('show');
-            });
+    .controller('UserDataThirdPartyController',['$scope', '$rootScope', '$state', '$cookies', '$window', '$stateParams', 'TestUserDataFactory', function($scope, $rootScope, $state, $cookies, $window, $stateParams, TestUserDataFactory) {
+        if($window.opener){
+            $scope.error = false;
 
             TestUserDataFactory.getQuizAccordingToKey($stateParams.quizKey).get().$promise.then(
                 function(response){
                     $scope.userData = { username:'', email:'', quiz_id: response.id, quiz_name: response.title, test_key: response.quiz_key, 'quizStacks': undefined, 'testToken': undefined };
+                    var parentScope = $window.opener.$windowScope;
+                    parentScope.$emit('from-iframe','TestStart');
+                    parentScope.$apply();
+                    parentScope.$digest();
+                    $rootScope.parentScope = parentScope;
                     },
                 function(response){
                         alert("Error in retrieving quiz details!");                     
                 });
-
-            $scope.redirectToResultPage = function(resultPageURL){
-                $window.location = resultPageURL;
-            }
-
-            function loadQuizStacks(){
-                TestUserDataFactory.getQuizStack($scope.userData.quiz_id, 'all').query(
-                    function(response) {
-                        $scope.userData['quizStacks'] = response;
-
-                    },
-                    function(response) {
-                        $scope.unableToGetAllSavedStacks = true;
-                });
-            }
 
             // Below object is required from source.
             $scope.getUserDetails = function(){
                 TestUserDataFactory.getTestUser($stateParams.testID, $stateParams.token).get().$promise.then(
-                function(response){
-                    $scope.isFormInvalid = false;
-                    // $cookies.put('testToken', response.token);
-                    $scope.userData['testToken'] = response.token;
-                    $scope.userData['isTestNotCompleted'] = response.test.isTestNotCompleted;
-                    $scope.userData['testUser'] = response.testUser;
-                    $scope.userData['sectionsRemaining'] = response.test.sectionsRemaining;
-                    $scope.userData['sectionNoWhereLeft'] = response.test.sectionNoWhereLeft;
-                    $scope.userData['existingAnswers'] = response.test.existingAnswers;
-                    $scope.userData['timeRemaining'] = response.test.timeRemaining;
-                    if(!$scope.userData['isTestNotCompleted']){
-                        loadQuizStacks();
-                    }else{
-                        var result = confirm('You have a uncompleted test! Click to give it.');
-                        if(result){
-                            if($scope.userData['sectionsRemaining'].length===0 && $scope.userData['sectionNoWhereLeft']===null) {
-                                loadQuizStacks();
-                            }else{                          
-                                TestUserDataFactory.getQuizStackForUncompleteTest().save($scope.userData).$promise.then(
-                                    function(response) {
-                                        $scope.userData['quizStacks'] = response;
-                                    },
-                                    function(response) {
-                                        $scope.unableToGetAllSavedStacks = true;
-                                        return false;
-                                });
-                            }
-                        }else{
-                            console.log('Re-attempt test cancelled.');
-                            return false;
-                        }
-                    }
-                    $window.data = $scope.userData;
-                    $window.$windowScope = $scope;
-                    $window.open($state.href('app.load-questions', {quizKey: $stateParams.quizKey}), "Test Window", "width=1280,height=890,resizable=0");
-                },
-                function(response) {
-                    $scope.isFormInvalid = true;
-                    $scope.alertType = "danger";
-                    $scope.alertMsg = response.data.errors;
-                    setTimeout(closeAlert, 5000);
-                });
-            }
-    }])
-    .controller('UserDataController',['$scope', '$state', '$http', '$cookies', '$window', '$stateParams', 'TestUserDataFactory', function($scope, $state, $http, $cookies, $window, $stateParams, TestUserDataFactory) {
-            // console.log($stateParams.quizKey);
-            $scope.message = '';
-            $scope.image = '';
-            $scope.$on('from-iframe', function(e, message) {
-                if(message==='TestLoading'){
-                    $scope.message = 'Your questions are loading right now.';
-                    $scope.image = '../images/ellipsis.svg';
-                }
-                else if(message==='TestLoaded'){
-                    $scope.message = 'Your questions have been loaded. Now you can start the test.';
-                    $scope.image = '../images/start.png';
-                }
-                else if(message==='TestStarted'){
-                    $scope.message = 'Your test has started.';
-                    $scope.image = '../images/hourglass.svg';
-                }
-                $('#stateModalBodyMessage').html($scope.message);
-                $('#stateModalBodyImage').attr('src', $scope.image);
-                angular.element(document.querySelector('#stateModal')).modal('show');
-            });
-
-            TestUserDataFactory.getQuizAccordingToKey($stateParams.quizKey).get().$promise.then(
-                function(response){
-                    $scope.userData = { username:'', email:'', quiz_id: response.id, quiz_name: response.title, test_key: response.quiz_key, 'quizStacks': undefined, 'testToken': undefined };
-                    },
-                function(response){
-                        alert("Error in retrieving quiz details!");                     
-                });
-
-            $scope.redirectToResultPage = function(resultPageURL){
-                $window.location = resultPageURL;
-            }
-
-            function loadQuizStacks(){
-                TestUserDataFactory.getQuizStack($scope.userData.quiz_id, 'all').query(
-                    function(response) {
-                        $scope.userData['quizStacks'] = response;
-
-                    },
-                    function(response) {
-                        $scope.unableToGetAllSavedStacks = true;
-                });
-            }
-
-            // Below object is required from source.
-            $scope.postUserDetails = function(){
-                TestUserDataFactory.saveTestUser().save($scope.userData).$promise.then(
                 function(response){
                     $scope.isFormInvalid = false;
                     $cookies.put('testToken', response.token);
@@ -153,16 +65,34 @@ appmodule
                     $scope.userData['existingAnswers'] = response.test.existingAnswers;
                     $scope.userData['timeRemaining'] = response.test.timeRemaining;
                     if(!$scope.userData['isTestNotCompleted']){
-                        loadQuizStacks();
+                        TestUserDataFactory.getQuizStack($scope.userData.quiz_id, 'all').query(
+                            function(response) {
+                                $scope.userData['quizStacks'] = response;
+                                $rootScope.userDetails = $scope.userData;
+                                $state.go('thirdpartytest-load', {quizKey: $stateParams.quizKey, testID: $stateParams.testID, token:$stateParams.token});
+                            },
+                            function(response) {
+                                $scope.unableToGetAllSavedStacks = true;
+                        });
                     }else{
                         var result = confirm('You have a uncompleted test! Click to give it.');
                         if(result){
                             if($scope.userData['sectionsRemaining'].length===0 && $scope.userData['sectionNoWhereLeft']===null) {
-                                loadQuizStacks();
+                                TestUserDataFactory.getQuizStack($scope.userData.quiz_id, 'all').query(
+                                    function(response) {
+                                        $scope.userData['quizStacks'] = response;
+                                        $rootScope.userDetails = $scope.userData;
+                                        $state.go('thirdpartytest-load', {quizKey: $stateParams.quizKey, testID: $stateParams.testID, token:$stateParams.token});
+                                    },
+                                    function(response) {
+                                        $scope.unableToGetAllSavedStacks = true;
+                                });
                             }else{                          
                                 TestUserDataFactory.getQuizStackForUncompleteTest().save($scope.userData).$promise.then(
                                     function(response) {
                                         $scope.userData['quizStacks'] = response;
+                                        $rootScope.userDetails = $scope.userData;
+                                        $state.go('thirdpartytest-load', {quizKey: $stateParams.quizKey, testID: $stateParams.testID, token:$stateParams.token});
                                     },
                                     function(response) {
                                         $scope.unableToGetAllSavedStacks = true;
@@ -174,9 +104,9 @@ appmodule
                             return false;
                         }
                     }
-                    $window.data = $scope.userData;
-                    $window.$windowScope = $scope;
-                    $window.open($state.href('app.load-questions', {quizKey: $stateParams.quizKey}), "Test Window", "width=1280,height=890,resizable=0");
+                    // $window.data = $scope.userData;
+                    // $window.$windowScope = $scope;
+                    // $window.open($state.href('app.load-questions', {quizKey: $stateParams.quizKey}), "Test Window", "width=1280,height=890,resizable=0");
                 },
                 function(response) {
                     $scope.isFormInvalid = true;
@@ -185,85 +115,91 @@ appmodule
                     setTimeout(closeAlert, 5000);
                 });
             }
+        }else{
+            $scope.error = true;
+        }
     }])
-    .controller('LoadQuestionsController', ['$scope', '$rootScope', '$window', '$state', '$cookies', 'LoadQuestionsFactory', 'TestPageFactory', function($scope, $rootScope, $window, $state, $cookies, LoadQuestionsFactory, TestPageFactory) {
-        var allSections = [];
-        var allQuestions = {}; 
-        var parentScope = $window.opener.$windowScope;
-        parentScope.$emit('from-iframe','TestLoading');
-        parentScope.$apply();
-        parentScope.$digest();
-
-        $scope.progressValue = 0.00;
-        $scope.total_questions = 0;
-        $scope.sectionsDetails = {};
-        $cookies.put('testToken', $window.opener.data.testToken);
-
-        var data = { test_key: $window.opener.data.test_key, test_user: $window.opener.data.testUser, 'quiz': $window.opener.data.quiz_id , 'quizName': $window.opener.data.quiz_name, 'quizStacks' : $window.opener.data.quizStacks, 'testToken': $window.opener.data.testToken , 'details' : {} };
-        data['isTestNotCompleted'] = $window.opener.data.isTestNotCompleted;
-        // data['allQuestionsIds'] = [];
-        if(data['isTestNotCompleted']){
-            data['existingAnswers'] = $window.opener.data.existingAnswers;
-            data['sectionNameWhereLeft'] = "Section#"+$window.opener.data.sectionNoWhereLeft;
-            data['sectionsRemaining'] = $window.opener.data.sectionsRemaining;
-            data['timeRemaining'] = $window.opener.data.timeRemaining;
-        }
-        $scope.closeTestWindow = function(){
-            $window.close();
-        }
-        for(var i=0;i<data['quizStacks'].length;i++){
-            var stack = data['quizStacks'][i];
-            if(allSections.indexOf(data['quizStacks'][i].section_name)===-1){
-                data['details'][stack.section_name] = { 'duration': 0, 'questions' : 0};
-                allSections.push(stack.section_name);
+    .controller('LoadQuestionsThirdPartyController', ['$scope', '$rootScope', '$window', '$state', '$stateParams', '$cookies', 'LoadQuestionsFactory', 'TestPageFactory', function($scope, $rootScope, $window, $state, $stateParams, $cookies, LoadQuestionsFactory, TestPageFactory) {
+        if($scope.userDetails){
+            $scope.error = false;
+            var allSections = [];
+            var allQuestions = {}; 
+            var parentScope = $scope.parentScope;
+            parentScope.$emit('from-iframe','TestLoading');
+            parentScope.$apply();
+            parentScope.$digest();
+            $scope.progressValue = 0.00;
+            $scope.total_questions = 0;
+            $scope.sectionsDetails = {};
+            $cookies.put('testToken', $scope.userDetails.testToken);
+            var data = { test_key: $scope.userDetails.test_key, test_user: $scope.userDetails.testUser, 'quiz': $scope.userDetails.quiz_id , 'quizName': $scope.userDetails.quiz_name, 'quizStacks' : $scope.userDetails.quizStacks, 'testToken': $scope.userDetails.testToken , 'details' : {} };
+            data['isTestNotCompleted'] = $scope.userDetails.isTestNotCompleted;
+            if(data['isTestNotCompleted']){
+                data['existingAnswers'] = $scope.userDetails.existingAnswers;
+                data['sectionNameWhereLeft'] = "Section#"+$scope.userDetails.sectionNoWhereLeft;
+                data['sectionsRemaining'] = $scope.userDetails.sectionsRemaining;
+                data['timeRemaining'] = $scope.userDetails.timeRemaining;
             }
-            $scope.total_questions += parseInt(stack.no_questions);
-            data['details'][stack.section_name]['duration'] += parseInt(stack.duration);
-            data['details'][stack.section_name]['questions'] += parseInt(stack.no_questions);
-        }
-        allSections.sort();
-        for(var i=0;i<allSections.length;i++){
-            $scope.sectionsDetails[allSections[i]] = { 'duration': data['details'][allSections[i]]['duration'], 'questions': data['details'][allSections[i]]['questions'] };
-        }
-        function loadQuestions(sectionName){
-            LoadQuestionsFactory.loadAllQuestions($window.opener.data.quiz_id, sectionName).query(
-                function(response){
-                    TestPageFactory.addQuestionsForSection(sectionName, response.questions);
-                    for(var i=1;i<=response.added_questions.length;i++){
-                        $scope.progressValue +=  (i/$scope.total_questions)*100;
-                        // if(!data['isTestNotCompleted'] || data['sectionsRemaining'].length===0 ){
-                        //     data['allQuestionsIds'].push(response.added_questions[i-1]);
-                        // }
-                    }    
-                    if($scope.progressValue>=100){
-                        parentScope.$emit('from-iframe','TestLoaded');
-                        $scope.progressValue = 100;
-                        $scope.startTest = function(){
-                            LoadQuestionsFactory.saveSittingUser().save({ test_user: $window.opener.data.testUser, quiz_id: $window.opener.data.quiz_id }).$promise.then(
-                                function(response){
-                                    alert('Error in getting test details.');
-                                    $window.close();
-                                }, 
-                                function(response){
-                                    $rootScope.parentScope = parentScope;
-                                    parentScope.$emit('from-iframe','TestStarted');
-                                    parentScope.$apply();
-                                    parentScope.$digest();
-                                    $state.go('app.start-test', { obj: data});
-                                });
+
+            $scope.closeTestWindow = function(){
+                $window.close();
+            }
+
+            for(var i=0;i<data['quizStacks'].length;i++){
+                var stack = data['quizStacks'][i];
+                if(allSections.indexOf(data['quizStacks'][i].section_name)===-1){
+                    data['details'][stack.section_name] = { 'duration': 0, 'questions' : 0};
+                    allSections.push(stack.section_name);
+                }
+                $scope.total_questions += parseInt(stack.no_questions);
+                data['details'][stack.section_name]['duration'] += parseInt(stack.duration);
+                data['details'][stack.section_name]['questions'] += parseInt(stack.no_questions);
+            }
+            allSections.sort();
+            for(var i=0;i<allSections.length;i++){
+                $scope.sectionsDetails[allSections[i]] = { 'duration': data['details'][allSections[i]]['duration'], 'questions': data['details'][allSections[i]]['questions'] };
+            }
+            function loadQuestions(sectionName){
+                LoadQuestionsFactory.loadAllQuestions($scope.userDetails.quiz_id, sectionName).query(
+                    function(response){
+                        TestPageFactory.addQuestionsForSection(sectionName, response.questions);
+                        for(var i=1;i<=response.added_questions.length;i++){
+                            $scope.progressValue +=  (i/$scope.total_questions)*100;
+                            // if(!data['isTestNotCompleted'] || data['sectionsRemaining'].length===0 ){
+                            //     data['allQuestionsIds'].push(response.added_questions[i-1]);
+                            // }
                         }
-                    }
-                },
-                function(response){
-                    alert('Problem in getting questions from server-side.');
-                    $window.close();
-                });
-        }
-        for(var i=0;i<allSections.length;i++){
-            loadQuestions(allSections[i]);
-        }           
+                        if($scope.progressValue>=100){
+                            parentScope.$emit('from-iframe','TestLoaded');
+                            $scope.progressValue = 100;
+                            $scope.startTest = function(){
+                                LoadQuestionsFactory.saveSittingUser().save({ test_user: $scope.userDetails.testUser, quiz_id: $scope.userDetails.quiz_id }).$promise.then(
+                                    function(response){
+                                        parentScope.$emit('from-iframe','TestStarted');
+                                        parentScope.$apply();
+                                        parentScope.$digest();
+                                        $state.go('thirdpartytest-start', { obj: data, token: $scope.userDetails.testToken, testID: $stateParams.testID, quizKey: $scope.userDetails.test_key });
+                                    }, 
+                                    function(response){
+                                        alert('Error in getting test details.');
+                                        $window.close();
+                                    });
+                            }
+                        }
+                    },
+                    function(response){
+                        alert('Problem in getting questions from server-side.');
+                        $window.close();
+                    });
+            }
+            for(var i=0;i<allSections.length;i++){
+                loadQuestions(allSections[i]);
+            }
+        }else{
+            $scope.error = true;
+        }          
     }])
-    .controller('TestPageHeaderController', ['$scope', '$controller', '$window', '$stateParams', function($scope, $controller, $window, $stateParams) {
+    .controller('TestPageHeaderThirdPartyController', ['$scope', '$controller', '$window', '$stateParams', function($scope, $controller, $window, $stateParams) {
             // console.log($window.opener.data.quiz)
             if(isNotEmpty($stateParams.obj)){
                 $scope.quizName = $stateParams.obj.quizName;
@@ -273,7 +209,7 @@ appmodule
                 $scope.dataPresent = false;
             }   
         }])
-    .controller('TestPageController', ['$scope', '$controller', '$cookies', '$window', '$interval', '$stateParams', '$state', 'TestPageFactory', function($scope, $controller, $cookies, $window, $interval, $stateParams, $state, TestPageFactory) {
+    .controller('TestPageThirdPartyController', ['$scope', '$controller', '$cookies', '$window', '$interval', '$stateParams', '$state', 'TestPageFactory', function($scope, $controller, $cookies, $window, $interval, $stateParams, $state, TestPageFactory) {
         $scope.allQuestions = {};
         var firstItemVisited = false;
         $scope.testSubmitted = false;
@@ -289,7 +225,6 @@ appmodule
             totalTime = findTotalDuration($stateParams.obj.quizStacks);
             // allQuestionsIds = $stateParams.obj.allQuestionsIds;
         }
-        
         $scope.serverURL = serverURL;
 
         function getQuestionsBasedOnSection(sectionName){
@@ -556,7 +491,7 @@ appmodule
             $scope.dataPresent = false;
         }
     }])
-    .controller('TestFinishController',['$scope', '$stateParams', '$window', function($scope, $stateParams, $window) {
+    .controller('TestFinishThirdPartyController',['$scope', '$stateParams', '$window', function($scope, $stateParams, $window) {
         $scope.alertType = "success";
         $scope.alertMsg = "You have completed your test for quiz "+$stateParams.obj.quizName+" successfully.";
         $scope.closeTestWindow = function(){

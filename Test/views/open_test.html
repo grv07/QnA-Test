@@ -1,0 +1,47 @@
+<div class="container" ng-if="!error">
+    <div class="row">
+        <div class="col-md-12 text-center">
+            <h1 class="hidden-xs">Please fill up the following details.</h1>
+            <h3 class="visible-xs jumbotron">Please fill up details.</h3>
+            <p class="red-text">Note: When test is on progress</p>
+            <ul style="list-style-type: none;" class="red-text">
+                <li>Please do not close window while giving the test.</li>
+                <li>Please make sure your internet connection is working right before you proceed for the test.</li>
+            </ul>
+        </div>
+    </div>
+    <div class="row">
+        <br>
+    </div>
+    <div class="row text-center">
+        <div class="col-lg-2 col-md-2 col-sm-2"></div>
+        <div class="col-lg-8 col-md-8 col-sm-8">
+            <div ng-include src="'views/alert_msg.html'"></div>
+            <div class="jumbotron panel panel-default">
+                <div class="text-center panel-heading" style="margin-top: -35px;">
+                    <h4>Please provide some details.</h4>
+                </div>
+                <div class="row">
+                    <form class="col-md-12" ng-submit="postUserDetails()" name="loginForm" novalidate>
+                        <div class="form-group">
+                            <span ng-show="isFormInvalid" style='color:red;'>{{ errors }}</span>                      
+                        </div>
+                        <div class="form-group" ng-class="{ 'has-error' : loginForm.name.$touched && loginForm.name.$error.required || isFormInvalid }">
+                          <input type="text" class="form-control input-lg" name="username" ng-model="userData.username" placeholder="Name" required>
+                            <span ng-show="loginForm.name.$touched && loginForm.name.$error.required">Name is required.</span>
+                        </div>                        
+                        <div class="form-group" ng-class="{ 'has-error' : loginForm.email.$touched && loginForm.email.$error.required || isFormInvalid }">
+                            <input type="email" name='email' ng-model="userData.email" class="form-control input-lg" placeholder="Email" required>
+                            <span ng-show="loginForm.email.$touched && loginForm.email.$error.required">Email is required.</span>
+                        </div>
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-primary btn-lg btn-block" ng-disabled='loginForm.$invalid'>Submit</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-2 col-md-2 col-sm-2">
+        </div>
+    </div>
+</div>

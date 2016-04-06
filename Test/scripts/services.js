@@ -1,6 +1,7 @@
 /* global $ */
 appmodule
   .service('TestUserDataFactory', ['$resource', function($resource) {
+    
     this.getQuizAccordingToKey = function(quizKey){
       return $resource(serverURL+"quiz/get/key/", { quiz_key: quizKey },
         {
@@ -75,7 +76,7 @@ appmodule
             save: {
             // headers: {'Authorization': 'JWT ' + token},
             method : 'POST',
-            isArray : true,
+            isArray : false,
             }
         },
         { stripTrailingSlashes: false }
