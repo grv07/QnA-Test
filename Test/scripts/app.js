@@ -4,21 +4,33 @@ appmodule.config(function($stateProvider, $urlRouterProvider, $httpProvider) {
         $stateProvider	        
             // route for the home page
             .state('app', {
-                url:'/open/test/:quizKey',
+                url:'/allow/test/:quizKey',
                 views: {
                     'header': {
                         templateUrl : 'views/header.html'
                     },
                     'content': {
-                        controller : 'UserDataController',
+                        controller : 'IndexController',
                     },
                     'footer': { 
                         templateUrl : 'views/footer.html'
                     }
                 },
+                params: {obj: null},
+            })
+            .state('app.open-test', {
+                url:'/open',
+                views: {
+                    'content@': {
+                        controller : 'UserDataController',
+                        templateUrl : 'views/open_test.html'
+
+                    },
+                },
+                params: {obj: null},
             })
             .state('app.load-questions', {
-                url:'/start',
+                url:'/load',
                 views :{
                     'content@': {
                         controller  : 'LoadQuestionsController',
@@ -28,7 +40,7 @@ appmodule.config(function($stateProvider, $urlRouterProvider, $httpProvider) {
                 params: {obj: null},
             })
             .state('app.start-test', {
-                url:'/load',
+                url:'/start',
                 views :{
                     'header@': {
                         controller  : 'TestPageHeaderController',
@@ -54,18 +66,51 @@ appmodule.config(function($stateProvider, $urlRouterProvider, $httpProvider) {
                 },
                 params: {obj: null},
             })
-            .state('thirdpartytest', {          // State name should not be changed
-                url:'/start/test/:quizKey/:testID/:token',
+            .state('thirdpartytest-allow', {          // State name should not be changed
+                url:'/allow/test/:quizKey/:testID/:token',
                 views: {
                     'header@': {
                         templateUrl : 'views/header.html'
                     },
+                    'content@': {
+                        controller : 'IndexThirdPartyController',
+                        templateUrl : 'views/open_test_live.html'
+                    },
+                },
+            })
+            .state('thirdpartytest-open', {          // State name should not be changed
+                url:'/open/test/:quizKey/:testID/:token',
+                views: {
                     'content@': {
                         controller : 'UserDataThirdPartyController',
                         templateUrl : 'views/third_party_test.html'
                     },
                 },
             })
+            .state('thirdpartytest-load', {
+                url:'/load/test/:quizKey/:testID/:token',
+                views :{
+                    'content@': {
+                        controller  : 'LoadQuestionsThirdPartyController',
+                        templateUrl : 'views/load_questions.html'
+                    }
+                },
+                params: {obj: null},
+            })
+            .state('thirdpartytest-start', {
+                url:'/start/test/:quizKey/:testID/:token',
+                views :{
+                    'header@': {
+                        controller  : 'TestPageHeaderThirdPartyController',
+                        templateUrl : 'views/test_page_header.html'
+                    },
+                    'content@': {
+                        controller  : 'TestPageThirdPartyController',
+                        templateUrl : 'views/test_page.html'
+                    }
+                },
+                params: {obj: null},
+            });
 
 
 		// $locationProvider.html5Mode(true);
