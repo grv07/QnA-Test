@@ -112,7 +112,5 @@ appmodule.config(function($stateProvider, $urlRouterProvider, $httpProvider) {
                 params: {obj: null},
             });
 
-
-		$locationProvider.html5Mode(true);
 		$urlRouterProvider.otherwise('/');
 	});
