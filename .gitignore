@@ -2,3 +2,4 @@ node_modules/
 .git
 npm-debug.log
 server_settings.js
+dist/
