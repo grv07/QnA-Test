@@ -66,7 +66,7 @@ appmodule.config(function($stateProvider, $urlRouterProvider, $httpProvider) {
                 },
                 params: {obj: null},
             })
-            .state('thirdpartytest-allow', {          // State name should not be changed
+            .state('thirdpartytest-allow', {
                 url:'/allow/test/:quizKey/:testID/:token',
                 views: {
                     'header@': {
@@ -78,7 +78,7 @@ appmodule.config(function($stateProvider, $urlRouterProvider, $httpProvider) {
                     },
                 },
             })
-            .state('thirdpartytest-open', {          // State name should not be changed
+            .state('thirdpartytest-open', {
                 url:'/open/test/:quizKey/:testID/:token',
                 views: {
                     'content@': {
@@ -113,6 +113,6 @@ appmodule.config(function($stateProvider, $urlRouterProvider, $httpProvider) {
             });
 
 
-		// $locationProvider.html5Mode(true);
+		$locationProvider.html5Mode(true);
 		$urlRouterProvider.otherwise('/');
 	});

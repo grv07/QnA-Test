@@ -2,7 +2,7 @@
 <div class="container" style="margin-top: -70px;">
 	<div class="row" ng-show="dataPresent">
 		<div class="alert alert-info">
-		   	<strong>Time : {{ totalDuration | secondsToDateTime | date:'HH:mm:ss' }}</strong><button ng-click="show()">Just For Check</button>
+		   	<strong>Time : {{ totalDuration | secondsToDateTime | date:'HH:mm:ss' }}</strong>
 		  	<button class="btn btn-primary btn-md right" ng-click="openWarningModal('submitTestRequestInitiated')">Submit Test</button>
 		</div>
 		<div class="row">

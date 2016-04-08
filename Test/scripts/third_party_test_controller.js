@@ -311,12 +311,7 @@ appmodule
             $scope.sliceFactor = 0;
             getQuestionsBasedOnSection(sectionName);
         }
-        $scope.getQuestionsForThisSection = function(sectionName){
-            console.log(TestPageFactory.getQuestionsForASection(sectionName));
-        }
-        $scope.show = function(){
-            console.log(TestPageFactory.saveQuestionsAnsweredSectionWise());
-        }
+
         $scope.changeQuestion = function(count){
             if(count>=1 && count<=$scope.total_questions.length)
             {
@@ -490,15 +485,7 @@ appmodule
         }catch(e){
             $scope.dataPresent = false;
         }
-    }])
-    .controller('TestFinishThirdPartyController',['$scope', '$stateParams', '$window', function($scope, $stateParams, $window) {
-        $scope.alertType = "success";
-        $scope.alertMsg = "You have completed your test for quiz "+$stateParams.obj.quizName+" successfully.";
-        $scope.closeTestWindow = function(){
-            $window.close();
-        }
     }]);
-
 
 
         

@@ -1,9 +1,6 @@
 /* global $ */
 appmodule
-    .controller('CookiesController', ['$scope', '$rootScope', '$cookies', '$state', function($scope, $rootScope, $cookies, $state) {
-
-    }])
-    .controller('IndexController', ['$scope', '$rootScope', '$cookies', '$state', '$window', '$stateParams', function($scope, $rootScope, $cookies, $state, $window, $stateParams) {
+    .controller('IndexController', ['$scope', '$rootScope', '$state', '$window', '$stateParams', function($scope, $rootScope, $state, $window, $stateParams) {
         $scope.openTest = function(){
             $window.$windowScope = $scope;
             $window.data = {quizKey: $stateParams.quizKey};
@@ -314,16 +311,12 @@ appmodule
                 $scope.hideNextSectionButton = true;
             }
         }
+
         $scope.addQuestions = function(sectionName){
             $scope.sliceFactor = 0;
             getQuestionsBasedOnSection(sectionName);
         }
-        $scope.getQuestionsForThisSection = function(sectionName){
-            console.log(TestPageFactory.getQuestionsForASection(sectionName));
-        }
-        $scope.show = function(){
-            console.log(TestPageFactory.saveQuestionsAnsweredSectionWise());
-        }
+
         $scope.changeQuestion = function(count){
             if(count>=1 && count<=$scope.total_questions.length)
             {
@@ -496,13 +489,6 @@ appmodule
             }
         }catch(e){
             $scope.dataPresent = false;
-        }
-    }])
-    .controller('TestFinishController',['$scope', '$stateParams', '$window', function($scope, $stateParams, $window) {
-        $scope.alertType = "success";
-        $scope.alertMsg = "You have completed your test for quiz "+$stateParams.obj.quizName+" successfully.";
-        $scope.closeTestWindow = function(){
-            $window.close();
         }
     }]);
 
