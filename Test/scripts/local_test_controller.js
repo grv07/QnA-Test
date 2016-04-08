@@ -427,6 +427,7 @@ appmodule
                     function(response){
                         $cookies.remove('testToken');
                         $scope.parentScope.redirectToResultPage(serverURL+'user/result/'+$stateParams.obj.test_user+'/'+$stateParams.obj.test_key+'/'+response.attempt_no);
+
                         alert("You have completed your test successfully. You can now close this window!");
                         $window.close();
                     },
