@@ -1,3 +1,4 @@
+var Promise = require('es6-promise').Promise;
 var gulp= require('gulp');
 // var sass= require('gulp-sass');
 var browserSync= require('browser-sync').create();
@@ -26,7 +27,9 @@ gulp.task('sass', function() {
 gulp.task('browserSync', function() {
   browserSync.init({
     server: {
-      baseDir: ['./', './Test']
+      baseDir: ['./', './Test'],
+      port: 8000,
+      livereload: true
     },
   })
 });
@@ -34,7 +37,7 @@ gulp.task('browserSync', function() {
 gulp.task('useref', function() {
   return gulp.src('Test/*.html')
   .pipe(useref())
-  .pipe(gulpIf('*.js', uglify()))
+  // .pipe(gulpIf('*.js', uglify()))
   .pipe(gulpIf('*.css', cssnano()))
   .pipe(gulp.dest('dist'))
 });
@@ -50,6 +53,11 @@ gulp.task('images', function() {
 gulp.task('fonts', function() {
   return gulp.src('Test/fonts/**/*')
   .pipe(gulp.dest('dist/fonts'))
+});
+
+gulp.task('views', function() {
+  return gulp.src('Test/views/**/*')
+  .pipe(gulp.dest('dist/views'))
 });
 
 // gulp.task('html', function () {
@@ -74,5 +82,5 @@ gulp.task('default', function(callback) {
 });
 
 gulp.task('build', function(callback) {
-  runSequence('clean:dist', ['useref', 'images', 'fonts'], callback)
+  runSequence('clean:dist', ['useref', 'images', 'fonts', 'views'], callback)
 });
