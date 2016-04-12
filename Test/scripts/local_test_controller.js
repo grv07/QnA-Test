@@ -41,7 +41,7 @@ appmodule
                 function(response){
                     $scope.userData = { username:'', email:'', quiz_id: response.id, quiz_name: response.title, test_key: response.quiz_key, 'quizStacks': undefined, 'testToken': undefined };
                     var parentScope = $window.opener.$windowScope;
-                    parentScope.$emit('from-iframe','TestLoading');
+                    parentScope.$emit('from-iframe','TestOpen');
                     parentScope.$apply();
                     parentScope.$digest();
                     $rootScope.parentScope = parentScope;
@@ -151,7 +151,7 @@ appmodule
             for(var i=0;i<data['quizStacks'].length;i++){
                 var stack = data['quizStacks'][i];
                 if(allSections.indexOf(data['quizStacks'][i].section_name)===-1){
-                    data['details'][stack.section_name] = { 'duration': 0, 'questions' : 0};
+                    data['details'][stack.section_name] = { 'duration': 0, 'questions' : 0 };
                     allSections.push(stack.section_name);
                 }
                 $scope.total_questions += parseInt(stack.no_questions);
@@ -171,21 +171,22 @@ appmodule
                             // if(!data['isTestNotCompleted'] || data['sectionsRemaining'].length===0 ){
                             //     data['allQuestionsIds'].push(response.added_questions[i-1]);
                             // }
-                        }    
+                        }
+                        // console.log($scope.progressValue);    
                         if($scope.progressValue>=100){
                             parentScope.$emit('from-iframe','TestLoaded');
                             $scope.progressValue = 100;
                             $scope.startTest = function(){
                                 LoadQuestionsFactory.saveSittingUser().save({ test_user: $scope.userDetails.testUser, quiz_id: $scope.userDetails.quiz_id }).$promise.then(
                                     function(response){
-                                        alert('Error in getting test details.');
-                                        $window.close();
-                                    }, 
-                                    function(response){
                                         parentScope.$emit('from-iframe','TestStarted');
                                         parentScope.$apply();
                                         parentScope.$digest();
                                         $state.go('app.start-test', { obj: data});
+                                    }, 
+                                    function(response){
+                                        alert('Error in getting test details.');
+                                        $window.close();
                                     });
                             }
                         }

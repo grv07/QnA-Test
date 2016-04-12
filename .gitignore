@@ -1,4 +1,7 @@
 node_modules/
 .git
+server.js
 npm-debug.log
 settings.js
+dist/
+
