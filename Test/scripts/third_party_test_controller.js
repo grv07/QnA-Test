@@ -40,7 +40,7 @@ appmodule
 
             TestUserDataFactory.getQuizAccordingToKey($stateParams.quizKey).get().$promise.then(
                 function(response){
-                    $scope.userData = { username:'', email:'', quiz_id: response.id, quiz_name: response.title, test_key: response.quiz_key, 'quizStacks': undefined, 'testToken': undefined };
+                    $scope.userData = { username:'', email:'', quiz_id: response.id, quiz_name: response.title, test_key: response.quiz_key, show_result_on_completion:response.show_result_on_completion, 'quizStacks': undefined, 'testToken': undefined };
                     var parentScope = $window.opener.$windowScope;
                     parentScope.$emit('from-iframe','TestStart');
                     parentScope.$apply();
@@ -132,7 +132,7 @@ appmodule
             $scope.total_questions = 0;
             $scope.sectionsDetails = {};
             $cookies.put('testToken', $scope.userDetails.testToken);
-            var data = { test_key: $scope.userDetails.test_key, test_user: $scope.userDetails.testUser, 'quiz': $scope.userDetails.quiz_id , 'quizName': $scope.userDetails.quiz_name, 'quizStacks' : $scope.userDetails.quizStacks, 'testToken': $scope.userDetails.testToken , 'details' : {} };
+            var data = { test_key: $scope.userDetails.test_key, test_user: $scope.userDetails.testUser, show_result_on_completion: $scope.userDetails.show_result_on_completion, 'quiz': $scope.userDetails.quiz_id , 'quizName': $scope.userDetails.quiz_name, 'quizStacks' : $scope.userDetails.quizStacks, 'testToken': $scope.userDetails.testToken , 'details' : {} };
             data['isTestNotCompleted'] = $scope.userDetails.isTestNotCompleted;
             if(data['isTestNotCompleted']){
                 data['existingAnswers'] = $scope.userDetails.existingAnswers;
@@ -212,7 +212,6 @@ appmodule
     .controller('TestPageThirdPartyController', ['$scope', '$controller', '$cookies', '$window', '$interval', '$stateParams', '$state', 'TestPageFactory', function($scope, $controller, $cookies, $window, $interval, $stateParams, $state, TestPageFactory) {
         $scope.allQuestions = {};
         var firstItemVisited = false;
-        $scope.testSubmitted = false;
         // var allQuestionsIds = [];
         var totalTime = 0;
         var timeCounter = 0;
@@ -416,17 +415,24 @@ appmodule
                 $scope.parentScope.$apply();
                 $scope.parentScope.$digest();
 
-                var testCompleted = false;
                 data['time_spent'] = $scope.totalDuration;
                 TestPageFactory.saveResultToDB().save(data).$promise.then(
                     function(response){
                         $cookies.remove('testToken');
-                        $scope.parentScope.redirectToResultPage(serverURL+'user/result/'+$stateParams.obj.test_user+'/'+$stateParams.obj.test_key+'/'+response.attempt_no);
-                        alert("You have completed your test successfully. You can now close this window!");
+                        if($stateParams.obj.show_result_on_completion){
+                            $scope.parentScope.redirectToResultPage(serverURL+'user/result/'+$stateParams.obj.test_user+'/'+$stateParams.obj.test_key+'/'+response.attempt_no);
+                        }else{
+                            $scope.parentScope.message = 'Your result has been saved. But the result cannot be shown right now. You can now close this window.';
+                            $scope.parentScope.image = '../images/completed.png';
+                            $scope.parentScope.$emit('from-iframe','TestFinished');
+                            $scope.parentScope.$apply();
+                            $scope.parentScope.$digest();
+                        }
+                        alert("You have completed your test successfully. You can now close this window.");
                         $window.close();
                     },
                     function(response){
-                        // testCompleted = false;
+                        alert('Error in submitting test!');
                     }
                 );
             }else{
@@ -467,6 +473,7 @@ appmodule
                 $scope.currentSection = $scope.selectedSection;
                 $scope.addQuestions($scope.selectedSection);
                 $scope.totalDuration = totalTime;
+                updateTimeRemaining({'test_user': $stateParams.obj.test_user, 'test_key': $stateParams.obj.test_key, 'remaining_duration': $scope.totalDuration, 'section_name': $scope.selectedSection });
                 $interval(function(){
                     $scope.totalDuration -= 1;
                     timeCounter += 1;

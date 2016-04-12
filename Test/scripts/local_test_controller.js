@@ -478,6 +478,8 @@ appmodule
                 $scope.currentSection = $scope.selectedSection;
                 $scope.addQuestions($scope.selectedSection);
                 $scope.totalDuration = totalTime;
+                updateTimeRemaining({'test_user': $stateParams.obj.test_user, 'test_key': $stateParams.obj.test_key, 'remaining_duration': $scope.totalDuration, 'section_name': $scope.selectedSection });
+
                 $interval(function(){
                     $scope.totalDuration -= 1;
                     timeCounter += 1;
