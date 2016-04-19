@@ -191,4 +191,17 @@ appmodule
           return deferred.promise;
         }
 
+  }])
+  .service('ReportFactory', ['$resource', function($resource) {
+    this.getReportDetails = function(testUserID, quizKey, attemptNo){
+      return $resource(serverURL+"user/result/"+testUserID+"/"+quizKey+"/"+attemptNo, null,
+        {
+          get: {
+          method : 'GET',
+          isArray : false,
+          }
+        },
+        { stripTrailingSlashes: false }
+        );
+    }
   }]);

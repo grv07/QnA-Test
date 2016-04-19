@@ -15,4 +15,9 @@ angular.module('Test').filter('capitalize', function() {
       return input.replace(/<>/g, "____________");      
       return input;
     }
+})
+.filter('epochToDate', function() {
+    return function(epoch_time) {
+        return new Date(0).setSeconds(epoch_time);
+    };
 });

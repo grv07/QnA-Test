@@ -50,3 +50,7 @@ a{
 ol#instructionsList > li{
 	line-height: 20px;
 }
+.border-padding-less>tbody>tr>td{
+	padding: 0;
+	border: 0;
+}

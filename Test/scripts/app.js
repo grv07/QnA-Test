@@ -110,6 +110,19 @@ appmodule.config(function($stateProvider, $urlRouterProvider, $httpProvider) {
                     }
                 },
                 params: {obj: null},
+            })
+            .state('result', {
+                url:'/view/report/:testUserID/:quizKey/:attemptNo',
+                views :{
+                    'header@': {
+                        templateUrl : 'views/report_header.html'
+                    },
+                    'content@': {
+                        controller  : 'ViewReportContoller',
+                        templateUrl : 'views/view_report.html'
+                    }
+                },
+                params: {obj: null},
             });
 
 		$urlRouterProvider.otherwise('/');
