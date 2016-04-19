@@ -2,9 +2,9 @@
 appmodule
     .controller('ViewReportContoller', ['$scope', '$stateParams', 'ReportFactory', function($scope, $stateParams, ReportFactory) {
     	$scope.error = false;
-
     	ReportFactory.getReportDetails($stateParams.testUserID, $stateParams.quizKey, $stateParams.attemptNo).get().$promise.then(
             function(response){
+        	$scope.data = response;
         	CanvasJS.addColorSet("colors",
 	            [
 	            "#3EA0DD",
@@ -18,33 +18,45 @@ appmodule
 	            "#2F4F4F",
 	            "#2E8B57",
 	            "#90EE90",
-	            ]);
-        	CanvasJS.addColorSet("NoItemColor",
-	            [
-	            "#BDBDBD",
-	            ]);
-        	$scope.data = response;
-        	if(response.section_wise_result_correct.length!=0){
-        		createPieChart("sectionWiseCorrectContainer", "colors", "Correct", response.section_wise_result_correct);
-			}else{
-				createPieChart("sectionWiseCorrectContainer", "NoItemColor", "Correct",  [ {'y':1, 'indexLabel':"No value"} ]);
+	        ]);
+
+        	var barGraphDataPoints = [
+			{
+				type: "stackedColumn100",
+	            legendText: "Correct",
+	            showInLegend: "true",
+	            indexLabel: "#percent %",
+	            indexLabelPlacement: "inside",
+	            indexLabelFontColor: "white",
+	            dataPoints: []
+			},
+			{
+				type: "stackedColumn100",
+	            legendText: "Incorrect",
+	            showInLegend: "true",
+	            indexLabel: "#percent %",
+	            indexLabelPlacement: "inside",
+	            indexLabelFontColor: "white",
+	            dataPoints: []
+			},
+			{
+				type: "stackedColumn100",
+	            legendText: "Unattempted",
+	            showInLegend: "true",
+	            indexLabel: "#percent %",
+	            indexLabelPlacement: "inside",
+	            indexLabelFontColor: "white",
+	            dataPoints: []
+			}];
+			
+			for(var key in response.section_wise_results){
+				for(i=0;i<=2;i++){	
+			    	barGraphDataPoints[i].dataPoints.push(response.section_wise_results[key][i]);
+				}
 			}
+			createStackedBarChart("sectionWiseBarGraphContainer", "colors", "", "Sections", "%age of questions", barGraphDataPoints);
 
-			if(response.section_wise_result_incorrect.length!=0){
-        		createPieChart("sectionWiseIncorrectContainer", "colors", "Incorrect", response.section_wise_result_incorrect);
-
-			}else{
-				createPieChart("sectionWiseIncorrectContainer", "NoItemColor", "Incorrect",  [ {'y':1, 'indexLabel':"No value"} ]);
-			}
-
-			if(response.section_wise_result_unattempt.length!=0){
-        		createPieChart("sectionWiseUnattemptedContainer", "colors", "Unattempted", response.section_wise_result_unattempt);
-
-			}else{
-				createPieChart("sectionWiseUnattemptedContainer", "NoItemColor", "Unattempted",  [ {'y':1, 'indexLabel':"No value"} ]);
-			}
-
-			var barGraphDataPoints = [
+			barGraphDataPoints = [
 			{
 				type: "stackedColumn100",
 	            legendText: "Correct",
@@ -73,11 +85,11 @@ appmodule
 	            dataPoints: []
 			}];
 			for (var key in response.filter_by_category) {	
-				for(i=0;i<=2;i++){	
-			    	barGraphDataPoints[i].dataPoints.push({ y: response.filter_by_category[key][i], label: key });
-				}
+			    barGraphDataPoints[0].dataPoints.push({ y: response.filter_by_category[key][1], label: key });
+			    barGraphDataPoints[1].dataPoints.push({ y: response.filter_by_category[key][0], label: key });
+			    barGraphDataPoints[2].dataPoints.push({ y: response.filter_by_category[key][2], label: key });
 			}
-			createStackedBarChart("categoryWiseBarGraphContainer", "colors", "", barGraphDataPoints);
+			createStackedBarChart("categoryWiseBarGraphContainer", "colors", "", "Categories", "%age of questions", barGraphDataPoints);
             },
             function(response){            	
             	$scope.error = true;

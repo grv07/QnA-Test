@@ -53,40 +53,17 @@ function changeProgressValues(object) {
     return [{ percentage: (count[0]*100)/totalKeys, count: count[0] }, { percentage: (count[1]*100)/totalKeys, count: count[1] }, { percentage: (count[2]*100)/totalKeys, count: count[2] }];
 };
 
-function createPieChart(chartID, colorSet, text, dataPoints){
-    new CanvasJS.Chart(chartID,
-    {
-        colorSet: colorSet,
-        title:{
-            text: text,
-            fontSize: 18,
-            fontColor: "blue",
-
-        },
-        legend: {
-            maxWidth: 350,
-            itemWidth: 120
-        },
-        data: [
-        {
-            type: "pie",
-            dataPoints: dataPoints,
-        }
-        ]
-    }).render();
-}
-
-function createStackedBarChart(chartID, colorSet, text, dataPoints){
+function createStackedBarChart(chartID, colorSet, text, titleX, titleY, dataPoints){
     new CanvasJS.Chart(chartID,
     {
         title:{
             text: text
         },
         axisX:{
-            title: "Categories"
+            title: titleX
         },
         axisY:{
-            title: "Marks scored"
+            title: titleY
         },
         data: dataPoints
     }).render();
