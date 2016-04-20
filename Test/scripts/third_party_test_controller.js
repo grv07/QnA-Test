@@ -424,8 +424,8 @@ appmodule
                     function(response){
                         $cookies.remove('testToken');
                         if($stateParams.obj.show_result_on_completion){
-                            $scope.parentScope.redirectToResultPage(testURL+'#/view/report/'+$stateParams.obj.test_user+'/'+$stateParams.obj.test_key+'/'+response.attempt_no);
                             $scope.parentScope.closeStateModal();
+                            $scope.parentScope.redirectToResultPage(testURL+'#/view/report/'+$stateParams.obj.test_user+'/'+$stateParams.obj.test_key+'/'+response.attempt_no);
                         }else{
                             $scope.parentScope.message = 'Your result has been saved. But the result cannot be shown right now. You can now close this window.';
                             $scope.parentScope.image = '../images/completed.png';
