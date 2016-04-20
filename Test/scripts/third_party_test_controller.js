@@ -33,6 +33,10 @@ appmodule
         $scope.redirectToResultPage = function(resultPageURL){
             $window.location = resultPageURL;
         }
+
+        $scope.closeStateModal = function(){
+            angular.element(document.querySelector('#stateModal')).modal('hide');
+        }
     }])
     .controller('UserDataThirdPartyController',['$scope', '$rootScope', '$state', '$cookies', '$window', '$stateParams', 'TestUserDataFactory', function($scope, $rootScope, $state, $cookies, $window, $stateParams, TestUserDataFactory) {
         if($window.opener){
@@ -421,6 +425,7 @@ appmodule
                         $cookies.remove('testToken');
                         if($stateParams.obj.show_result_on_completion){
                             $scope.parentScope.redirectToResultPage(testURL+'#/view/report/'+$stateParams.obj.test_user+'/'+$stateParams.obj.test_key+'/'+response.attempt_no);
+                            $scope.parentScope.closeStateModal();
                         }else{
                             $scope.parentScope.message = 'Your result has been saved. But the result cannot be shown right now. You can now close this window.';
                             $scope.parentScope.image = '../images/completed.png';
