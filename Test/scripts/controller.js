@@ -100,7 +100,7 @@ appmodule
 				dataPoints2.push({ x: no_of_questions , y: response.analysis.question_vs_time_result_real[key][1] });				
 			}
 			createSplineChart("timeWiseSplineContainer", "", dataPoints1, dataPoints2);
-			
+
 			delete response.analysis;
 			$scope.data = response;
             },

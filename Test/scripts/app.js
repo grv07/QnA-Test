@@ -3,18 +3,31 @@ appmodule.config(function($stateProvider, $urlRouterProvider, $httpProvider) {
   		// $httpProvider.interceptors.push('APIInterceptor');
         $stateProvider	        
             // route for the home page
-            .state('app', {
-                url:'/allow/test/:quizKey',
+            .state('index', {
+                url:'/',
                 views: {
                     'header': {
                         templateUrl : 'views/header.html'
                     },
                     'content': {
-                        controller : 'IndexController',
+                        controller: 'IndexController',
                     },
                     'footer': { 
                         templateUrl : 'views/footer.html'
                     }
+                },
+                params: {obj: null},
+            })
+            .state('app', {
+                url:'/allow/test/:quizKey',
+                views: {
+                    'header@': {
+                        templateUrl : 'views/header.html'
+                    },
+                    'content@': {
+                        controller : 'IndexController',
+                        templateUrl : 'views/home.html'
+                    },
                 },
                 params: {obj: null},
             })
