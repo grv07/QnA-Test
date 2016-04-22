@@ -25,6 +25,10 @@ appmodule
                 $scope.message = 'Your test has started.';
                 $scope.image = '../images/hourglass.svg';
             }
+            else if(message==='TestLimitExceeded'){
+                $scope.message = 'The test limit has been exceeded. No attempts left.';
+                $scope.image = '../images/not_allowed.png';
+            }
             $('#stateModalBodyMessage').html($scope.message);
             $('#stateModalBodyImage').attr('src', $scope.image);
             angular.element(document.querySelector('#stateModal')).modal('show');
@@ -125,6 +129,7 @@ appmodule
                     $scope.alertType = "danger";
                     $scope.alertMsg = response.data.errors;
                     setTimeout(closeAlert, 5000);
+                    $window.opener.$windowScope.$emit('from-iframe','TestLimitExceeded');
                 });
             }
         }else{
@@ -178,9 +183,6 @@ appmodule
                         TestPageFactory.addQuestionsForSection(sectionName, response.questions);
                         for(var i=1;i<=response.added_questions.length;i++){
                             $scope.progressValue +=  (i/$scope.total_questions)*100;
-                            // if(!data['isTestNotCompleted'] || data['sectionsRemaining'].length===0 ){
-                            //     data['allQuestionsIds'].push(response.added_questions[i-1]);
-                            // }
                         }
                         // console.log($scope.progressValue);    
                         if($scope.progressValue>=100){
@@ -224,22 +226,18 @@ appmodule
             }   
         }])
     .controller('TestPageController', ['$scope', '$controller', '$cookies', '$window', '$interval', '$stateParams', '$state', 'TestPageFactory', function($scope, $controller, $cookies, $window, $interval, $stateParams, $state, TestPageFactory) {
-        $scope.allQuestions = {};
         var firstItemVisited = false;
-        // var allQuestionsIds = [];
         var totalTime = 0;
         var timeCounter = 0;
         if($stateParams.obj.isTestNotCompleted){
             totalTime = parseInt($stateParams.obj.timeRemaining);
-            // if($stateParams.obj.sectionsRemaining){
-            //     allQuestionsIds = $stateParams.obj.allQuestionsIds;
-            // }
         }else{
             totalTime = findTotalDuration($stateParams.obj.quizStacks);
-            // allQuestionsIds = $stateParams.obj.allQuestionsIds;
         }
         
         $scope.serverURL = serverURL;
+        // var timeSpentOnQuestions = {};
+        // var questionTimeCounter = totalTime;
 
         function getQuestionsBasedOnSection(sectionName){
             try{
@@ -327,6 +325,11 @@ appmodule
             getQuestionsBasedOnSection(sectionName);
         }
 
+        function saveTimeSpentOnQuestion(currentQuestionID, questionStartTime, questionEndTime){
+            timeSpentOnQuestions[currentQuestionID] = (timeSpentOnQuestions[currentQuestionID] || 0) + questionStartTime - questionEndTime;
+            return timeSpentOnQuestions[currentQuestionID];
+        }
+
         $scope.changeQuestion = function(count){
             if(count>=1 && count<=$scope.total_questions.length)
             {
@@ -337,11 +340,17 @@ appmodule
                 }else{
                     $scope.currentOptions = [];
                 }
-            }
-            if($scope.progressValuesModel[$scope.currentQuestion.id].status==='NV'){
-                $scope.progressValuesModel[$scope.currentQuestion.id].status = 'NA';
-                $scope.progressValues = changeProgressValues($scope.progressValuesModel);
-                TestPageFactory.saveProgressValues($scope.selectedSection, $scope.progressValuesModel);
+                // if(count>=2){
+                //     var questionStartTime = questionTimeCounter;
+                //     var questionEndTime = $scope.totalDuration;
+                //     var t = saveTimeSpentOnQuestion(TestPageFactory.getQuestion($scope.selectedSection, count-1).id, questionStartTime, questionEndTime);
+                //     questionTimeCounter = questionEndTime;
+                // }
+                if($scope.progressValuesModel[$scope.currentQuestion.id].status==='NV'){
+                    $scope.progressValuesModel[$scope.currentQuestion.id].status = 'NA';
+                    $scope.progressValues = changeProgressValues($scope.progressValuesModel);
+                    TestPageFactory.saveProgressValues($scope.selectedSection, $scope.progressValuesModel);
+                }
             }
         }
         $scope.saveAnswer = function(count, answerId){
@@ -455,7 +464,8 @@ appmodule
                 data['answer'] = {};
                 data['answer'][$scope.currentQuestion.id] = {
                     value: TestPageFactory.getAnswerForQuestion(currentSection, $scope.currentQuestion.id).value, 
-                    status: TestPageFactory.getAnswerProgressValue(currentSection, $scope.currentQuestion.id).status 
+                    status: TestPageFactory.getAnswerProgressValue(currentSection, $scope.currentQuestion.id).status,
+                    // time: $scope.timeSpentOnQuestions[$scope.currentQuestion.id] 
                     }; 
                 data['quiz_id'] = $stateParams.obj.quiz;
                 data['section_name'] = currentSection;

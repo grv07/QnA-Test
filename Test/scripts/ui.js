@@ -53,7 +53,7 @@ function changeProgressValues(object) {
     return [{ percentage: (count[0]*100)/totalKeys, count: count[0] }, { percentage: (count[1]*100)/totalKeys, count: count[1] }, { percentage: (count[2]*100)/totalKeys, count: count[2] }];
 };
 
-function createStackedBarChart(chartID, colorSet, text, titleX, titleY, dataPoints){
+function createStackedBarChart(chartID, colorSet, text, titleX, titleY, dataPoints1){
     new CanvasJS.Chart(chartID,
     {
         title:{
@@ -65,6 +65,31 @@ function createStackedBarChart(chartID, colorSet, text, titleX, titleY, dataPoin
         axisY:{
             title: titleY
         },
-        data: dataPoints
+        data: dataPoints1
+    }).render();
+}
+
+function createSplineChart(chartID, text, dataPoints1, dataPoints2){
+    new CanvasJS.Chart(chartID,
+    {    
+      title:{
+      text: text
+      },
+       data: [
+      {        
+        type: "spline",
+        color: "#6DCFF6",
+        legendText: "Ideal time",
+        showInLegend: "true",
+        dataPoints: dataPoints1
+      },
+      {        
+        type: "spline",
+        color: "#B36491", 
+        legendText: "Actual time",
+        showInLegend: "true",      
+        dataPoints: dataPoints2
+      } 
+      ]
     }).render();
 }

@@ -21,6 +21,10 @@
 				      <tr>
 				        <td>Marks </td>
 				   		<td><h5 class="help-block">{{data.marks_scored}}/{{data.total_marks}} ({{data.marks_scored*100/data.total_marks|number:2}}%)</h5></td>
+				      </tr>
+				      <tr>
+				        <td>Rank </td>
+				   		<td><h5 class="help-block">{{data.rank}}</h5></td>
 				      </tr>					      
 				      <tr>
 				        <td>Attempt No. </td>
@@ -78,6 +82,16 @@
 			<div class="col-lg-1 col-md-1"></div>
 			<div class="col-lg-10 col-md-10">
 				<div id="categoryWiseBarGraphContainer" style="height: 400px; width: 100%;"></div>
+			</div>
+			<div class="col-lg-1 col-md-1"></div>
+		</div>
+	</div><hr><br>
+	<div class="row">
+		<div class="row text-center"><h4><b>Time wise distribution</b></h4><br></div>
+		<div class="row">
+			<div class="col-lg-1 col-md-1"></div>
+			<div class="col-lg-10 col-md-10">
+				<div id="timeWiseSplineContainer" style="height: 400px; width: 100%;"></div>
 			</div>
 			<div class="col-lg-1 col-md-1"></div>
 		</div>
