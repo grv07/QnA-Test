@@ -93,3 +93,7 @@ function createSplineChart(chartID, text, dataPoints1, dataPoints2){
       ]
     }).render();
 }
+
+function addAnswerExplanationLink(explanation){
+    $('#answerExplanationRow').html('<a data-toggle="collapse" data-target="#answerExplanation">View Answer</a><div id="answerExplanation" class="collapse bold-text">'+explanation+'</div>')
+}

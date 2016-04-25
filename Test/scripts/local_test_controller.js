@@ -335,6 +335,7 @@ appmodule
             {
                 $scope.currentCount = count;
                 $scope.currentQuestion = TestPageFactory.getQuestion($scope.selectedSection, count);
+                addAnswerExplanationLink($scope.currentQuestion.explanation);
                 if(isMCQ($scope.currentQuestion.que_type)){
                     $scope.currentOptions = $scope.currentQuestion.options;
                 }else{
@@ -424,11 +425,6 @@ appmodule
             $scope.sliceFactor += 1;
             sliceOutQuestions();
         }
-
-        function showFinishPage(){
-            $state.go('app.finish-test', { obj: {"quizName": $stateParams.obj.quizName}});
-        }
-
         $scope.submitTestDetails = function(isSaveToDB, currentSection){
             var data = { 'test_user': $stateParams.obj.test_user, 'test_key': $stateParams.obj.test_key };
             if(isSaveToDB){
