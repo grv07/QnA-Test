@@ -21,7 +21,7 @@
 				<div class="row">
 					<div class="col-lg-2 col-md-2 col-sm-2">
 					</div>
-					<div class="col-lg-3 col-md-3 col-sm-3">
+					<div class="col-lg-3 col-md-3 col-sm-3 text-center">
 						<label for="notVisitedQuestionsCountBar">#Not Visited
 							<div class="progress">
 							  <div id="notVisitedQuestionsCountBar" class="progress-bar progress-bar-danger black-text" role="progressbar" style="width:{{progressValues[1].percentage}}%">
@@ -30,7 +30,7 @@
 							</div>
 						</label>
 					</div>
-					<div class="col-lg-4 col-md-4 col-sm-4">
+					<div class="col-lg-4 col-md-4 col-sm-4 text-center">
 						<label for="notAttemptedQuestionsCountBar">#Not Attempted
 							<div class="progress">
 							  <div id="notAttemptedQuestionsCountBar" class="progress-bar progress-bar-warning black-text" role="progressbar" style="width:{{progressValues[2].percentage}}%">
@@ -39,7 +39,7 @@
 							 </div>
 						</label>
 					</div> 
-					<div class="col-lg-3 col-md-3 col-sm-3">
+					<div class="col-lg-3 col-md-3 col-sm-3 text-center">
 						<label for="attemptedQuestionsCountBar">#Attempted
 							<div class="progress">
 							  <div id="attemptedQuestionsCountBar" class="progress-bar progress-bar-success black-text" role="progressbar" style="width:{{progressValues[0].percentage}}%">
@@ -50,27 +50,27 @@
 					</div>
 				</div>				
 			</div>
-			<div class="col-lg-2 col-md-2 col-sm-2">
-				<button ng-if="!hideNextSectionButton" class="btn btn-info btn-md right" ng-click="openWarningModal('sectionChangeRequestInitiated')">Next Section</button>
+			<div class="col-lg-2 col-md-2 col-sm-2 text-center">
+				<button ng-if="!hideNextSectionButton" class="btn btn-info btn-md" ng-click="openWarningModal('sectionChangeRequestInitiated')">Next Section</button>
 			</div>
 		</div>
 		<div class="row">
-			<div class="col-lg-8 col-md-8 col-sm-8">
+			<div class="col-lg-8 col-md-8 col-sm-8 text-center">
 				<ul class="pagination pagination-sm">
 				  <li ng-repeat="count in sliced_questions" ng-click="changeQuestion(count)"><a href="javascript:void(0);">{{count}}</a></li>
 				</ul>
 			</div>
-			<div class="col-lg-4 col-md-4 col-sm-4">
+			<div class="col-lg-4 col-md-4 col-sm-4 text-center">
 				<ul class="pagination pagination-sm">
 				   <li ng-if="sliceFactor>0"><a href="javascript:void(0)" ng-click="decreaseSlicing()">&laquo;</a></li>
 				   <li><a href="javascript:void(0)"><span id="previous">{{sliceFactor*15+1}}</span> of <span ng-if="sliceFactor<=slicingLimit-1" id="next">{{(sliceFactor+1)*15}}</span><span ng-if="sliceFactor+1>slicingLimit" id="next">{{total_questions.length}}</span></a></li>
-				   <li ng-if="sliceFactor+1<=slicingLimit"><a href="javascript:void(0)" ng-click="increaseSlicing()">&raquo;</a></li>
+				   <li ng-if="sliceFactor+1<slicingLimit"><a href="javascript:void(0)" ng-click="increaseSlicing()">&raquo;</a></li>
 				</ul>
 			</div>
 		</div>
 		</div>
 		<div class="row" style="height: 300px">
-			<div class="row left">
+			<div class="row text-center">
 				Question #{{currentCount}}
 			</div><hr>
 			<div class="col-lg-6 col-md-6 col-sm-6">
@@ -99,7 +99,7 @@
 				</div>
 			</div>
 		</div><br><br>
-		<div class="row">
+		<div class="row text-center">
 			<button ng-if="currentCount>0 && currentCount<total_questions.length" class="btn btn-info btn-md right" ng-click="changeQuestion(currentCount+1)">Next Question</button>
 			<button ng-if="currentCount>1" class="btn btn-info btn-md left" ng-click="changeQuestion(currentCount-1)">Previous Question</button>
 		</div>
