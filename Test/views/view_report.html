@@ -2,99 +2,88 @@
 <div class="row">
 	<div class="panel" style="margin-top: -20px;">
 		<div class="row">
-			<div class="col-lg-6 col-ms-6 col-sm-6 col-xs-12" style="border-right: solid 2px black;">
+			<div class="col-lg-6 col-ms-6 col-sm-6 col-xs-12">
 				<div class="row"><br><h4 class="bold-text">User details</h4><br></div>
-				<table class="table table-responsive border-padding-less">						   
-				   	<tbody>
-				   	<tr>
-				        <td>Result Status </td>
-				        <td><h5 class="help-block">{{data.result_status}}</h5></td>
-				      </tr>
-				      <tr>
-				        <td>Username </td>
-				        <td><h5 class="help-block">{{data.username}}</h5></td>
-				      </tr>
-				      <tr>
-				        <td>Email </td>
-				        <td><h5 class="help-block">{{data.email}}</h5></td>
-				      </tr>						      
-				      <tr>
-				        <td>Marks </td>
-				   		<td><h5 class="help-block">{{data.marks_scored}}/{{data.total_marks}} ({{data.marks_scored*100/data.total_marks|number:2}}%)</h5></td>
-				      </tr>
-				      <tr>
-				        <td>Rank </td>
-				   		<td><h5 class="help-block">{{data.rank}}</h5></td>
-				      </tr>					      
-				      <tr>
-				        <td>Attempt No. </td>
-				    	<td><h5 class="help-block">{{data.attempt_no}}</h5></td>
-				      </tr>
-				      <tr>
-				        <td>Start Time</td>
-						<td><h5 class="help-block">{{data.start_time_IST | epochToDate | date:'medium'}}</h5></td>
-				      </tr>
-				      <tr>
-				        <td>End Time</td>
-						<td><h5 class="help-block">{{data.end_time_IST | epochToDate | date:'medium'}}</h5></td>
-				      </tr>	
-				   	</tbody>
-				</table>
+				<div class="row space text-left">
+					<div class="col-lg-2 col-md-2 col-sm-2 col-xs-2"></div>
+					<div class="col-lg-5 col-md-5 col-sm-5 col-xs-5">
+						<div class="row">Result Status</div>
+						<div class="row">Username</div>
+						<div class="row">Email</div>
+						<div class="row">Marks</div>
+						<div class="row">Actual Rank</div>
+						<div class="row">Attempt No.</div>
+						<div class="row">Start Time</div>
+						<div class="row">End Time</div>
+					</div>
+					<div class="col-lg-5 col-md-5 col-sm-5 gray-text col-xs-5">
+						<div class="row">{{data.result_status}}</div>
+						<div class="row">{{data.username}}</div>
+						<div class="row">{{data.email}}</div>
+						<div class="row">{{data.marks_scored}}/{{data.total_marks}} ({{data.marks_scored*100/data.total_marks|number:2}}%)</div>
+						<div class="row">{{data.rank}}</div>
+						<div class="row">{{data.attempt_no}}</div>
+						<div class="row">{{data.start_time_IST | epochToDate | date:'medium'}}</div>
+						<div class="row">{{data.end_time_IST | epochToDate | date:'medium'}}</div>					
+					</div>
+				</div>
 			</div>
 			<div class="col-lg-6 col-ms-6 col-sm-6 col-xs-12">
 				<div class="row"><br><h4 class="bold-text">Quiz details</h4><br></div>
-				<table class="table table-responsive border-padding-less">						   
-				   	<tbody>
-				      <tr>
-				        <td>Quiz Name </td>
-				        <td><h5 class="help-block">{{data.quiz_name}}</h5></td>
-				      </tr>
-				      <tr>
-				        <td>Quiz Key </td>
-				        <td><h5 class="help-block">{{data.test_key}}</h5></td>
-				      </tr>						      
-				      <tr>
-				        <td>Total Questions </td>
-				   		<td><h5 class="help-block">{{data.total_questions}}</h5></td>
-				      </tr>						      
-				      <tr>
-				        <td>Passing %age </td>
-				    	<td><h5 class="help-block">{{data.passing_percentage}}</h5></td>
-				      </tr>	
-				   	</tbody>
-				</table>
+				<div class="row space text-left">
+					<div class="col-lg-2 col-md-2 col-sm-2 col-xs-2"></div>
+					<div class="col-lg-5 col-md-5 col-sm-5 col-xs-5">
+						<div class="row">Quiz Name </div>
+						<div class="row">Quiz Key </div>
+						<div class="row">Total Questions</div>
+						<div class="row">Passing %age</div>
+					</div>
+					<div class="col-lg-5 col-md-5 col-sm-5 gray-text col-xs-5">
+						<div class="row">{{data.quiz_name}}</div>
+						<div class="row">{{data.test_key}}</div>
+						<div class="row">{{data.total_questions}}</div>
+						<div class="row">{{data.passing_percentage}}</div>					
+					</div>
+				</div>
 			</div>
 		</div>
 	</div><br>
 	<div class="row">
 		<div class="row text-center"><h4 class="bold-text">Section wise distribution</h4><br></div>
 		<div class="row">
-			<div class="col-lg-1 col-md-1"></div>
-			<div class="col-lg-10 col-md-10">
-				<div id="sectionWiseBarGraphContainer" style="height: 400px; width: 100%;"></div>
+			<div class="col-lg-1 col-md-1 col-sm-1 col-xs-1"></div>
+			<div class="col-lg-10 col-md-10 col-sm-10 col-xs-10">
+				<div id="sectionWiseBarGraphContainer" class="graph"></div>
 			</div>
-			<div class="col-lg-1 col-md-1"></div>
+			<div class="col-lg-1 col-md-1 col-sm-1 col-xs-1"></div>
 		</div>
 	</div><hr><br>
 	<div class="row">
 		<div class="row text-center"><h4 class="bold-text">Category wise distribution</h4><br></div>
 		<div class="row">
-			<div class="col-lg-1 col-md-1"></div>
-			<div class="col-lg-10 col-md-10">
-				<div id="categoryWiseBarGraphContainer" style="height: 400px; width: 100%;"></div>
+			<div class="col-lg-1 col-md-1 col-sm-1 col-xs-1"></div>
+			<div class="col-lg-10 col-md-10 col-sm-10 col-xs-10">
+				<div id="categoryWiseBarGraphContainer" class="graph"></div>
 			</div>
-			<div class="col-lg-1 col-md-1"></div>
+			<div class="col-lg-1 col-md-1 col-sm-1 col-xs-1"></div>
 		</div>
 	</div><hr><br>
 	<div class="row">
 		<div class="row text-center"><h4 class="bold-text">Time wise distribution</h4><br></div>
 		<div class="row">
-			<div class="col-lg-1 col-md-1"></div>
-			<div class="col-lg-10 col-md-10">
-				<div id="timeWiseSplineContainer" style="height: 400px; width: 100%;"></div>
+			<div class="col-lg-1 col-md-1 col-sm-1 col-xs-1"></div>
+			<div class="col-lg-10 col-md-10 col-sm-10 col-xs-10">
+				<div id="timeWiseSplineContainer" class="graph"></div>
 			</div>
-			<div class="col-lg-1 col-md-1"></div>
+			<div class="col-lg-1 col-md-1 col-sm-1 col-xs-1"></div>
 		</div>
-	</div>
+	</div><hr><br>
+	<div class="row">
+		<div class="col-lg-4 col-md-4 col-sm-4 col-xs-1"></div>
+		<div class="col-lg-4 col-md-4 col-sm-4 col-xs-10">
+			<button class="btn btn-block btn-primary" ng-click="goToQuestionsStats()">View Question Statistics</button>
+		</div>
+		<div class="col-lg-4 col-md-4 col-sm-4 col-xs-1"></div>
+	</div><br>
 </div>
 </div>

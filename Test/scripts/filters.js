@@ -11,8 +11,8 @@ angular.module('Test').filter('capitalize', function() {
 })
 .filter('insertBlank', function() {
     return function(input) {
-      if(input!=undefined && input.indexOf("<>")!=-1)
-      return input.replace(/<>/g, "____________");      
+      if(input!=undefined && input.indexOf("<<Answer>>")!=-1)
+      return input.replace(/<<Answer>>/g, "____________");      
       return input;
     }
 })

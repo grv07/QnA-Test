@@ -130,7 +130,7 @@ appmodule
         // }
 
         // Save section-wise questions-answers
-        this.saveSectionQuestion = function(sectionName, answers){
+        this.saveSectionQuestionAnswers = function(sectionName, answers){
             data[sectionName] = answers;
         }
 
@@ -179,7 +179,26 @@ appmodule
 
         this.saveTimeRemainingToCache = function(data){
           var deferred = $q.defer();
-          $http.put(serverURL+"save/time/remaining/", data).then(function (response) {
+          $http.post(serverURL+"save/time/remaining/", data).then(function (response) {
+            deferred.resolve(response.data);
+          });
+          return deferred.promise;
+        }
+
+        this.saveBookMarks = function(data){
+          return $resource(serverURL+"save/test/bookmarks/", null,
+            {
+              save: {
+              method : 'POST',
+              }
+            },
+            { stripTrailingSlashes: false }
+            );
+        }
+
+        this.saveTimePerQuestionToCache = function(data){
+          var deferred = $q.defer();
+          $http.post(serverURL+"save/question/time/", data).then(function (response) {
             deferred.resolve(response.data);
           });
           return deferred.promise;
@@ -188,7 +207,19 @@ appmodule
   }])
   .service('ReportFactory', ['$resource', function($resource) {
     this.getReportDetails = function(testUserID, quizKey, attemptNo){
-      return $resource(serverURL+"user/result/"+testUserID+"/"+quizKey+"/"+attemptNo, null,
+      return $resource(serverURL+"user/result/"+testUserID+"/"+quizKey+"/"+attemptNo+"/", null,
+        {
+          get: {
+          method : 'GET',
+          isArray : false,
+          }
+        },
+        { stripTrailingSlashes: false }
+        );
+    }
+
+    this.getQuestionStats = function(sittingID, count){
+      return $resource(serverURL+"question/stats/"+sittingID+"/", { count: count},
         {
           get: {
           method : 'GET',
