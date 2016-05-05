@@ -2,9 +2,11 @@
 appmodule
     .controller('ViewReportContoller', ['$scope', '$stateParams', '$state', 'ReportFactory', function($scope, $stateParams, $state, ReportFactory) {
     	$scope.error = false;
-    	var questionIds = [];
+    	var sittingID = 0;
     	ReportFactory.getReportDetails($stateParams.testUserID, $stateParams.quizKey, $stateParams.attemptNo).get().$promise.then(
             function(response){
+            sittingID = response.sitting_id;
+
         	CanvasJS.addColorSet("colors",
 	            [
 	            "#3EA0DD",
@@ -78,8 +80,6 @@ appmodule
 			var dataPoints3 = []
 			var no_of_questions = 0;
 			var value = 0;
-			questionIds = Object.keys(response.questions_stats);
-			// $scope.questionsStats = [];
 			for(var key in response.questions_stats){
 				no_of_questions += 1;
 				dataPoints1.push({ x: no_of_questions , y: response.questions_stats[key]['ideal_time'] });
@@ -96,15 +96,9 @@ appmodule
 					value = response.analysis.question_vs_time_result_user[key];
 					if(value.length>1){
 						dataPoints3.push({ x: no_of_questions , y: value[1] });
-						// if(response.questions_stats[key]['correct_answer_id']===value[0]){
-						// 	status = 'Correct';
-						// }else{
-						// 	status = 'Incorrect';
-						// }
 					}
 					else{
 						dataPoints3.push({ x: no_of_questions , y: value });
-						// status = 'Unattempted';
 					}
 				}
 			}
@@ -119,13 +113,30 @@ appmodule
             });
 
     	$scope.goToQuestionsStats = function(){
-    		$state.go('questionStats', { obj: questionIds });
+    		$state.go('questionStats', { sittingID: sittingID  });
     	}
     }])
 	.controller('QuestionsStatsContoller', ['$scope', '$stateParams', '$state', 'ReportFactory', function($scope, $stateParams, $state, ReportFactory) {
-		if($stateParams.obj===null){
-			$scope.error = true;
-		}else{
-			$scope.error = false;
+		var count = 0;	
+		$scope.stop = false;
+		function getQuestionsStats(count){
+			ReportFactory.getQuestionStats($stateParams.sittingID, count).get().$promise.then(
+	            function(response){
+	            	for(var i=0;i<response.questionStats.length;i++){
+	            		$scope.questionStats.push(response.questionStats[i]);
+	            	}
+	            	$scope.stop = response.stop;
+	            },
+	            function(response){
+	            	alert("Error in retrieving questions statistics.");
+	        });
+		}
+
+		getQuestionsStats(count);
+		$scope.questionStats = [];
+
+		$scope.loadMoreQuestions = function(){
+			count += 1;
+			getQuestionsStats(count);
 		}
 	}]);

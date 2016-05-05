@@ -1,4 +1,4 @@
-<div class="container-fluid text-center" ng-if="!error">
+<div class="container-fluid text-center">
 <div class="row">
 	<div class="panel" style="margin-top: 10px;">
 		<div class="row">
@@ -8,6 +8,7 @@
 				<table class="table table-hover" id="qStatsTable">
 				   <thead>
 				      <tr>
+				      	<th class="text-center">Q.No</th>
 				        <th class="content text-center">Content</th>
 				        <th class="hint text-center">Hint</th>
 				        <th class="status text-center">Status</th>
@@ -15,16 +16,26 @@
 				   </thead>
 				   
 				   <tbody>
-				      <tr ng-repeat="qStat in questionsStats">
-				         <td class="content">{{qStat[0] | insertBlank }}</td>
-				         <td class="hint">{{qStat[1]}}</td>
-				         <td class="status">{{qStat[2]}}</td>
+				      <tr ng-repeat="qStat in questionStats">
+				      	<td>{{ $index+1 }}</td>
+				        <td class="content">{{qStat.content | insertBlank }}</td>
+				        <td class="hint">{{qStat.hint}}</td>
+				        <td class="status">{{qStat.status}}</td>
 				      </tr>
 				   </tbody>
 				</table>
 			</div>
 			<div class="col-lg-1 col-md-1"></div>
+		</div><br>
+		<div class="row">
+		<div class="col-lg-4 col-md-4 col-sm-4 col-xs-1"></div>
+		<div class="col-lg-4 col-md-4 col-sm-4 col-xs-10">
+			<button class="btn btn-block btn-primary" ng-if="!stop" ng-click="loadMoreQuestions()">Load more Questions</button>
+			<button class="btn btn-block btn-default black-text" ng-if="stop" disabled>All Questions loaded</button>
 		</div>
+		<div class="col-lg-4 col-md-4 col-sm-4 col-xs-1"></div>
+	</div><br>
+
 	</div><br>
 </div>
 </div>

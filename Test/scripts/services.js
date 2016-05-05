@@ -207,7 +207,19 @@ appmodule
   }])
   .service('ReportFactory', ['$resource', function($resource) {
     this.getReportDetails = function(testUserID, quizKey, attemptNo){
-      return $resource(serverURL+"user/result/"+testUserID+"/"+quizKey+"/"+attemptNo, null,
+      return $resource(serverURL+"user/result/"+testUserID+"/"+quizKey+"/"+attemptNo+"/", null,
+        {
+          get: {
+          method : 'GET',
+          isArray : false,
+          }
+        },
+        { stripTrailingSlashes: false }
+        );
+    }
+
+    this.getQuestionStats = function(sittingID, count){
+      return $resource(serverURL+"question/stats/"+sittingID+"/", { count: count},
         {
           get: {
           method : 'GET',

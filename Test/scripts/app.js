@@ -138,7 +138,7 @@ appmodule.config(function($stateProvider, $urlRouterProvider, $httpProvider) {
                 params: {obj: null},
             })
             .state('questionStats', {
-                url:'/view/report/questionStats',
+                url:'/view/questionStats/:sittingID/',
                 views :{
                     'header@': {
                         templateUrl : 'views/report_header.html'
