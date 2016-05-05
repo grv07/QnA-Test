@@ -48,16 +48,17 @@ appmodule
             TestUserDataFactory.getQuizAccordingToKey($window.opener.data.quizKey).get().$promise.then(
                 function(response){
                     $scope.userData = { username:'', email:'', quiz_id: response.id, quiz_name: response.title, test_key: response.quiz_key, show_result_on_completion: response.show_result_on_completion, allow_public_access: response.allow_public_access, quizStacks: undefined, testToken: undefined };
-                    if(response.allow_public_access){
-                        var parentScope = $window.opener.$windowScope;
-                        parentScope.$emit('from-iframe','TestOpen');
-                        parentScope.$apply();
-                        parentScope.$digest();
-                        $rootScope.parentScope = parentScope;
-                    }else{
-                        alert("Sorry the quiz has not been made publicly available. You cannot take the test.");
-                        $window.close(); 
-                    }
+                    // if(response.allow_public_access){
+                    var parentScope = $window.opener.$windowScope;
+                    parentScope.$emit('from-iframe','TestOpen');
+                    parentScope.$apply();
+                    parentScope.$digest();
+                    $rootScope.parentScope = parentScope;
+                    // }
+                    // else{
+                    //     alert("Sorry the quiz has not been made publicly available. You cannot take the test.");
+                    //     $window.close(); 
+                    // }
                 },
                 function(response){
                     alert("Error in retrieving quiz details!");
@@ -172,7 +173,7 @@ appmodule
                 LoadQuestionsFactory.loadAllQuestions($scope.userDetails.quiz_id, sectionName).query(
                     function(response){
                         TestPageFactory.addQuestionsForSection(sectionName, response.questions);
-                        for(var i=1;i<=response.total_questions;i++){
+                        for(var i=1;i<=$scope.total_questions;i++){
                             $scope.progressValue +=  (i/$scope.total_questions)*100;
                         }
                         if($scope.progressValue>=100){
