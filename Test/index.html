@@ -9,7 +9,6 @@
     <link href="css/bootstrap.css" rel="stylesheet">
     <link href="css/styles.css" rel="stylesheet">
     <!-- endbuild -->
-
 </head>
 <body>
 <header>
@@ -17,19 +16,8 @@
 </header>
 <main>
   <div ui-view="content">
-    <div class="row text-center">
-        <div class="row">
-            <div class="col-md-12 text-center">
-                <p class="red-text">The test runs in a popup window so do not disallow the window from opening.</p>
-            </div>
-        </div>
-        <div class="row"><br><br><br>
-            <button class="btn btn-primary btn-large" ng-click="openTest()">Open Test</button>
-        </div>
-    </div>
   </div>
 </main>
-
 <div id="stateModal" class="modal fade" role="dialog" data-keyboard="false" data-backdrop="static">
   <div class="modal-dialog">
     <div class="modal-content">
@@ -44,19 +32,31 @@
     </div>
   </div>
 </div>
-
-
+<div id="stateModal1" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+      </div>
+      <div class="modal-body text-center">
+        <p id="stateModalBodyMessage" style="font-weight: bold;"></p>
+        <p><img id="stateModalBodyImage" src="" alt="Image not available"></p>
+      </div>
+      <div class="modal-footer">
+      </div>
+    </div>
+  </div>
+</div>
 <footer>
   <div ui-view="footer"></div>
 </footer>
-
-  <!-- build:js scripts/main.js  -->
+    <!-- build:js scripts/main.js  -->	  
     <script src="js/jquery.js"></script>
-    <script src="js/bootstrap.js"></script>    
+    <script src="js/bootstrap.js"></script>
     <script src="js/angular.js"></script>
     <script src="js/angular-ui-router.js"></script>
     <script src="js/angular-resource.js"></script>
     <script src="js/angular-cookies.js"></script>
+    <script src="js/canvas.js"></script>
     <script src="scripts/settings.js"></script>
     <script src="scripts/interceptors.js"></script>
     <script src="scripts/app.js"></script>
@@ -66,9 +66,6 @@
     <script src="scripts/third_party_test_controller.js"></script>
     <script src="scripts/filters.js"></script>
     <script src="scripts/ui.js"></script>
-    <script src="scripts/canvas.js"></script>
-
-  <!-- endbuild -->
-
+    <!-- endbuild -->
 </body>
 </html>

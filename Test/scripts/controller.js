@@ -2,7 +2,6 @@
 appmodule
     .controller('ViewReportContoller', ['$scope', '$stateParams', 'ReportFactory', function($scope, $stateParams, ReportFactory) {
     	$scope.error = false;
-
     	ReportFactory.getReportDetails($stateParams.testUserID, $stateParams.quizKey, $stateParams.attemptNo).get().$promise.then(
             function(response){
         	CanvasJS.addColorSet("colors",
@@ -18,33 +17,9 @@ appmodule
 	            "#2F4F4F",
 	            "#2E8B57",
 	            "#90EE90",
-	            ]);
-        	CanvasJS.addColorSet("NoItemColor",
-	            [
-	            "#BDBDBD",
-	            ]);
-        	$scope.data = response;
-        	if(response.section_wise_result_correct.length!=0){
-        		createPieChart("sectionWiseCorrectContainer", "colors", "Correct", response.section_wise_result_correct);
-			}else{
-				createPieChart("sectionWiseCorrectContainer", "NoItemColor", "Correct",  [ {'y':1, 'indexLabel':"No value"} ]);
-			}
+	        ]);
 
-			if(response.section_wise_result_incorrect.length!=0){
-        		createPieChart("sectionWiseIncorrectContainer", "colors", "Incorrect", response.section_wise_result_incorrect);
-
-			}else{
-				createPieChart("sectionWiseIncorrectContainer", "NoItemColor", "Incorrect",  [ {'y':1, 'indexLabel':"No value"} ]);
-			}
-
-			if(response.section_wise_result_unattempt.length!=0){
-        		createPieChart("sectionWiseUnattemptedContainer", "colors", "Unattempted", response.section_wise_result_unattempt);
-
-			}else{
-				createPieChart("sectionWiseUnattemptedContainer", "NoItemColor", "Unattempted",  [ {'y':1, 'indexLabel':"No value"} ]);
-			}
-
-			var barGraphDataPoints = [
+        	var dataPoints1 = [
 			{
 				type: "stackedColumn100",
 	            legendText: "Correct",
@@ -72,16 +47,65 @@ appmodule
 	            indexLabelFontColor: "white",
 	            dataPoints: []
 			}];
-			for (var key in response.filter_by_category) {	
+			
+			for(var key in response.analysis.section_wise_results){
 				for(i=0;i<=2;i++){	
-			    	barGraphDataPoints[i].dataPoints.push({ y: response.filter_by_category[key][i], label: key });
+			    	dataPoints1[i].dataPoints.push(response.analysis.section_wise_results[key][i]);
 				}
 			}
-			createStackedBarChart("categoryWiseBarGraphContainer", "colors", "", barGraphDataPoints);
+			createStackedBarChart("sectionWiseBarGraphContainer", "colors", "", "Sections", "%age of questions", dataPoints1);
+
+			dataPoints1 = [
+			{
+				type: "stackedColumn100",
+	            legendText: "Correct",
+	            showInLegend: "true",
+	            indexLabel: "#percent %",
+	            indexLabelPlacement: "inside",
+	            indexLabelFontColor: "white",
+	            dataPoints: []
+			},
+			{
+				type: "stackedColumn100",
+	            legendText: "Incorrect",
+	            showInLegend: "true",
+	            indexLabel: "#percent %",
+	            indexLabelPlacement: "inside",
+	            indexLabelFontColor: "white",
+	            dataPoints: []
+			},
+			{
+				type: "stackedColumn100",
+	            legendText: "Unattempted",
+	            showInLegend: "true",
+	            indexLabel: "#percent %",
+	            indexLabelPlacement: "inside",
+	            indexLabelFontColor: "white",
+	            dataPoints: []
+			}];
+
+			for (var key in response.analysis.filter_by_category) {	
+			    dataPoints1[0].dataPoints.push({ y: response.analysis.filter_by_category[key][1], label: key });
+			    dataPoints1[1].dataPoints.push({ y: response.analysis.filter_by_category[key][0], label: key });
+			    dataPoints1[2].dataPoints.push({ y: response.analysis.filter_by_category[key][2], label: key });
+			}
+			createStackedBarChart("categoryWiseBarGraphContainer", "colors", "", "Categories", "%age of questions", dataPoints1);
+
+			dataPoints1 = []
+			var dataPoints2 = []
+			var no_of_questions = 0;
+			for(var key in response.analysis.question_vs_time_result_ideal){
+				no_of_questions += 1;
+				dataPoints1.push({ x: no_of_questions , y: response.analysis.question_vs_time_result_ideal[key][1] });
+				dataPoints2.push({ x: no_of_questions , y: response.analysis.question_vs_time_result_real[key][1] });				
+			}
+			createSplineChart("timeWiseSplineContainer", "", dataPoints1, dataPoints2);
+
+			delete response.analysis;
+			$scope.data = response;
             },
             function(response){            	
             	$scope.error = true;
                 alert("Error in retrieving report details!");                   
             });
-
     }]);

@@ -97,12 +97,6 @@ appmodule
         this.getAllQuestionsForAllSection = function(sectionName){
             return allQuestions;
         }
-        this.saveQuestionIdsList = function(allQuestionsIdsList){
-          allQuestionsIds = allQuestionsIds;
-        }
-        this.getQuestionIdsList = function(){
-          return allQuestionsIds;
-        }
         this.getAnswersForSection = function(sectionName){
             return data[sectionName];
         }

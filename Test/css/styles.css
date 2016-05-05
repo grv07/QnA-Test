@@ -54,3 +54,9 @@ ol#instructionsList > li{
 	padding: 0;
 	border: 0;
 }
+.bold-text{
+	font-weight: bold;
+}
+#answerExplanation{
+	height: 200px;
+}

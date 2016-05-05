@@ -3,7 +3,7 @@
 	<div class="panel" style="margin-top: -20px;">
 		<div class="row">
 			<div class="col-lg-6 col-ms-6 col-sm-6 col-xs-12" style="border-right: solid 2px black;">
-				<div class="row"><br><h4><b>User details</b></h4><br></div>
+				<div class="row"><br><h4 class="bold-text">User details</h4><br></div>
 				<table class="table table-responsive border-padding-less">						   
 				   	<tbody>
 				   	<tr>
@@ -21,6 +21,10 @@
 				      <tr>
 				        <td>Marks </td>
 				   		<td><h5 class="help-block">{{data.marks_scored}}/{{data.total_marks}} ({{data.marks_scored*100/data.total_marks|number:2}}%)</h5></td>
+				      </tr>
+				      <tr>
+				        <td>Rank </td>
+				   		<td><h5 class="help-block">{{data.rank}}</h5></td>
 				      </tr>					      
 				      <tr>
 				        <td>Attempt No. </td>
@@ -38,7 +42,7 @@
 				</table>
 			</div>
 			<div class="col-lg-6 col-ms-6 col-sm-6 col-xs-12">
-				<div class="row"><br><h4><b>Quiz details</b></h4><br></div>
+				<div class="row"><br><h4 class="bold-text">Quiz details</h4><br></div>
 				<table class="table table-responsive border-padding-less">						   
 				   	<tbody>
 				      <tr>
@@ -63,29 +67,33 @@
 		</div>
 	</div><br>
 	<div class="row">
-		<div class="row text-center"><h4><b>Section wise distribution</b></h4><br></div>
+		<div class="row text-center"><h4 class="bold-text">Section wise distribution</h4><br></div>
 		<div class="row">
 			<div class="col-lg-1 col-md-1"></div>
-			<div class="col-lg-3 col-md-3 text-center">
-				<div id="sectionWiseCorrectContainer" style="height: 350px; width: 100%;"></div>
-			</div>
-			<div class="col-lg-3 col-md-3 text-center">
-				<div id="sectionWiseIncorrectContainer" style="height: 350px; width: 100%;"></div>
-			</div>
-			<div class="col-lg-3 col-md-3 text-center">
-				<div id="sectionWiseUnattemptedContainer" style="height: 350px; width: 100%;"></div>
+			<div class="col-lg-10 col-md-10">
+				<div id="sectionWiseBarGraphContainer" style="height: 400px; width: 100%;"></div>
 			</div>
 			<div class="col-lg-1 col-md-1"></div>
 		</div>
 	</div><hr><br>
 	<div class="row">
-		<div class="row text-center"><h4><b>Category wise distribution</b></h4><br></div>
+		<div class="row text-center"><h4 class="bold-text">Category wise distribution</h4><br></div>
 		<div class="row">
-		<div class="col-lg-1 col-md-1"></div>
-		<div class="col-lg-10 col-md-10">
-			<div id="categoryWiseBarGraphContainer" style="height: 400px; width: 100%;"></div>
+			<div class="col-lg-1 col-md-1"></div>
+			<div class="col-lg-10 col-md-10">
+				<div id="categoryWiseBarGraphContainer" style="height: 400px; width: 100%;"></div>
+			</div>
+			<div class="col-lg-1 col-md-1"></div>
 		</div>
-		<div class="col-lg-1 col-md-1"></div>
+	</div><hr><br>
+	<div class="row">
+		<div class="row text-center"><h4 class="bold-text">Time wise distribution</h4><br></div>
+		<div class="row">
+			<div class="col-lg-1 col-md-1"></div>
+			<div class="col-lg-10 col-md-10">
+				<div id="timeWiseSplineContainer" style="height: 400px; width: 100%;"></div>
+			</div>
+			<div class="col-lg-1 col-md-1"></div>
 		</div>
 	</div>
 </div>
