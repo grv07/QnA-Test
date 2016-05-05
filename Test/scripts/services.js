@@ -130,7 +130,7 @@ appmodule
         // }
 
         // Save section-wise questions-answers
-        this.saveSectionQuestion = function(sectionName, answers){
+        this.saveSectionQuestionAnswers = function(sectionName, answers){
             data[sectionName] = answers;
         }
 
@@ -179,7 +179,26 @@ appmodule
 
         this.saveTimeRemainingToCache = function(data){
           var deferred = $q.defer();
-          $http.put(serverURL+"save/time/remaining/", data).then(function (response) {
+          $http.post(serverURL+"save/time/remaining/", data).then(function (response) {
+            deferred.resolve(response.data);
+          });
+          return deferred.promise;
+        }
+
+        this.saveBookMarks = function(data){
+          return $resource(serverURL+"save/test/bookmarks/", null,
+            {
+              save: {
+              method : 'POST',
+              }
+            },
+            { stripTrailingSlashes: false }
+            );
+        }
+
+        this.saveTimePerQuestionToCache = function(data){
+          var deferred = $q.defer();
+          $http.post(serverURL+"save/question/time/", data).then(function (response) {
             deferred.resolve(response.data);
           });
           return deferred.promise;

@@ -136,6 +136,19 @@ appmodule.config(function($stateProvider, $urlRouterProvider, $httpProvider) {
                     }
                 },
                 params: {obj: null},
+            })
+            .state('questionStats', {
+                url:'/view/report/questionStats',
+                views :{
+                    'header@': {
+                        templateUrl : 'views/report_header.html'
+                    },
+                    'content@': {
+                        controller  : 'QuestionsStatsContoller',
+                        templateUrl : 'views/question_stats.html'
+                    }
+                },
+                params: {obj: null},
             });
 
 		$urlRouterProvider.otherwise('/');

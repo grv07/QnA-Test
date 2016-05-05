@@ -1,0 +1,30 @@
+<div class="container-fluid text-center" ng-if="!error">
+<div class="row">
+	<div class="panel" style="margin-top: 10px;">
+		<div class="row">
+			<div class="row text-center"><h4 class="bold-text">Question Wise Statistics</h4><br></div>
+			<div class="col-lg-1 col-md-1"></div>
+			<div class="col-lg-10 col-md-10">
+				<table class="table table-hover" id="qStatsTable">
+				   <thead>
+				      <tr>
+				        <th class="content text-center">Content</th>
+				        <th class="hint text-center">Hint</th>
+				        <th class="status text-center">Status</th>
+				      </tr>
+				   </thead>
+				   
+				   <tbody>
+				      <tr ng-repeat="qStat in questionsStats">
+				         <td class="content">{{qStat[0] | insertBlank }}</td>
+				         <td class="hint">{{qStat[1]}}</td>
+				         <td class="status">{{qStat[2]}}</td>
+				      </tr>
+				   </tbody>
+				</table>
+			</div>
+			<div class="col-lg-1 col-md-1"></div>
+		</div>
+	</div><br>
+</div>
+</div>

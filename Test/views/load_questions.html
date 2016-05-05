@@ -8,23 +8,30 @@
 				<h3><li>There are a total of <b>{{ total_questions }}</b> questions.</li></h3>
 				<h3><li>Below is the section-wise distribution</li></h3>
 			</ol>
-					<div class="table-responsive sectionsDetails">
-					  <table class="table">
-					    <thead>
-					    	<th>Section Name</th>
-					    	<th>Total Questions</th>
-					    	<th>Duration (in minutes)</th>
-					    </thead>
-					    <tbody>
-					    	<tr ng-repeat="(section, detail) in sectionsDetails">
-					    		<td>{{section}}</td>
-					    		<td>{{detail.questions}}</td>
-					    		<td>{{detail.duration}}</td>
-					    	</tr>
-					    </tbody>
-					  </table>
-					</div>
-				
+			<div class="table-responsive sectionsDetails">
+			  <table class="table">
+			    <thead>
+			    	<th></th>
+			    	<th>Section Name</th>
+			    	<th>Total Questions</th>
+			    	<th>Duration</th>
+			    </thead>
+			    <tbody>
+			    	<tr ng-repeat="(section, detail) in sectionsDetails">
+			    		<td></td>
+			    		<td>{{section}}</td>
+			    		<td>{{detail.questions}}</td>
+			    		<td>{{detail.duration | secondsToDateTime | date:'HH:mm:ss' }}</td>
+			    	</tr>
+			    	<tr class="bold-text">
+			    		<td>Total</td>
+			    		<td>{{total_sections}} Sections</td>
+			    		<td>{{total_questions}} Questions</td>
+			    		<td>{{total_duration | secondsToDateTime | date:'HH:mm:ss' }}</td>
+			    	</tr>
+			    </tbody>
+			  </table>
+			</div>				
 		</div>
 		<div class="col-lg-2 col-md-2 col-sm-2"></div>
 	</div>

@@ -47,16 +47,34 @@ a{
 .blue-text{
 	color: blue;
 }
+.gray-text{
+	color: gray;
+}
 ol#instructionsList > li{
 	line-height: 20px;
 }
-.border-padding-less>tbody>tr>td{
-	padding: 0;
-	border: 0;
+.space>div>div.row{
+	padding-bottom: 6px;
+
 }
 .bold-text{
 	font-weight: bold;
 }
 #answerExplanation{
 	height: 200px;
+}
+.graph{
+	height: 400px;
+	width: 100%;
+}
+.content{
+  width: 400px;
+  word-wrap: break-word
+}
+.hint{
+  width: 400px;
+  word-wrap: break-word
+}
+.status{
+	width: 100px;
 }

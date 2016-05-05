@@ -24,7 +24,7 @@ function findTotalDuration(list){
     for(var i=0;i<list.length;i++){
         total += parseInt(list[i]['duration']);
     }
-    return total*60;
+    return total;
 }
 function isMCQ(value){
     if(value === 'mcq'){
@@ -53,7 +53,7 @@ function changeProgressValues(object) {
     return [{ percentage: (count[0]*100)/totalKeys, count: count[0] }, { percentage: (count[1]*100)/totalKeys, count: count[1] }, { percentage: (count[2]*100)/totalKeys, count: count[2] }];
 };
 
-function createStackedBarChart(chartID, colorSet, text, titleX, titleY, dataPoints1){
+function createStackedBar100Chart(chartID, colorSet, text, titleX, titleY, dataPoints1){
     new CanvasJS.Chart(chartID,
     {
         title:{
@@ -65,11 +65,14 @@ function createStackedBarChart(chartID, colorSet, text, titleX, titleY, dataPoin
         axisY:{
             title: titleY
         },
+        toolTip: {
+            shared: true
+        },
         data: dataPoints1
     }).render();
 }
 
-function createSplineChart(chartID, text, dataPoints1, dataPoints2){
+function createSplineChart(chartID, text, dataPoints1, dataPoints2, dataPoints3){
     new CanvasJS.Chart(chartID,
     {    
       title:{
@@ -86,14 +89,21 @@ function createSplineChart(chartID, text, dataPoints1, dataPoints2){
       {        
         type: "spline",
         color: "#B36491", 
-        legendText: "Actual time",
+        legendText: "Topper time",
         showInLegend: "true",      
         dataPoints: dataPoints2
+      },
+      {        
+        type: "spline",
+        color: "#B30110", 
+        legendText: "Actual time",
+        showInLegend: "true",      
+        dataPoints: dataPoints3
       } 
       ]
     }).render();
 }
 
-function addAnswerExplanationLink(explanation){
-    $('#answerExplanationRow').html('<a data-toggle="collapse" data-target="#answerExplanation">View Answer</a><div id="answerExplanation" class="collapse bold-text">'+explanation+'</div>')
-}
+// function addAnswerExplanationLink(explanation){
+//     $('#answerExplanationRow').html('<a data-toggle="collapse" data-target="#answerExplanation">View Answer</a><div id="answerExplanation" class="collapse bold-text">'+explanation+'</div>')
+// }
