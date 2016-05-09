@@ -172,7 +172,7 @@ appmodule
                 LoadQuestionsFactory.loadAllQuestions($scope.userDetails.quiz_id, sectionName).query(
                     function(response){
                         TestPageFactory.addQuestionsForSection(sectionName, response.questions);
-                        for(var i=1;i<=response.total_questions;i++){
+                        for(var i=1;i<=$scope.total_questions;i++){
                             $scope.progressValue +=  (i/$scope.total_questions)*100;
                         }
                         if($scope.progressValue>=100){
