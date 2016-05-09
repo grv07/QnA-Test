@@ -1,9 +1,12 @@
 /* global $ */
 appmodule
-    .controller('ViewReportContoller', ['$scope', '$stateParams', 'ReportFactory', function($scope, $stateParams, ReportFactory) {
+    .controller('ViewReportContoller', ['$scope', '$stateParams', '$state', 'ReportFactory', function($scope, $stateParams, $state, ReportFactory) {
     	$scope.error = false;
+    	var sittingID = 0;
     	ReportFactory.getReportDetails($stateParams.testUserID, $stateParams.quizKey, $stateParams.attemptNo).get().$promise.then(
             function(response){
+            sittingID = response.sitting_id;
+
         	CanvasJS.addColorSet("colors",
 	            [
 	            "#3EA0DD",
@@ -18,33 +21,23 @@ appmodule
 	            "#2E8B57",
 	            "#90EE90",
 	        ]);
-
         	var dataPoints1 = [
 			{
 				type: "stackedColumn100",
-	            legendText: "Correct",
+	            name: "Correct",
 	            showInLegend: "true",
-	            indexLabel: "#percent %",
-	            indexLabelPlacement: "inside",
-	            indexLabelFontColor: "white",
 	            dataPoints: []
 			},
 			{
 				type: "stackedColumn100",
-	            legendText: "Incorrect",
+	            name: "Incorrect",
 	            showInLegend: "true",
-	            indexLabel: "#percent %",
-	            indexLabelPlacement: "inside",
-	            indexLabelFontColor: "white",
 	            dataPoints: []
 			},
 			{
 				type: "stackedColumn100",
-	            legendText: "Unattempted",
+	            name: "Unattempted",
 	            showInLegend: "true",
-	            indexLabel: "#percent %",
-	            indexLabelPlacement: "inside",
-	            indexLabelFontColor: "white",
 	            dataPoints: []
 			}];
 			
@@ -53,53 +46,63 @@ appmodule
 			    	dataPoints1[i].dataPoints.push(response.analysis.section_wise_results[key][i]);
 				}
 			}
-			createStackedBarChart("sectionWiseBarGraphContainer", "colors", "", "Sections", "%age of questions", dataPoints1);
+			createStackedBar100Chart("sectionWiseBarGraphContainer", "colors", "", "Sections", "%age of questions", dataPoints1);
 
 			dataPoints1 = [
 			{
 				type: "stackedColumn100",
-	            legendText: "Correct",
+	            name: "Correct",
 	            showInLegend: "true",
-	            indexLabel: "#percent %",
-	            indexLabelPlacement: "inside",
-	            indexLabelFontColor: "white",
 	            dataPoints: []
 			},
 			{
 				type: "stackedColumn100",
-	            legendText: "Incorrect",
+	            name: "Incorrect",
 	            showInLegend: "true",
-	            indexLabel: "#percent %",
-	            indexLabelPlacement: "inside",
-	            indexLabelFontColor: "white",
 	            dataPoints: []
 			},
 			{
 				type: "stackedColumn100",
-	            legendText: "Unattempted",
+	            name: "Unattempted",
 	            showInLegend: "true",
-	            indexLabel: "#percent %",
-	            indexLabelPlacement: "inside",
-	            indexLabelFontColor: "white",
 	            dataPoints: []
 			}];
 
 			for (var key in response.analysis.filter_by_category) {	
-			    dataPoints1[0].dataPoints.push({ y: response.analysis.filter_by_category[key][1], label: key });
-			    dataPoints1[1].dataPoints.push({ y: response.analysis.filter_by_category[key][0], label: key });
-			    dataPoints1[2].dataPoints.push({ y: response.analysis.filter_by_category[key][2], label: key });
+				dataPoints1[0].dataPoints.push({ y: response.analysis.filter_by_category[key][1], label: key });
+				dataPoints1[1].dataPoints.push({ y: response.analysis.filter_by_category[key][0], label: key });
+		    	dataPoints1[2].dataPoints.push({ y: response.analysis.filter_by_category[key][2], label: key });
 			}
-			createStackedBarChart("categoryWiseBarGraphContainer", "colors", "", "Categories", "%age of questions", dataPoints1);
+			createStackedBar100Chart("categoryWiseBarGraphContainer", "colors", "", "Categories", "%age of questions", dataPoints1);
 
 			dataPoints1 = []
 			var dataPoints2 = []
+			var dataPoints3 = []
 			var no_of_questions = 0;
-			for(var key in response.analysis.question_vs_time_result_ideal){
+			var value = 0;
+			for(var key in response.questions_stats){
 				no_of_questions += 1;
-				dataPoints1.push({ x: no_of_questions , y: response.analysis.question_vs_time_result_ideal[key][1] });
-				dataPoints2.push({ x: no_of_questions , y: response.analysis.question_vs_time_result_real[key][1] });				
+				dataPoints1.push({ x: no_of_questions , y: response.questions_stats[key]['ideal_time'] });
+				if(response.analysis.question_vs_time_result_topper.hasOwnProperty(key))
+				{
+					value = response.analysis.question_vs_time_result_topper[key];
+					if(value.length>1)
+						dataPoints2.push({ x: no_of_questions , y: value[1] });
+					else
+						dataPoints2.push({ x: no_of_questions , y: value });	
+				}
+				if(response.analysis.hasOwnProperty('question_vs_time_result_user') && response.analysis.question_vs_time_result_user.hasOwnProperty(key))
+				{
+					value = response.analysis.question_vs_time_result_user[key];
+					if(value.length>1){
+						dataPoints3.push({ x: no_of_questions , y: value[1] });
+					}
+					else{
+						dataPoints3.push({ x: no_of_questions , y: value });
+					}
+				}
 			}
-			createSplineChart("timeWiseSplineContainer", "", dataPoints1, dataPoints2);
+			createSplineChart("timeWiseSplineContainer", "", dataPoints1, dataPoints2, dataPoints3);
 
 			delete response.analysis;
 			$scope.data = response;
@@ -108,4 +111,32 @@ appmodule
             	$scope.error = true;
                 alert("Error in retrieving report details!");                   
             });
-    }]);
+
+    	$scope.goToQuestionsStats = function(){
+    		$state.go('questionStats', { sittingID: sittingID  });
+    	}
+    }])
+	.controller('QuestionsStatsContoller', ['$scope', '$stateParams', '$state', 'ReportFactory', function($scope, $stateParams, $state, ReportFactory) {
+		var count = 0;	
+		$scope.stop = false;
+		function getQuestionsStats(count){
+			ReportFactory.getQuestionStats($stateParams.sittingID, count).get().$promise.then(
+	            function(response){
+	            	for(var i=0;i<response.questionStats.length;i++){
+	            		$scope.questionStats.push(response.questionStats[i]);
+	            	}
+	            	$scope.stop = response.stop;
+	            },
+	            function(response){
+	            	alert("Error in retrieving questions statistics.");
+	        });
+		}
+
+		getQuestionsStats(count);
+		$scope.questionStats = [];
+
+		$scope.loadMoreQuestions = function(){
+			count += 1;
+			getQuestionsStats(count);
+		}
+	}]);
