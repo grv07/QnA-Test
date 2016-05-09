@@ -50,15 +50,14 @@ appmodule
                 function(response){
                     $scope.userData = { username:'', email:'', quiz_id: response.id, quiz_name: response.title, test_key: response.quiz_key, show_result_on_completion: response.show_result_on_completion, allow_public_access: response.allow_public_access, quizStacks: undefined, testToken: undefined };
                     // if(response.allow_public_access){
-                    var parentScope = $window.opener.$windowScope;
-                    parentScope.$emit('from-iframe','TestOpen');
-                    parentScope.$apply();
-                    parentScope.$digest();
-                    $rootScope.parentScope = parentScope;
-                    // }
-                    // else{
-                    //     alert("Sorry the quiz has not been made publicly available. You cannot take the test.");
-                    //     $window.close(); 
+                        var parentScope = $window.opener.$windowScope;
+                        parentScope.$emit('from-iframe','TestOpen');
+                        parentScope.$apply();
+                        parentScope.$digest();
+                        $rootScope.parentScope = parentScope;
+                    // }else{
+                        // alert("Sorry the quiz has not been made publicly available. You cannot take the test.");
+                        // $window.close(); 
                     // }
                 },
                 function(response){
