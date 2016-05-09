@@ -109,7 +109,6 @@ appmodule
                             return false;
                         }
                     }
-                    }
                     // $window.data = $scope.userData;
                     // $window.$windowScope = $scope;
                     // $window.open($state.href('app.load-questions', {quizKey: $stateParams.quizKey}), "Test Window", "width=1280,height=890,resizable=0");
@@ -122,7 +121,8 @@ appmodule
                     $window.opener.$windowScope.$emit('from-iframe','TestLimitExceeded');
                 });
             }
-        }else{
+        }
+        else{
             $scope.error = true;
         }
     }])
@@ -141,7 +141,10 @@ appmodule
             $scope.total_sections = 0;
             $scope.sectionsDetails = {};
             $cookies.put('testToken', $scope.userDetails.testToken);
-            var data = { test_key: $scope.userDetails.test_key, test_user: $scope.userDetails.testUser, show_result_on_completion: $scope.userDetails.show_result_on_completion, 'quiz': $scope.userDetails.quiz_id , 'quizName': $scope.userDetails.quiz_name, 'quizStacks' : $scope.userDetails.quizStacks, 'testToken': $scope.userDetails.testToken , 'details' : {} };
+            var data = { test_key: $scope.userDetails.test_key, test_user: $scope.userDetails.testUser, 
+                show_result_on_completion: $scope.userDetails.show_result_on_completion, 
+                'quiz': $scope.userDetails.quiz_id , 'quizName': $scope.userDetails.quiz_name, 
+                'quizStacks' : $scope.userDetails.quizStacks, 'testToken': $scope.userDetails.testToken , 'details' : {} };
             data['isTestNotCompleted'] = $scope.userDetails.isTestNotCompleted;
             if(data['isTestNotCompleted']){
                 if(data['isTestNotCompleted']){
@@ -169,6 +172,7 @@ appmodule
             for(var i=0;i<allSections.length;i++){
                 $scope.sectionsDetails[allSections[i]] = { 'duration': data['details'][allSections[i]]['duration'], 'questions': data['details'][allSections[i]]['questions'] };
             }
+
             function loadQuestions(sectionName){
                 LoadQuestionsFactory.loadAllQuestions($scope.userDetails.quiz_id, sectionName).query(
                     function(response){
@@ -207,8 +211,9 @@ appmodule
         }else{
             $scope.error = true;
             $cookies.remove('testToken');
-        }          
-    }])
+        }
+        }}])          
+    // }])
     .controller('TestPageHeaderThirdPartyController', ['$scope', '$controller', '$window', '$stateParams', function($scope, $controller, $window, $stateParams) {
             if(isNotEmpty($stateParams.obj)){
                 $scope.quizName = $stateParams.obj.quizName;
