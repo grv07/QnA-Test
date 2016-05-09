@@ -1,6 +1,6 @@
 /* global $ */
 appmodule
-    .controller('IndexController', ['$scope', '$rootScope', '$state', '$window', '$stateParams', function($scope, $rootScope, $state, $window, $stateParams) {
+    .controller('IndexController', ['$scope', '$rootScope', '$state', '$window', '$stateParams', '$cookies', function($scope, $rootScope, $state, $window, $stateParams, $cookies) {
         $scope.openTest = function(){
             $window.$windowScope = $scope;
             $window.data = {quizKey: $stateParams.quizKey};
@@ -35,6 +35,7 @@ appmodule
         });
 
         $scope.redirectToResultPage = function(resultPageURL){
+            $cookies.remove('testToken');
             $window.location = resultPageURL;
         }
 
@@ -140,7 +141,6 @@ appmodule
             $scope.total_sections = 0;
             $scope.sectionsDetails = {};
             $cookies.put('testToken', $scope.userDetails.testToken);
-
             var data = { test_key: $scope.userDetails.test_key, test_user: $scope.userDetails.testUser, show_result_on_completion: $scope.userDetails.show_result_on_completion, 'quiz': $scope.userDetails.quiz_id , 'quizName': $scope.userDetails.quiz_name, 'quizStacks' : $scope.userDetails.quizStacks, 'testToken': $scope.userDetails.testToken , 'details' : {} };
             data['isTestNotCompleted'] = $scope.userDetails.isTestNotCompleted;
             if(data['isTestNotCompleted']){
@@ -189,6 +189,7 @@ appmodule
                                     }, 
                                     function(response){
                                         alert('Error in getting test details.');
+                                        $cookies.remove('testToken');
                                         $window.close();
                                     });
                             }
@@ -209,7 +210,6 @@ appmodule
         }          
     }])
     .controller('TestPageHeaderController', ['$scope', '$controller', '$window', '$stateParams', function($scope, $controller, $window, $stateParams) {
-            // console.log($window.opener.data.quiz)
             if(isNotEmpty($stateParams.obj)){
                 $scope.quizName = $stateParams.obj.quizName;
                 $scope.dataPresent = true;      
@@ -386,6 +386,7 @@ appmodule
                 $scope.isBookMarked = bookmarkedQuestions.indexOf(parseInt($scope.currentQuestion.id));
             }
         }
+        
         $scope.saveAnswer = function(count, answerId){
             if(isMCQ($scope.currentQuestion.que_type))
             {
