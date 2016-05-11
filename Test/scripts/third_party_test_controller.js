@@ -127,6 +127,7 @@ appmodule
         }
     }])
     .controller('LoadQuestionsThirdPartyController', ['$scope', '$rootScope', '$window', '$state', '$stateParams', '$cookies', 'LoadQuestionsFactory', 'TestPageFactory', function($scope, $rootScope, $window, $state, $stateParams, $cookies, LoadQuestionsFactory, TestPageFactory) {
+        console.log($scope.userDetails);
         if($scope.userDetails){
             $scope.error = false;
             var allSections = [];
@@ -147,7 +148,6 @@ appmodule
                 'quizStacks' : $scope.userDetails.quizStacks, 'testToken': $scope.userDetails.testToken , 'details' : {} };
             data['isTestNotCompleted'] = $scope.userDetails.isTestNotCompleted;
             if(data['isTestNotCompleted']){
-                if(data['isTestNotCompleted']){
                 data['existingAnswers'] = $scope.userDetails.existingAnswers;
                 data['sectionNameWhereLeft'] = "Section#"+$scope.userDetails.sectionNoWhereLeft;
                 data['timeRemaining'] = $scope.userDetails.timeRemaining;
@@ -212,8 +212,7 @@ appmodule
             $scope.error = true;
             $cookies.remove('testToken');
         }
-        }}])          
-    // }])
+        }])          
     .controller('TestPageHeaderThirdPartyController', ['$scope', '$controller', '$window', '$stateParams', function($scope, $controller, $window, $stateParams) {
             if(isNotEmpty($stateParams.obj)){
                 $scope.quizName = $stateParams.obj.quizName;
