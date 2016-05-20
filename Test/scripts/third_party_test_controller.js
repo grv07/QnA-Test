@@ -109,16 +109,13 @@ appmodule
                             return false;
                         }
                     }
-                    }
                     // $window.data = $scope.userData;
                     // $window.$windowScope = $scope;
                     // $window.open($state.href('app.load-questions', {quizKey: $stateParams.quizKey}), "Test Window", "width=1280,height=890,resizable=0");
                 },
                 function(response) {
                     $scope.isFormInvalid = true;
-                    $scope.alertType = "danger";
-                    $scope.alertMsg = response.data.errors;
-                    setTimeout(closeAlert, 5000);
+                    showAlert('alert-danger', response.data.errors);
                     $window.opener.$windowScope.$emit('from-iframe','TestLimitExceeded');
                 });
             }
@@ -126,8 +123,10 @@ appmodule
             $scope.error = true;
         }
     }])
-    .controller('LoadQuestionsThirdPartyController', ['$scope', '$rootScope', '$window', '$state', '$stateParams', '$cookies', 'LoadQuestionsFactory', 'TestPageFactory', function($scope, $rootScope, $window, $state, $stateParams, $cookies, LoadQuestionsFactory, TestPageFactory) {
-        if($scope.userDetails){
+    .controller('LoadQuestionsThirdPartyController', ['$scope', '$rootScope', '$window', '$state', '$stateParams', '$cookies', 'LoadQuestionsFactory', 'TestPageFactory', function($scope, $rootScope, $window, $state, $stateParams, $cookies, LoadQuestionsFactory, TestPageFactory) 
+    {
+        if($scope.userDetails)
+        {
             $scope.error = false;
             var allSections = [];
             var allQuestions = {}; 
@@ -144,7 +143,6 @@ appmodule
             var data = { test_key: $scope.userDetails.test_key, test_user: $scope.userDetails.testUser, show_result_on_completion: $scope.userDetails.show_result_on_completion, 'quiz': $scope.userDetails.quiz_id , 'quizName': $scope.userDetails.quiz_name, 'quizStacks' : $scope.userDetails.quizStacks, 'testToken': $scope.userDetails.testToken , 'details' : {} };
             data['isTestNotCompleted'] = $scope.userDetails.isTestNotCompleted;
             if(data['isTestNotCompleted']){
-                if(data['isTestNotCompleted']){
                 data['existingAnswers'] = $scope.userDetails.existingAnswers;
                 data['sectionNameWhereLeft'] = "Section#"+$scope.userDetails.sectionNoWhereLeft;
                 data['timeRemaining'] = $scope.userDetails.timeRemaining;
@@ -166,17 +164,18 @@ appmodule
             }
             $scope.total_sections = allSections.length;
             allSections.sort();
+            var progressFactor = 100/$scope.total_sections;
             for(var i=0;i<allSections.length;i++){
                 $scope.sectionsDetails[allSections[i]] = { 'duration': data['details'][allSections[i]]['duration'], 'questions': data['details'][allSections[i]]['questions'] };
+                loadQuestions(allSections[i]);
             }
+
             function loadQuestions(sectionName){
                 LoadQuestionsFactory.loadAllQuestions($scope.userDetails.quiz_id, sectionName).query(
                     function(response){
                         TestPageFactory.addQuestionsForSection(sectionName, response.questions);
-                        for(var i=1;i<=$scope.total_questions;i++){
-                            $scope.progressValue +=  (i/$scope.total_questions)*100;
-                        }
-                        if($scope.progressValue>=100){
+                        $scope.progressValue += progressFactor;
+                        if($scope.progressValue>99){
                             parentScope.$emit('from-iframe','TestLoaded');
                             $scope.progressValue = 100;
                             $scope.startTest = function(){
@@ -201,15 +200,12 @@ appmodule
                         $window.close();
                     });
             }
-            for(var i=0;i<allSections.length;i++){
-                loadQuestions(allSections[i]);
-            }
         }else{
             $scope.error = true;
             $cookies.remove('testToken');
-        }          
-    }])
-    .controller('TestPageHeaderThirdPartyController', ['$scope', '$controller', '$window', '$stateParams', function($scope, $controller, $window, $stateParams) {
+        } 
+        }]) 
+        .controller('TestPageHeaderThirdPartyController', ['$scope', '$controller', '$window', '$stateParams', function($scope, $controller, $window, $stateParams) {
             if(isNotEmpty($stateParams.obj)){
                 $scope.quizName = $stateParams.obj.quizName;
                 $scope.dataPresent = true;      
@@ -220,7 +216,7 @@ appmodule
         }])
     .controller('TestPageThirdPartyController', ['$scope', '$controller', '$cookies', '$window', '$interval', '$stateParams', '$state', 'TestPageFactory', function($scope, $controller, $cookies, $window, $interval, $stateParams, $state, TestPageFactory) {
         $scope.allQuestions = {};
-        var firstItemVisited = false;
+        var firstQuestionVisited = false;
         var hasAttempted = true;
         var totalTime = 0;
         var timeCounter = 0;
@@ -242,7 +238,7 @@ appmodule
                 $scope.sliced_questions = range(0, $scope.total_questions.slice(0,15).length);
                 $scope.sliceFactor = 0;
                 $scope.slicingLimit = Math.floor($scope.total_questions.length/15);                
-                firstItemVisited = false;                
+                firstQuestionVisited = false;                
                 var existingAnswersKeys = null;
                 var existingAnswers = null;
                 if($stateParams.obj.isTestNotCompleted){
@@ -265,7 +261,7 @@ appmodule
                             continue;
                         }else{
                             $scope.answersModel[qKey] = { value:null };
-                            $scope.progressValuesModel[qKey] = { status:'NV' };
+                            $scope.progressValuesModel[qKey] = { status:progressTypes[1] };
                             timeSpentOnQuestions[qKey] = { time: totalTime };
                         }
                     }
@@ -377,8 +373,8 @@ appmodule
                     $scope.currentOptions = [];
                 }
        
-                if($scope.progressValuesModel[$scope.currentQuestion.id].status==='NV'){
-                    $scope.progressValuesModel[$scope.currentQuestion.id].status = 'NA';
+                if($scope.progressValuesModel[$scope.currentQuestion.id].status === progressTypes[1]){
+                    $scope.progressValuesModel[$scope.currentQuestion.id].status = progressTypes[0];
                     $scope.progressValues = changeProgressValues($scope.progressValuesModel);
                     TestPageFactory.saveProgressValues($scope.selectedSection, $scope.progressValuesModel);
                 }
@@ -406,32 +402,32 @@ appmodule
           function(newVal, oldVal) {
             if(newVal!=oldVal){
             try{ 
-                if($scope.currentCount > 1 || ($scope.currentCount > 1 && $scope.currentQuestion.que_type === 'mcq')){
-                    if($scope.progressValuesModel[$scope.currentQuestion.id].status === 'NV'){
-                        $scope.progressValuesModel[$scope.currentQuestion.id].status = 'NA';
+                if($scope.currentCount > 1 || ($scope.currentCount > 1 && $scope.currentQuestion.que_type === qTypes[0])){
+                    if($scope.progressValuesModel[$scope.currentQuestion.id].status === progressTypes[1]){
+                        $scope.progressValuesModel[$scope.currentQuestion.id].status = progressTypes[0];
                     }
-                    else if($scope.progressValuesModel[$scope.currentQuestion.id].status === 'NA'){
-                        $scope.progressValuesModel[$scope.currentQuestion.id].status = 'A';
+                    else if($scope.progressValuesModel[$scope.currentQuestion.id].status === progressTypes[0]){
+                        $scope.progressValuesModel[$scope.currentQuestion.id].status = progressTypes[2];
                     }
                 }else if($scope.currentCount === 1){
-                    if($scope.currentQuestion.que_type === 'objective'){
-                        if(!firstItemVisited){
-                            firstItemVisited = true;
+                    if($scope.currentQuestion.que_type === qTypes[1]){
+                        if(!firstQuestionVisited){
+                            firstQuestionVisited = true;
                             if($stateParams.obj.isTestNotCompleted){
-                                $scope.progressValuesModel[$scope.currentQuestion.id].status = 'A';
+                                $scope.progressValuesModel[$scope.currentQuestion.id].status = progressTypes[2];
                             }
                         }else{
-                            if($scope.progressValuesModel[$scope.currentQuestion.id].status === 'NA'){
-                            $scope.progressValuesModel[$scope.currentQuestion.id].status = 'A';
+                            if($scope.progressValuesModel[$scope.currentQuestion.id].status === progressTypes[0]){
+                            $scope.progressValuesModel[$scope.currentQuestion.id].status = progressTypes[2];
                             }
                         }
                     }
-                    if($scope.currentQuestion.que_type === 'mcq'){
-                        if(!firstItemVisited){
-                            firstItemVisited = true;
+                    if($scope.currentQuestion.que_type === qTypes[0]){
+                        if(!firstQuestionVisited){
+                            firstQuestionVisited = true;
                         }else{
-                            if($scope.progressValuesModel[$scope.currentQuestion.id].status === 'NA'){
-                            $scope.progressValuesModel[$scope.currentQuestion.id].status = 'A';
+                            if($scope.progressValuesModel[$scope.currentQuestion.id].status === progressTypes[0]){
+                            $scope.progressValuesModel[$scope.currentQuestion.id].status = progressTypes[2];
                             }
                         }
                     }   

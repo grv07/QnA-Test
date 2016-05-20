@@ -5,32 +5,53 @@
 			<div class="row text-center"><h4 class="bold-text">Question Wise Statistics</h4><br></div>
 			<div class="col-lg-1 col-md-1"></div>
 			<div class="col-lg-10 col-md-10">
-				<table class="table table-hover" id="qStatsTable">
-				   <thead>
-				      <tr>
-				      	<th class="text-center">Q.No</th>
-				        <th class="content text-center">Content</th>
-				        <th class="hint text-center">Hint</th>
-				        <th class="status text-center">Status</th>
-				      </tr>
-				   </thead>
-				   
-				   <tbody>
-				      <tr ng-repeat="qStat in questionStats">
-				      	<td>{{ $index+1 }}</td>
-				        <td class="content">{{qStat.content | insertBlank }}</td>
-				        <td class="hint">{{qStat.hint}}</td>
-				        <td class="status">{{qStat.status}}</td>
-				      </tr>
-				   </tbody>
-				</table>
+				<div class="row">
+					<table class="table table-hover">
+					   	<thead>
+					      <tr>
+					      	<th class="text-center">Q.No</th>
+					        <th class="content text-center">Content</th>
+					        <th class="hint text-center">Hint</th>
+					        <th class="status text-center">Status</th>
+					      </tr>
+					   	</thead>				   
+					   	<tbody>
+					      <tr ng-repeat="(qStat, value) in questionStats.mcq">
+					      	<td>{{ $index+1 }}</td>
+					        <td class="content">{{ value.content | insertBlank }}</td>
+					        <td class="hint">{{ value.hint }}</td>
+					        <td class="status">{{ value.status }}</td>
+					      </tr>
+					   	</tbody>		   
+					   	<tbody ng-repeat="qStat in questionStats.comprehension" style="border-color: gray;">
+					   	  <tr><td>{{ $index+1+questionStats.mcq.length }}</td><td><span class="text-center black-text bold-text">{{ qStat.heading }}</span></td><td><span class="text-center black-text">Comprehension Questions</span></td><td></td></tr>
+					      <tr ng-repeat="cq in qStat.comprehension_questions">
+					      	<td>CQ.{{ $index+1 }}</td>
+					        <td class="content">
+								{{ cq.content | insertBlank }}
+					        </td>
+					        <td class="hint">
+								{{ cq.hint }}
+							</td>
+					        <td class="status">
+								{{ cq.status }}
+					        </td>
+					      </tr>
+					   	</tbody>
+					</table>
+				</div>
+				<div class="row center">
+					<img src="../images/loader.svg" id="loader">
+				</div>
 			</div>
-			<div class="col-lg-1 col-md-1"></div>
+				
+		</div>
+		<div class="col-lg-1 col-md-1"></div>
 		</div><br>
 		<div class="row">
 		<div class="col-lg-4 col-md-4 col-sm-4 col-xs-1"></div>
 		<div class="col-lg-4 col-md-4 col-sm-4 col-xs-10">
-			<button class="btn btn-block btn-primary" ng-if="!stop" ng-click="loadMoreQuestions()">Load more Questions</button>
+			<button class="btn btn-block btn-primary" data-loading-text="Loading..." ng-if="!stop" ng-click="loadMoreQuestions()">Load more Questions</button>
 			<button class="btn btn-block btn-default black-text" ng-if="stop" disabled>All Questions loaded</button>
 		</div>
 		<div class="col-lg-4 col-md-4 col-sm-4 col-xs-1"></div>

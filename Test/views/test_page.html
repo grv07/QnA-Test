@@ -1,60 +1,62 @@
 <div ng-include src="'views/warning_modal.html'"></div>
-<div class="container" style="margin-top: -70px;">
-	<div class="row" ng-show="dataPresent">
-		<div class="alert alert-info">
-		   	<strong>Time : {{ totalDuration | secondsToDateTime | date:'HH:mm:ss' }}</strong>
-		  	<button class="btn btn-primary btn-md right" ng-click="openWarningModal('submitTestRequestInitiated')">Submit Test</button>
-		</div>
-		<div class="row">
-			<div class="col-lg-4 col-md-4 col-sm-4">
-				<div class="col-lg-4 col-md-4 col-sm-4">
-					<label for="sectionnames">Section Name</label>
+<div class="container" style="margin-top: -75px;" ng-show="dataPresent">
+	<div class="row">
+		<div class="alert alert-warning">
+			<div class="row">
+		   		<div class="col-lg-2 col-md-2 col-sm-2 text-center">
+			   		<strong>Time: <span class="black-text">{{ totalDuration | secondsToDateTime | date:'HH:mm:ss' }}</span></strong>
+			   	</div>
+				<div class="col-lg-4 col-md-4 col-sm-6">
+					<div class="col-lg-2 col-md-2 col-sm-2 text-center">
+						<label for="sectionnames">Section </label>
+					</div>
+					<div class="col-lg-10 col-md-10 col-sm-10">
+						<select class="form-control" id="sectionnames" name="sectionnames" ng-model="selectedSection" ng-change="openWarningModal('sectionChangeRequestInitiated')">
+							<option value="" disabled>Select a section</option>
+					    	<option ng-repeat="section in sectionNames" value="{{ section }}">{{ section }}</option>
+						</select>
+					</div>
 				</div>
-				<div class="col-lg-8 col-md-8 col-sm-8">
-					<select class="form-control" id="sectionnames" name="sectionnames" ng-model="selectedSection" ng-change="openWarningModal('sectionChangeRequestInitiated')">
-						<option value="" disabled>Select a section</option>
-				    	<option ng-repeat="section in sectionNames" value="{{ section }}">{{ section }}</option>
-					</select>
+				<div class="col-lg-6 col-md-6 col-sm-4">
+					<div class="row">
+						<div class="col-lg-3 col-md-3 col-sm-4 text-center">
+							<label for="notVisitedQuestionsCountBar">#Not Visited
+								<div class="progress">
+								  <div id="notVisitedQuestionsCountBar" class="progress-bar progress-bar-danger black-text" role="progressbar" style="width:{{progressValues[1].percentage}}%">
+								    {{progressValues[1].count}}
+								  </div>
+								</div>
+							</label>
+						</div>
+						<div class="col-lg-4 col-md-4 col-sm-4 text-center">
+							<label for="notAttemptedQuestionsCountBar">#Not Attempted
+								<div class="progress">
+								  <div id="notAttemptedQuestionsCountBar" class="progress-bar progress-bar-warning black-text" role="progressbar" style="width:{{progressValues[2].percentage}}%">
+								    {{progressValues[2].count}}
+								  </div>
+								 </div>
+							</label>
+						</div> 
+						<div class="col-lg-3 col-md-3 col-sm-4 text-center">
+							<label for="attemptedQuestionsCountBar">#Attempted
+								<div class="progress">
+								  <div id="attemptedQuestionsCountBar" class="progress-bar progress-bar-success black-text" role="progressbar" style="width:{{progressValues[0].percentage}}%">
+								    {{progressValues[0].count}}
+								  </div>
+								</div>
+							</label>
+						</div>
+						<div class="col-lg-2 col-md-2">
+							<button class="btn btn-primary btn-md right" ng-click="openWarningModal('submitTestRequestInitiated')">Submit Test</button>
+						</div>
+					</div>				
 				</div>
-			</div>
-			<div class="col-lg-6 col-md-6 col-sm-4">
-				<div class="row">
-					<div class="col-lg-2 col-md-2 col-sm-2">
-					</div>
-					<div class="col-lg-3 col-md-3 col-sm-3 text-center">
-						<label for="notVisitedQuestionsCountBar">#Not Visited
-							<div class="progress">
-							  <div id="notVisitedQuestionsCountBar" class="progress-bar progress-bar-danger black-text" role="progressbar" style="width:{{progressValues[1].percentage}}%">
-							    {{progressValues[1].count}}
-							  </div>
-							</div>
-						</label>
-					</div>
-					<div class="col-lg-4 col-md-4 col-sm-4 text-center">
-						<label for="notAttemptedQuestionsCountBar">#Not Attempted
-							<div class="progress">
-							  <div id="notAttemptedQuestionsCountBar" class="progress-bar progress-bar-warning black-text" role="progressbar" style="width:{{progressValues[2].percentage}}%">
-							    {{progressValues[2].count}}
-							  </div>
-							 </div>
-						</label>
-					</div> 
-					<div class="col-lg-3 col-md-3 col-sm-3 text-center">
-						<label for="attemptedQuestionsCountBar">#Attempted
-							<div class="progress">
-							  <div id="attemptedQuestionsCountBar" class="progress-bar progress-bar-success black-text" role="progressbar" style="width:{{progressValues[0].percentage}}%">
-							    {{progressValues[0].count}}
-							  </div>
-							</div>
-						</label>
-					</div>
-				</div>				
-			</div>
-			<div class="col-lg-2 col-md-2 col-sm-2 text-center">
-				<button ng-if="!hideNextSectionButton" class="btn btn-info btn-md" ng-click="openWarningModal('sectionChangeRequestInitiated')">Next Section</button>
+				<!-- <div class="col-lg-2 col-md-2 col-sm-2 text-center">
+					<button ng-if="!hideNextSectionButton" class="btn btn-info btn-md" ng-click="openWarningModal('sectionChangeRequestInitiated')">Next Section</button>
+				</div> -->
 			</div>
 		</div>
-		<div class="row">
+		<div class="row" style="margin-top:-10px;">
 			<div class="col-lg-8 col-md-8 col-sm-8 text-center">
 				<ul class="pagination pagination-sm">
 				  <li ng-repeat="count in sliced_questions" ng-click="changeQuestion(count, currentCount)"><a href="javascript:void(0);">{{count}}</a></li>
@@ -68,22 +70,23 @@
 				</ul>
 			</div>
 		</div>
-		</div>
-		<div class="row" style="height: 300px">
-			<div class="row text-center">
-				Question #{{currentCount}} {{currentQuestion.id}}
-				<div class="right">
-					<button ng-class="{ 'btn':true, 'btn-default':isBookMarked===-1, 'btn-primary':isBookMarked!=-1  }" ng-click="bookmarkQuestion(currentQuestion.id)" title="Bookmark">
-						<span class="glyphicon glyphicon-bookmark bold-text"></span>
-					</button>
-				</div>
-			</div><hr>
+	</div>
+	<div class="row">
+		<div class="row text-center">
+			Question #{{currentCount}} {{currentQuestion.id}}
+		</div><hr>
+		<div class="row" ng-if="!isComprehension">
+			<div class="right">
+				<button ng-class="{ 'btn':true, 'btn-default':isBookMarked.mcq===-1, 'btn-primary':isBookMarked.mcq!=-1  }" ng-click="bookmarkQuestion(currentQuestion.id, currentQuestion.que_type)" title="Bookmark this question">
+					<span class="glyphicon glyphicon-bookmark bold-text"></span>
+				</button>
+			</div>
 			<div class="col-lg-6 col-md-6 col-sm-6">
 				<span>{{currentQuestion.content | insertBlank}}</span>
 				<br>
 				<br>
 				<div class="row question-image" ng-if="currentQuestion.figure">
-					<img src="{{serverURL}}{{currentQuestion.figure}}" class="img-thumbnail" alt="Question Image is unavailable" width="300" height="200">
+					<img ng-src="{{baseURLImage}}{{currentQuestion.figure}}" class="img-thumbnail" alt="Question Image is unavailable" width="300" height="200">
 				</div>
 			</div>
 			<div class="col-lg-6 col-md-6 col-sm-6">
@@ -100,11 +103,52 @@
 				    </div>
 				</div><br><br>
 			</div>
-		</div><br><br>
-		<div class="row text-center">
-			<button ng-disabled="currentCount===total_questions.length" class="btn btn-info btn-md right" ng-click="changeQuestion(currentCount+1, currentCount)">Next Question</button>
-			<button ng-disabled="currentCount===1" class="btn btn-info btn-md left" ng-click="changeQuestion(currentCount-1, currentCount)">Previous Question</button>
+		</div><br>
+		<div class="row" ng-if="isComprehension">
+			<div class="row">
+				<h4 class="bold-text text-center">{{currentQuestion.heading}}</h4>
+				<div class="right">
+					<button ng-class="{ 'btn':true, 'btn-default':isBookMarked.comprehension===-1, 'btn-primary':isBookMarked.comprehension!=-1  }" ng-click="bookmarkQuestion(currentComprehensionQuestion.id, currentQuestion.que_type)" title="Bookmark this comprehension question">
+						<span class="glyphicon glyphicon-bookmark bold-text"></span>
+					</button>
+				</div>
+			</div><br>
+			<div class="row" style="margin: auto;">
+				<div class="col-lg-3 col-md-3 col-sm-3 col-xs-12" ng-if="currentQuestion.figure">
+					<img ng-src="{{baseURLImage}}{{currentQuestion.figure}}" class="img-thumbnail" alt="Comprehension Image is unavailable">
+				</div>
+				<div class="col-lg-9 col-md-9 col-sm-9 col-xs-12">
+					<p style="font-size: 15px;">{{currentQuestion.content}}</p>						
+				</div>
+			</div><hr>
+			<div class="row" style="margin: auto;">
+				<div class="row text-center">
+					<span ng-hide="currentComprehensionQuestionCount===0" class="glyphicon glyphicon-circle-arrow-left comprehensionButton pointer" ng-click="changeComprehensionQuestion(currentComprehensionQuestionCount-1)"></span>&nbsp;&nbsp;
+					<span>Comprehension Question #{{currentComprehensionQuestionCount+1}}</span>&nbsp;&nbsp;
+					<span ng-hide="currentComprehensionQuestionCount===comprehensionQuestionsLimit" class="glyphicon glyphicon-circle-arrow-right comprehensionButton pointer" ng-click="changeComprehensionQuestion(currentComprehensionQuestionCount+1)"></span>
+				</div><br><br>
+				<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+					<span>{{currentComprehensionQuestion.content | insertBlank}}</span>
+					<br><br>
+					<div class="row question-image" ng-if="currentComprehensionQuestion.figure">
+						<img ng-src="{{baseURLImage}}{{currentComprehensionQuestion.figure}}" class="img-thumbnail" alt="Comprehension Question Image is unavailable">
+					</div>
+				</div>
+				<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+					<div class="row" ng-repeat="option in currentComprehensionQuestion.options">
+						<label>
+							<input type="radio" name="{{currentComprehensionQuestion.id}}" value="{{option.id}}" ng-model="comprehensionAnswersModel[currentComprehensionQuestion.id].value">
+							{{option.content}}
+						</label><br>
+					</div>
+				</div>
+			</div>
 		</div>
 	</div>
-	<div class="container" ng-show="!dataPresent"><h3>No questions present.</h3></div>
+	<div class="row text-center">
+		<button ng-disabled="currentCount===total_questions.length" class="btn btn-info btn-md right" ng-click="changeQuestion(currentCount+1, currentCount)">Next</button>
+		<button ng-disabled="currentCount===1" class="btn btn-info btn-md left" ng-click="changeQuestion(currentCount-1, currentCount)">Previous</button>
+	</div>
+</div>
+<div class="container" ng-show="!dataPresent"><h3>No questions present.</h3></div>
 </div>

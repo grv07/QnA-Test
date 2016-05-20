@@ -60,9 +60,9 @@ ol#instructionsList > li{
 .bold-text{
 	font-weight: bold;
 }
-#answerExplanation{
+/*#answerExplanation{
 	height: 200px;
-}
+}*/
 .graph{
 	height: 400px;
 	width: 100%;
@@ -71,10 +71,21 @@ ol#instructionsList > li{
   width: 400px;
   word-wrap: break-word
 }
-.hint{
-  width: 400px;
-  word-wrap: break-word
-}
 .status{
 	width: 100px;
+}
+.comprehensionButton{
+	font-size: 20px;
+}
+#loader{
+display : none;
+width: 100px;
+height: 100px;
+position : relative;
+z-index: 100;
+opacity : 0.80;
+left : 0;
+bottom : 0;
+right : 0;
+top : 0;
 }
