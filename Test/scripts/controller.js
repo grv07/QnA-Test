@@ -104,6 +104,9 @@ appmodule
 
 			delete response.analysis;
 			$scope.data = response;
+			$scope.downloadAsPDF = function(){
+				downloadAsPDF('report', 'report');
+			}
             },
             function(response){            	
             	$scope.error = true;

@@ -6,36 +6,11 @@ appmodule
             $window.data = {quizKey: $stateParams.quizKey};
             $window.open($state.href('thirdpartytest-open', {quizKey: $stateParams.quizKey, testID: $stateParams.testID, token:$stateParams.token}), "Test Window", "width=1280,height=890,resizable=0");
         }
-        $scope.message = '';
-        $scope.image = '';
+        // $scope.message = '';
+        // $scope.image = '';
         $scope.$on('from-iframe', function(e, message) {
-            if(message==='TestOpen'){
-                $scope.message = 'You need to fill some details first.';
-                $scope.image = '../images/ellipsis.svg';
-            }
-            else if(message==='TestStart'){
-                $scope.message = 'Wait for some time.';
-                $scope.image = '../images/ellipsis.svg';
-            }
-            else if(message==='TestLoading'){
-                $scope.message = 'Your questions are loading right now.';
-                $scope.image = '../images/ellipsis.svg';
-            }
-            else if(message==='TestLoaded'){
-                $scope.message = 'Your questions have been loaded. Now you can start the test.';
-                $scope.image = '../images/start.png';
-            }
-            else if(message==='TestStarted'){
-                $scope.message = 'Your test has started.';
-                $scope.image = '../images/hourglass.svg';
-            }
-            else if(message==='TestLimitExceeded'){
-                $scope.message = 'The test limit has been exceeded. No attempts left.';
-                $scope.image = '../images/not_allowed.png';
-            }
-            $('#stateModalBodyMessage').html($scope.message);
-            $('#stateModalBodyImage').attr('src', $scope.image);
-            angular.element(document.querySelector('#stateModal')).modal('show');
+            var params = getParamsForStateModal(msg);
+            showStateModal(params.message, params.image);
         });
 
         $scope.redirectToResultPage = function(resultPageURL){
@@ -50,14 +25,11 @@ appmodule
     .controller('UserDataThirdPartyController',['$scope', '$rootScope', '$state', '$cookies', '$window', '$stateParams', 'TestUserDataFactory', function($scope, $rootScope, $state, $cookies, $window, $stateParams, TestUserDataFactory) {
         if($window.opener){
             $scope.error = false;
-
             TestUserDataFactory.getQuizAccordingToKey($stateParams.quizKey).get().$promise.then(
                 function(response){
                     $scope.userData = { username:'', email:'', quiz_id: response.id, quiz_name: response.title, test_key: response.quiz_key, show_result_on_completion:response.show_result_on_completion, 'quizStacks': undefined, 'testToken': undefined };
                     var parentScope = $window.opener.$windowScope;
                     parentScope.$emit('from-iframe','TestStart');
-                    parentScope.$apply();
-                    parentScope.$digest();
                     $rootScope.parentScope = parentScope;
                     },
                 function(response){
@@ -109,9 +81,6 @@ appmodule
                             return false;
                         }
                     }
-                    // $window.data = $scope.userData;
-                    // $window.$windowScope = $scope;
-                    // $window.open($state.href('app.load-questions', {quizKey: $stateParams.quizKey}), "Test Window", "width=1280,height=890,resizable=0");
                 },
                 function(response) {
                     $scope.isFormInvalid = true;
@@ -129,41 +98,21 @@ appmodule
         {
             $scope.error = false;
             var allSections = [];
-            var allQuestions = {}; 
             var parentScope = $scope.parentScope;
             parentScope.$emit('from-iframe','TestLoading');
-            parentScope.$apply();
-            parentScope.$digest();
-            $scope.progressValue = 0.00;
+            $scope.progressValue = 0.0;
             $scope.total_questions = 0;
             $scope.total_duration = 0;
             $scope.total_sections = 0;
             $scope.sectionsDetails = {};
             $cookies.put('testToken', $scope.userDetails.testToken);
-            var data = { test_key: $scope.userDetails.test_key, test_user: $scope.userDetails.testUser, show_result_on_completion: $scope.userDetails.show_result_on_completion, 'quiz': $scope.userDetails.quiz_id , 'quizName': $scope.userDetails.quiz_name, 'quizStacks' : $scope.userDetails.quizStacks, 'testToken': $scope.userDetails.testToken , 'details' : {} };
-            data['isTestNotCompleted'] = $scope.userDetails.isTestNotCompleted;
-            if(data['isTestNotCompleted']){
-                data['existingAnswers'] = $scope.userDetails.existingAnswers;
-                data['sectionNameWhereLeft'] = "Section#"+$scope.userDetails.sectionNoWhereLeft;
-                data['timeRemaining'] = $scope.userDetails.timeRemaining;
-            }
-
-            $scope.closeTestWindow = function(){
-                $window.close();
-            }
-            for(var i=0;i<data['quizStacks'].length;i++){
-                var stack = data['quizStacks'][i];
-                if(allSections.indexOf(data['quizStacks'][i].section_name)===-1){
-                    data['details'][stack.section_name] = { 'duration': 0, 'questions' : 0};
-                    allSections.push(stack.section_name);
-                }
-                $scope.total_questions += parseInt(stack.no_questions);
-                $scope.total_duration += parseInt(stack.duration);
-                data['details'][stack.section_name]['duration'] += parseInt(stack.duration);
-                data['details'][stack.section_name]['questions'] += parseInt(stack.no_questions);
-            }
-            $scope.total_sections = allSections.length;
-            allSections.sort();
+            var data = { test_key: $scope.userDetails.test_key, test_user: $scope.userDetails.testUser, show_result_on_completion: $scope.userDetails.show_result_on_completion, 'quiz': $scope.userDetails.quiz_id , 'quizName': $scope.userDetails.quiz_name, 'quizStacks' : $scope.userDetails.quizStacks, 'testToken': $scope.userDetails.testToken, isTestNotCompleted: $scope.userDetails.isTestNotCompleted, 'details' : {} };
+            var result = processLoadedData(data);
+            data = result.data;
+            $scope.total_questions = result.total_questions;
+            $scope.total_duration = result.total_duration;
+            $scope.total_sections = result.total_sections;
+            var allSections = result.allSections;
             var progressFactor = 100/$scope.total_sections;
             for(var i=0;i<allSections.length;i++){
                 $scope.sectionsDetails[allSections[i]] = { 'duration': data['details'][allSections[i]]['duration'], 'questions': data['details'][allSections[i]]['questions'] };
@@ -182,8 +131,6 @@ appmodule
                                 LoadQuestionsFactory.saveSittingUser().save({ test_user: $scope.userDetails.testUser, quiz_id: $scope.userDetails.quiz_id }).$promise.then(
                                     function(response){
                                         parentScope.$emit('from-iframe','TestStarted');
-                                        parentScope.$apply();
-                                        parentScope.$digest();
                                         $state.go('thirdpartytest-start', { obj: data, token: $scope.userDetails.testToken, testID: $stateParams.testID, quizKey: $scope.userDetails.test_key });
                                     }, 
                                     function(response){
@@ -215,7 +162,6 @@ appmodule
             }   
         }])
     .controller('TestPageThirdPartyController', ['$scope', '$controller', '$cookies', '$window', '$interval', '$stateParams', '$state', 'TestPageFactory', function($scope, $controller, $cookies, $window, $interval, $stateParams, $state, TestPageFactory) {
-        $scope.allQuestions = {};
         var firstQuestionVisited = false;
         var hasAttempted = true;
         var totalTime = 0;
@@ -225,12 +171,20 @@ appmodule
         }else{
             totalTime = findTotalDuration($stateParams.obj.quizStacks);
         }
-        $scope.serverURL = serverURL;
+
+        $scope.baseURLImage = baseURLImage;
         $scope.progressValuesModel = {};
         $scope.answersModel = {};
         var previousCountForQuestionBeforeSectionChange = 0;
-        var bookmarkedQuestions = [];
+        var bookmarkedQuestions = {};
+        bookmarkedQuestions[qTypes[0]] = [];
+        bookmarkedQuestions[qTypes[2]] = [];
         var timeSpentOnQuestions = {};
+        $scope.comprehensionAnswersModel = {};
+        var comprehensionQuestions = 0;
+        $scope.isBookMarked = {};
+        $scope.isBookMarked[qTypes[0]] = [];
+        $scope.isBookMarked[qTypes[2]] = [];
 
         function getQuestionsBasedOnSection(sectionName){
             try{
@@ -243,19 +197,31 @@ appmodule
                 var existingAnswers = null;
                 if($stateParams.obj.isTestNotCompleted){
                     if(hasAttempted){
-                        existingAnswers = $stateParams.obj.existingAnswers['answers'].hasOwnProperty[sectionName];
-                        if(existingAnswers){
-                            existingAnswersKeys = Object.keys(existingAnswers);
+                        existingAnswers = $stateParams.obj.existingAnswers['answers'];
+                        if(existingAnswers && existingAnswers.hasOwnProperty(sectionName)){
+                            existingAnswersKeys = Object.keys(existingAnswers[sectionName]);
                         }else{
                             existingAnswersKeys = [];
                         }
                     }
+                }else{
+                    existingAnswersKeys = [];
                 }
                 for(var i=0;i<$scope.total_questions.length;i++){
-                    var qKey = $scope.total_questions[i][i+1].id;
+                    var q = $scope.total_questions[i][i+1];
+                    var qKey = q.id;
                     if(hasAttempted && existingAnswersKeys.length!=0 && existingAnswersKeys.indexOf(qKey.toString())!=-1){
-                        $scope.answersModel[qKey] = { value: existingAnswers[qKey].value  };
-                        $scope.progressValuesModel[qKey] = { status: existingAnswers[qKey].status };
+                        if(existingAnswers[sectionName][qKey].hasOwnProperty('status')){
+                            $scope.answersModel[qKey] = { value: existingAnswers[sectionName][qKey].value  };
+                            $scope.progressValuesModel[qKey] = { status: existingAnswers[sectionName][qKey].status };
+                        }else{
+                            $scope.answersModel[qKey] = { comprehension_questions: [], heading: q.heading };
+                            for(var cq_id in existingAnswers[sectionName][qKey]){
+                                $scope.comprehensionAnswersModel[cq_id] = { value:existingAnswers[sectionName][qKey][cq_id].value };
+                            } 
+                            $scope.progressValuesModel[qKey] = { status: 'A' };                           
+                        }
+                        timeSpentOnQuestions[qKey] = { time: totalTime };                        
                     }else{
                         if($scope.answersModel.hasOwnProperty(qKey)){
                             continue;
@@ -263,6 +229,13 @@ appmodule
                             $scope.answersModel[qKey] = { value:null };
                             $scope.progressValuesModel[qKey] = { status:progressTypes[1] };
                             timeSpentOnQuestions[qKey] = { time: totalTime };
+                            if(q.que_type === qTypes[2]){
+                                $scope.answersModel[qKey]['comprehension_questions'] = [];
+                                $scope.answersModel[qKey]['heading'] = q.heading;
+                                for(var j=0;j<q.comprehension_questions.length;j++){
+                                    $scope.comprehensionAnswersModel[q.comprehension_questions[j][j+1].id] = { value:null };
+                                }                        
+                            }
                         }
                     }
                 }
@@ -277,6 +250,7 @@ appmodule
 
             }
         }
+
         $scope.openWarningModal = function(action){
             $scope.action = action;
             switch(action){
@@ -326,16 +300,17 @@ appmodule
             saveTimeSpentOnQuestion(currentSection, previousCountForQuestionBeforeSectionChange);
         }
 
-        $scope.bookmarkQuestion = function(questionID){
+        $scope.bookmarkQuestion = function(questionID, que_type){
             var questionID = parseInt(questionID);
-            var isAlreadyBookMarked = bookmarkedQuestions.indexOf(questionID);
-            if(isAlreadyBookMarked === -1){
-                bookmarkedQuestions.push(questionID);
-                $scope.isBookMarked = 1;
-            }else{
-                bookmarkedQuestions.splice(isAlreadyBookMarked, 1);
-                $scope.isBookMarked = -1;
-            }
+            var isAlreadyBookMarked = bookmarkedQuestions[que_type].indexOf(questionID);
+                if(isAlreadyBookMarked === -1){
+                    bookmarkedQuestions[que_type].push(questionID);
+                    $scope.isBookMarked[que_type] = 1;
+                }else{
+                    bookmarkedQuestions[que_type].splice(isAlreadyBookMarked, 1);
+                    $scope.isBookMarked[que_type] = -1;
+                }
+            // console.log(bookmarkedQuestions);
         }
 
         function saveTimeSpentOnQuestion(section, previousCount){
@@ -364,34 +339,55 @@ appmodule
                     previousCountForQuestionBeforeSectionChange = count;
                     saveTimeSpentOnQuestion($scope.selectedSection, previousCount);
                 }
+                $scope.currentComprehensionQuestion = [];
                 $scope.currentCount = count;
+                if($scope.currentComprehensionQuestionCount!=undefined){
+                    $scope.isComprehension = false;
+                    delete $scope.currentComprehensionQuestion;
+                    delete $scope.currentComprehensionQuestionCount;
+                    delete $scope.comprehensionQuestionsLimit;
+                    comprehensionQuestions = null;
+                }
                 $scope.currentQuestion = TestPageFactory.getQuestion($scope.selectedSection, count);
 
-                if(isMCQ($scope.currentQuestion.que_type)){
+                if($scope.currentQuestion.que_type === qTypes[0]){
                     $scope.currentOptions = $scope.currentQuestion.options;
-                }else{
-                    $scope.currentOptions = [];
                 }
-       
+                else if(($scope.currentQuestion.que_type === qTypes[1])){
+                    $scope.currentOptions = [];
+                }else{
+                    $scope.isComprehension = true;
+                    comprehensionQuestions = $scope.currentQuestion.comprehension_questions;
+                    $scope.comprehensionQuestionsLimit = comprehensionQuestions.length - 1;
+                    $scope.changeComprehensionQuestion(0);
+                }       
                 if($scope.progressValuesModel[$scope.currentQuestion.id].status === progressTypes[1]){
                     $scope.progressValuesModel[$scope.currentQuestion.id].status = progressTypes[0];
                     $scope.progressValues = changeProgressValues($scope.progressValuesModel);
                     TestPageFactory.saveProgressValues($scope.selectedSection, $scope.progressValuesModel);
                 }
-                $scope.isBookMarked = bookmarkedQuestions.indexOf(parseInt($scope.currentQuestion.id));
+                $scope.isBookMarked[qTypes[0]] = bookmarkedQuestions[qTypes[0]].indexOf(parseInt($scope.currentQuestion.id));
             }
         }
 
-        $scope.saveAnswer = function(count, answerId){
-            if(isMCQ($scope.currentQuestion.que_type))
+        $scope.changeComprehensionQuestion = function(comprehensionCount){
+            if(comprehensionCount>=0 && comprehensionCount<=$scope.comprehensionQuestionsLimit)
             {
-                if($scope.answersModel[$scope.currentQuestion.id].value===answerId){
-                }else{
-                    $scope.answersModel[$scope.currentQuestion.id].value = answerId;
-                    TestPageFactory.saveOrChangeAnswer($scope.selectedSection, count, answerId, true);
+                $scope.currentComprehensionQuestionCount = comprehensionCount;
+                $scope.currentComprehensionQuestion = comprehensionQuestions[comprehensionCount][comprehensionCount+1];
+                $scope.isBookMarked[qTypes[2]] = bookmarkedQuestions[qTypes[2]].indexOf(parseInt($scope.currentComprehensionQuestion.id));
+            }
+        }
+
+        function markQuestionVisited(){
+            if(!firstQuestionVisited){
+                firstQuestionVisited = true;
+                if($stateParams.obj.isTestNotCompleted){
+                    $scope.progressValuesModel[$scope.currentQuestion.id].status = progressTypes[2];
                 }
             }
-            else{
+            if($scope.progressValuesModel[$scope.currentQuestion.id].status === progressTypes[0]){
+                $scope.progressValuesModel[$scope.currentQuestion.id].status = progressTypes[2];
             }
         }
         
@@ -410,33 +406,32 @@ appmodule
                         $scope.progressValuesModel[$scope.currentQuestion.id].status = progressTypes[2];
                     }
                 }else if($scope.currentCount === 1){
-                    if($scope.currentQuestion.que_type === qTypes[1]){
-                        if(!firstQuestionVisited){
-                            firstQuestionVisited = true;
-                            if($stateParams.obj.isTestNotCompleted){
-                                $scope.progressValuesModel[$scope.currentQuestion.id].status = progressTypes[2];
-                            }
-                        }else{
-                            if($scope.progressValuesModel[$scope.currentQuestion.id].status === progressTypes[0]){
-                            $scope.progressValuesModel[$scope.currentQuestion.id].status = progressTypes[2];
-                            }
-                        }
-                    }
-                    if($scope.currentQuestion.que_type === qTypes[0]){
-                        if(!firstQuestionVisited){
-                            firstQuestionVisited = true;
-                        }else{
-                            if($scope.progressValuesModel[$scope.currentQuestion.id].status === progressTypes[0]){
-                            $scope.progressValuesModel[$scope.currentQuestion.id].status = progressTypes[2];
-                            }
-                        }
-                    }   
+                    // if($scope.currentQuestion.que_type === qTypes[1]){  
+                    // }
+                    // else if($scope.currentQuestion.que_type === qTypes[0]){                        
+                    // }
+                    markQuestionVisited();
                 }
                 $scope.progressValues = changeProgressValues($scope.progressValuesModel);
                 TestPageFactory.saveProgressValues($scope.selectedSection, $scope.progressValuesModel);
                 $scope.submitTestDetails(false, $scope.selectedSection);
             }catch(err){}
             }
+        }, true);
+
+        // Watch for a change in comprehensionAnswersModel
+        $scope.$watch(function() {
+           return $scope.comprehensionAnswersModel;
+         },                       
+          function(newVal, oldVal) {
+            try{ 
+                if(newVal!=oldVal){
+                    markQuestionVisited();
+                    $scope.progressValues = changeProgressValues($scope.progressValuesModel);
+                    TestPageFactory.saveProgressValues($scope.selectedSection, $scope.progressValuesModel);
+                    $scope.submitTestDetails(false, $scope.selectedSection);
+                }
+            }catch(err){}
         }, true);
 
         function sliceOutQuestions(){
@@ -475,11 +470,9 @@ appmodule
                 // Save bookmarks
                 postBookMarks(data);
                 // $scope.parentScope from $rootScope (set in LoadQuestionsController)
-                $scope.parentScope.message = 'Your have submitted the test. Please wait for the result page to load.';
-                $scope.parentScope.image = '../images/ellipsis.svg';
+                // $scope.parentScope.message = 'Your have submitted the test. Please wait for the result page to load.';
+                // $scope.parentScope.image = '../images/ellipsis.svg';
                 $scope.parentScope.$emit('from-iframe','TestFinished');
-                $scope.parentScope.$apply();
-                $scope.parentScope.$digest();
                 data['time_spent'] = $scope.totalDuration;
                 data['time_spent_on_question'] = timeSpentOnQuestions;
                 TestPageFactory.saveResultToDB().save(data).$promise.then(
@@ -489,26 +482,32 @@ appmodule
                             $scope.parentScope.closeStateModal();
                             $scope.parentScope.redirectToResultPage(testURL+'#/view/report/'+$stateParams.obj.test_user+'/'+$stateParams.obj.test_key+'/'+response.attempt_no);
                         }else{
-                            $scope.parentScope.message = 'Your result has been saved. But the result cannot be shown right now. You can now close this window.';
-                            $scope.parentScope.image = '../images/completed.png';
+                            // $scope.parentScope.message = 'Your result has been saved. But the result cannot be shown right now. You can now close this window.';
+                            // $scope.parentScope.image = '../images/completed.png';
                             $scope.parentScope.$emit('from-iframe','TestFinished');
-                            $scope.parentScope.$apply();
-                            $scope.parentScope.$digest();
                         }
                         alert("You have completed your test successfully. You can now close this window.");
                         $window.close();
                     },
                     function(response){
                         alert('Error in submitting test!');
-                        $cookies.remove('testToken');
+                        // $cookies.remove('testToken');
                     }
                 );
             }else{
                 data['answer'] = {};
-                data['answer'][$scope.currentQuestion.id] = {
-                    value: TestPageFactory.getAnswerForQuestion(currentSection, $scope.currentQuestion.id).value, 
-                    status: TestPageFactory.getAnswerProgressValue(currentSection, $scope.currentQuestion.id).status,
-                    }; 
+                data['que_type'] = $scope.currentQuestion.que_type;
+                if($scope.currentQuestion.que_type != qTypes[2]){
+                    data['answer'][$scope.currentQuestion.id] = {
+                        value: TestPageFactory.getAnswerForQuestion(currentSection, $scope.currentQuestion.id).value, 
+                        status: TestPageFactory.getAnswerProgressValue(currentSection, $scope.currentQuestion.id).status,
+                        }; 
+                    }else{
+                        data['answer'][$scope.currentQuestion.id] = {};
+                        data['answer'][$scope.currentQuestion.id][$scope.currentComprehensionQuestion.id] = {
+                            value: $scope.comprehensionAnswersModel[$scope.currentComprehensionQuestion.id].value,
+                        }; 
+                }
                 data['quiz_id'] = $stateParams.obj.quiz;
                 data['section_name'] = currentSection;
                 TestPageFactory.saveResultToCache(data).then(function(response){
@@ -537,10 +536,13 @@ appmodule
 
         try{
             if(isNotEmpty($stateParams.obj)){
-                if($stateParams.obj.hasOwnProperty('existingAnswers') && $stateParams.obj.existingAnswers.hasOwnProperty('answers') && $stateParams.obj.existingAnswers['answers']===null){
-                    hasAttempted = false;
-                }else{
-                    hasAttempted = false;
+                if($stateParams.obj.hasOwnProperty('existingAnswers') && $stateParams.obj.existingAnswers.hasOwnProperty('answers'))
+                {
+                    if($stateParams.obj.existingAnswers['answers']===null){
+                        hasAttempted = false;
+                    }else{
+                        hasAttempted = true;
+                    }
                 }
                 $scope.quiz = $stateParams.obj.quiz;
                 $scope.sectionNames = Object.keys($stateParams.obj.details).sort();
@@ -564,7 +566,7 @@ appmodule
                     if(timeCounter % 5 === 0){
                         updateTimeRemaining({'test_user': $stateParams.obj.test_user, 'test_key': $stateParams.obj.test_key, 'remaining_duration': $scope.totalDuration, 'section_name': $scope.selectedSection });
                     }
-                    if($scope.totalDuration===0){
+                    if($scope.totalDuration === 0){
                         alert('Time Over');
                         $scope.submitTestDetails(true, $scope.currentSection);
                     }

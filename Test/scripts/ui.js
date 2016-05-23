@@ -16,8 +16,8 @@ function sortObject(obj) {
     }, {});
 }
 function isNotEmpty(object){
-   	for(var i in object){ return true;}
-  	return false;
+    for(var i in object){ return true;}
+    return false;
 }
 function showAlert(type, msg){
     $('#notification').removeClass('alert-danger').removeClass('alert-success').removeClass('alert-info').removeClass('alert-warning').addClass(type).html(msg).show();
@@ -67,6 +67,7 @@ function createStackedBar100Chart(chartID, colorSet, text, titleX, titleY, dataP
         title:{
             text: text
         },
+        exportEnabled: true,
         axisX:{
             title: titleX
         },
@@ -86,6 +87,7 @@ function createSplineChart(chartID, text, dataPoints1, dataPoints2, dataPoints3)
       title:{
       text: text
       },
+      exportEnabled: true,
        data: [
       {        
         type: "spline",
@@ -112,6 +114,119 @@ function createSplineChart(chartID, text, dataPoints1, dataPoints2, dataPoints3)
     }).render();
 }
 
+function getParamsForStateModal(action){
+    var params = { message:'', image:'' };
+    switch (action) {
+        case 'TestOpen':
+            params.message = 'You need to fill some details first.';
+            params.image = '../images/ellipsis.svg';
+            break;
+        case 'TestLoading':
+            params.message = 'Your questions are loading right now.';
+            params.image = '../images/ellipsis.svg';
+            break;
+        case 'TestLoaded':
+            params.message = 'Your questions have been loaded. Now you can start the test.';
+            params.image = '../images/start.png';
+            break;
+        case 'TestStarted':
+            params.message = 'Your test has started.';
+            params.image = '../images/hourglass.svg';
+            break;
+        case 'TestLimitExceeded':
+            params.message = 'The test limit has been exceeded. No attempts left.';
+            params.image = '../images/not_allowed.png';
+            break;
+        case 'TestStart':
+            params.message = 'Wait for some time.';
+            params.image = '../images/ellipsis.svg';
+            break;
+        default:
+            break;
+    }
+    return params;
+}
+
+function showStateModal(message, image){
+    $('#stateModalBodyMessage').html(message);
+    $('#stateModalBodyImage').attr('src', image);
+    $('#stateModal').modal('show');
+}
+
+function processLoadedData(data){
+    var result = { data:data , total_questions:0, total_duration:0, total_sections:0, allSections:[] };
+    if(data['isTestNotCompleted']){
+        result.data['existingAnswers'] = $scope.userDetails.existingAnswers;
+        result.data['sectionNameWhereLeft'] = "Section#"+$scope.userDetails.sectionNoWhereLeft;
+        result.data['timeRemaining'] = $scope.userDetails.timeRemaining;
+    }
+
+    for(var i=0;i<data['quizStacks'].length;i++){
+        var stack = data['quizStacks'][i];
+        if(result.allSections.indexOf(data['quizStacks'][i].section_name)===-1){
+            result.data['details'][stack.section_name] = { 'duration': 0, 'questions' : 0 };
+            result.allSections.push(stack.section_name);
+        }
+        result.total_questions += parseInt(stack.no_questions);
+        result.total_duration += parseInt(stack.duration);
+        result.data['details'][stack.section_name]['duration'] += parseInt(stack.duration);
+        result.data['details'][stack.section_name]['questions'] += parseInt(stack.no_questions);
+    }
+    result.total_sections = result.allSections.length;
+    result.allSections.sort();
+    return result;
+}
+
+function downloadReportAsPDF(elementID, outputFileName){
+    html2canvas($("#"+elementID), {
+        onrendered: function(canvas) {         
+            var pdf = new jsPDF('p', 'pt', 'a4');
+            pdf.setFontSize(30);
+            pdf.text(260, 50, 'Report');
+
+            pdf.setFontSize(20);
+            pdf.text(60, 120, '1. Normal Details -');
+
+            pdf.setFontSize(16);
+            pdf.text(60, 160, 'Result Status');
+            pdf.text(60, 190, 'Username');
+            pdf.text(60, 220, 'Email');
+            pdf.text(60, 250, 'Marks');
+            pdf.text(60, 280, 'Actual Rank');
+            pdf.text(60, 310, 'Attempt No.');
+            pdf.text(60, 340, 'Start Time');
+            pdf.text(60, 370, 'End Time');
+            pdf.text(60, 400, 'Quiz Name');
+            pdf.text(60, 430, 'Quiz Key');
+            pdf.text(60, 460, 'Total Questions');
+            pdf.text(60, 490, 'Passing %age');
+
+            for(var i=1;i<=12;i++){
+                pdf.text(300, 130+i*30, $('#report'+i).text());
+            }
+
+            pdf.addPage();
+            pdf.setFontSize(20);
+            pdf.text(60, 70, '2. Questions Statistics');
+
+            pdf.setFontSize(14);
+            pdf.text(40, 110, 'Section Wise Result');
+            var imgData = document.querySelector("#sectionWiseBarGraphContainer canvas").toDataURL('image/jpeg');
+            pdf.addImage(imgData, 'JPEG', 40, 130, 500, 300);
+
+            pdf.text(40, 470, 'Category Wise Result');
+            var imgData = document.querySelector("#categoryWiseBarGraphContainer canvas").toDataURL('image/jpeg');
+            pdf.addImage(imgData, 'JPEG', 40, 490, 500, 300);
+
+            pdf.addPage();
+            pdf.text(40, 70, 'Time Wise Result');
+            var imgData = document.querySelector("#timeWiseSplineContainer canvas").toDataURL('image/jpeg');
+            pdf.addImage(imgData, 'JPEG', 40, 100, 500, 300);
+
+            pdf.save(outputFileName+'.pdf');
+        }
+    });
+}
 // function addAnswerExplanationLink(explanation){
 //     $('#answerExplanationRow').html('<a data-toggle="collapse" data-target="#answerExplanation">View Answer</a><div id="answerExplanation" class="collapse bold-text">'+explanation+'</div>')
 // }
