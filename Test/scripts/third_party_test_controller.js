@@ -88,7 +88,8 @@ appmodule
                     $window.opener.$windowScope.$emit('from-iframe','TestLimitExceeded');
                 });
             }
-        }else{
+        }
+        else{
             $scope.error = true;
         }
     }])
