@@ -1,3 +1,14 @@
+$(function() { 
+    $("#loadingButton").click(function(){
+        $(this).button('loading').delay(1000).queue(function() {
+            $(this).button('reset');
+            $(this).dequeue();
+        });        
+    });
+});
+var qTypes = ['mcq', 'objective', 'comprehension'];
+var progressTypes = ['NA', 'NV', 'A'];
+
 function sortObject(obj) {
     return Object.keys(obj).sort().reduce(function (result, key) {
         result[key] = obj[key];
@@ -8,10 +19,14 @@ function isNotEmpty(object){
    	for(var i in object){ return true;}
   	return false;
 }
+function showAlert(type, msg){
+    $('#notification').removeClass('alert-danger').removeClass('alert-success').removeClass('alert-info').removeClass('alert-warning').addClass(type).html(msg).show();
+    setTimeout(closeAlert, 5000);
+}
 function closeAlert(){
     $("#notification").fadeTo(0, 500).slideUp(500, function(){
-        $("#notification").alert('close');
-    });    
+        $("#notification").hide();
+    });
 }
 function range(start, end, step, offset){ 
     start = start + 1;
@@ -25,13 +40,6 @@ function findTotalDuration(list){
         total += parseInt(list[i]['duration']);
     }
     return total;
-}
-function isMCQ(value){
-    if(value === 'mcq'){
-        return true;
-    }else if(value === 'objective'){
-        return false;
-    }
 }
 function toggleWarningModal(action, bodyText, okButtonText){
     $('#warningModalBody').html(bodyText);

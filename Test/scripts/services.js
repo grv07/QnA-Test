@@ -218,11 +218,11 @@ appmodule
         );
     }
 
-    this.getQuestionStats = function(sittingID, count){
-      return $resource(serverURL+"question/stats/"+sittingID+"/", { count: count},
+    this.getQuestionStats = function(sittingID, count, allQuestionIds){
+      return $resource(serverURL+"question/stats/"+sittingID+"/", null,
         {
           get: {
-          method : 'GET',
+          method : 'POST',
           isArray : false,
           }
         },

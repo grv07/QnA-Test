@@ -94,12 +94,10 @@ appmodule
 				if(response.analysis.hasOwnProperty('question_vs_time_result_user') && response.analysis.question_vs_time_result_user.hasOwnProperty(key))
 				{
 					value = response.analysis.question_vs_time_result_user[key];
-					if(value.length>1){
+					if(value.length>1)
 						dataPoints3.push({ x: no_of_questions , y: value[1] });
-					}
-					else{
+					else
 						dataPoints3.push({ x: no_of_questions , y: value });
-					}
 				}
 			}
 			createSplineChart("timeWiseSplineContainer", "", dataPoints1, dataPoints2, dataPoints3);
@@ -119,13 +117,31 @@ appmodule
 	.controller('QuestionsStatsContoller', ['$scope', '$stateParams', '$state', 'ReportFactory', function($scope, $stateParams, $state, ReportFactory) {
 		var count = 0;	
 		$scope.stop = false;
+		var allQuestionIds = [];
+		var allQuestions = undefined;
+		$scope.questionStats = { mcq: [], comprehension: [] };
 		function getQuestionsStats(count){
-			ReportFactory.getQuestionStats($stateParams.sittingID, count).get().$promise.then(
+			ReportFactory.getQuestionStats($stateParams.sittingID).get({ count: count, allQuestionIds: allQuestionIds, allQuestions: allQuestions }).$promise.then(
 	            function(response){
-	            	for(var i=0;i<response.questionStats.length;i++){
-	            		$scope.questionStats.push(response.questionStats[i]);
+	            	if(allQuestions===undefined){
+	            		allQuestions = response.allQuestions;
 	            	}
+	            	allQuestionIds = response.allQuestionIds;
+	            	for(var i=0;i<response.questionStats[qTypes[0]].length;i++){
+	            		$scope.questionStats[qTypes[0]].push(response.questionStats[qTypes[0]][i]);
+	            	}
+	            	if(response.questionStats[qTypes[2]].length!=0){
+	            		for(var i=0;i<response.questionStats[qTypes[2]].length;i++){
+	            			$scope.questionStats[qTypes[2]].push(response.questionStats[qTypes[2]][i]);
+	            		}
+	            	}            	
 	            	$scope.stop = response.stop;
+	            	$("#loader").css('display', 'none');
+	            	if(response.stop){
+	            		delete allQuestionIds;
+	            		delete allQuestionIds;
+	            		delete count;
+	            	}
 	            },
 	            function(response){
 	            	alert("Error in retrieving questions statistics.");
@@ -133,9 +149,8 @@ appmodule
 		}
 
 		getQuestionsStats(count);
-		$scope.questionStats = [];
-
 		$scope.loadMoreQuestions = function(){
+			$("#loader").css('display', 'block');
 			count += 1;
 			getQuestionsStats(count);
 		}
