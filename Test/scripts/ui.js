@@ -87,8 +87,14 @@ function createSplineChart(chartID, text, dataPoints1, dataPoints2, dataPoints3)
       title:{
       text: text
       },
+      axisX:{
+        title: "Questions"
+      },
+      axisY:{
+        title: "Time spent (in seconds)"
+      },
       exportEnabled: true,
-       data: [
+        data: [
       {        
         type: "spline",
         color: "#6DCFF6",
@@ -119,27 +125,42 @@ function getParamsForStateModal(action){
     switch (action) {
         case 'TestOpen':
             params.message = 'You need to fill some details first.';
-            params.image = '../images/ellipsis.svg';
+            params.image = 'ellipsis.svg';
             break;
         case 'TestLoading':
             params.message = 'Your questions are loading right now.';
-            params.image = '../images/ellipsis.svg';
+            params.image = 'ellipsis.svg';
             break;
         case 'TestLoaded':
             params.message = 'Your questions have been loaded. Now you can start the test.';
-            params.image = '../images/start.png';
+            params.image = 'start.png';
             break;
         case 'TestStarted':
             params.message = 'Your test has started.';
-            params.image = '../images/hourglass.svg';
+            params.image = 'hourglass.svg';
             break;
         case 'TestLimitExceeded':
             params.message = 'The test limit has been exceeded. No attempts left.';
-            params.image = '../images/not_allowed.png';
+            params.image = 'not_allowed.png';
             break;
         case 'TestStart':
             params.message = 'Wait for some time.';
-            params.image = '../images/ellipsis.svg';
+            params.image = 'ellipsis.svg';
+            break;
+        case 'TestFinished':
+            params.message = 'You have finished the test. Wait for report.';
+            params.image = 'ellipsis.svg';
+        case 'TestFinishedNoReport':
+            params.message = 'Your result has been saved. But the result cannot be shown right now. You can now close this window.';
+            params.image = 'completed.png';
+            break;
+        case 'TestClosed':
+            params.message = 'You have closed the test. If you started the test then your answers have been saved till the last question you answered. You can resume the test again.';
+            params.image = 'closed.png';
+            break;
+        case 'TestClosedOnly':
+            params.message = 'You have closed the test.';
+            params.image = 'closed.png';
             break;
         default:
             break;
@@ -149,7 +170,7 @@ function getParamsForStateModal(action){
 
 function showStateModal(message, image){
     $('#stateModalBodyMessage').html(message);
-    $('#stateModalBodyImage').attr('src', image);
+    $('#stateModalBodyImage').attr('src', '../images/'+image);
     $('#stateModal').modal('show');
 }
 

@@ -1,10 +1,18 @@
 /* global $ */
 appmodule
     .controller('IndexController', ['$scope', '$rootScope', '$state', '$window', '$stateParams', '$cookies', function($scope, $rootScope, $state, $window, $stateParams, $cookies) {
+        var timer;
         $scope.openTest = function(){
             $window.$windowScope = $scope;
             $window.data = {quizKey: $stateParams.quizKey};
-            $window.open($state.href('app.open-test', {quizKey: $stateParams.quizKey}), "Test Window", "width=1280,height=890,resizable=0");
+            var child = $window.open($state.href('app.open-test', {quizKey: $stateParams.quizKey}), "Test Window", "width=1280,height=890,resizable=0");
+            // timer = setInterval(checkChild, 500);
+            // function checkChild() {
+            //     if(child.closed) {
+            //         clearInterval(timer);
+            //         showStateModal("You have closed the test window.If your test is not submitted the you can restart the test from where you have left.", "closed.png");
+            //     }
+            // }
         }
         // $scope.message = '';
         // $scope.image = '';
@@ -13,12 +21,14 @@ appmodule
             showStateModal(params.message, params.image);
         });
 
-        $scope.redirectToResultPage = function(resultPageURL){
+        $scope.showResultPage = function(resultPageURL){
             $cookies.remove('testToken');
+            // showStateModal("Click here to get to <a href="+resultPageURL+"><b>result page</b></a>.", "ellipsis.svg");
             $window.location = resultPageURL;
         }
 
         $scope.closeStateModal = function(){
+            // clearInterval(timer);
             angular.element(document.querySelector('#stateModal')).modal('hide');
         }
     }])
@@ -41,6 +51,10 @@ appmodule
                     alert("Error in retrieving quiz details!");
                     $window.close();                     
                 });
+
+            $window.onbeforeunload = function(e) {
+                $rootScope.parentScope.$emit('from-iframe','TestClosedOnly');
+            };
 
             function moveToLoadingState(response){
                 $scope.userData['quizStacks'] = response;
@@ -102,8 +116,12 @@ appmodule
             $scope.closeTestWindow = function(){
                 $window.close();
             }
+            
             $scope.error = false;
             var parentScope = $scope.parentScope;
+            $window.onbeforeunload = function(e) {
+                parentScope.$emit('from-iframe','TestClosedOnly');
+            };
             parentScope.$emit('from-iframe','TestLoading');
             $scope.progressValue = 0.0;
 
@@ -134,6 +152,7 @@ appmodule
                                 LoadQuestionsFactory.saveSittingUser().save({ test_user: $scope.userDetails.testUser, quiz_id: $scope.userDetails.quiz_id }).$promise.then(
                                     function(response){
                                         parentScope.$emit('from-iframe','TestStarted');
+                                        data['sitting'] = response.sitting;
                                         $state.go('app.start-test', { obj: data});
                                     }, 
                                     function(response){
@@ -170,11 +189,23 @@ appmodule
         // hasAttempted means that he/she has spent 5 seconds or more without answering any question or have answered any question(s).
         var hasAttempted = true;
         var timeCounter = 0;
+        var showReportPageStatus = 0;
         if($stateParams.obj.isTestNotCompleted){
             totalTime = parseInt($stateParams.obj.timeRemaining);
         }else{
             totalTime = findTotalDuration($stateParams.obj.quizStacks);
         }
+
+        $window.onbeforeunload = function(e) {
+            // $scope.submitTestDetails(true, $scope.selectedSection); 
+            if(showReportPageStatus === 0){
+                $scope.parentScope.$emit('from-iframe','TestClosed');
+            }else if(showReportPageStatus === -1){
+                $scope.parentScope.$emit('from-iframe','TestFinishedNoReport');
+            }else{
+                $scope.parentScope.closeStateModal();
+            }
+        };
         
         $scope.baseURLImage = baseURLImage;
         $scope.progressValuesModel = {};
@@ -232,7 +263,7 @@ appmodule
                         }else{
                             $scope.answersModel[qKey] = { value:null };
                             $scope.progressValuesModel[qKey] = { status:progressTypes[1] };
-                            timeSpentOnQuestions[qKey] = { time: totalTime };
+                            timeSpentOnQuestions[qKey] = { time: 0 };
                             if(q.que_type === qTypes[2]){
                                 $scope.answersModel[qKey]['comprehension_questions'] = [];
                                 $scope.answersModel[qKey]['heading'] = q.heading;
@@ -292,6 +323,7 @@ appmodule
                     $scope.selectedSection = $scope.sectionNames[$scope.sectionNames.indexOf($scope.nextSection)];
                 }
                 // $scope.sectionNames.splice($scope.sectionNames.indexOf($scope.currentSection), 1);
+                saveTimeSpentOnQuestion(currentSection, previousCountForQuestionBeforeSectionChange);
                 addQuestions($scope.selectedSection);
                 if($scope.sectionNames.indexOf($scope.selectedSection)===$scope.sectionNames.length-1){
                     $scope.hideNextSectionButton = true;
@@ -301,7 +333,6 @@ appmodule
             else{
                 $scope.hideNextSectionButton = true;
             }
-            saveTimeSpentOnQuestion(currentSection, previousCountForQuestionBeforeSectionChange);
         }
 
         $scope.bookmarkQuestion = function(questionID, que_type){
@@ -314,7 +345,6 @@ appmodule
                     bookmarkedQuestions[que_type].splice(isAlreadyBookMarked, 1);
                     $scope.isBookMarked[que_type] = -1;
                 }
-            // console.log(bookmarkedQuestions);
         }
 
         function saveTimeSpentOnQuestion(section, previousCount){
@@ -322,25 +352,26 @@ appmodule
             var timeSpent = 0;
             var previousQuestion = TestPageFactory.getQuestion(section, previousCount);
             var recordedTime = timeSpentOnQuestions[previousQuestion.id]['time'];
-            if(recordedTime<totalTime){
+            if(recordedTime === 0){
                 timeSpent = totalTime - $scope.totalDuration;
             }else{
-                timeSpent = recordedTime - $scope.totalDuration;
+                timeSpent += totalTime - $scope.totalDuration;
             }
             for(var q in timeSpentOnQuestions){
-                if(q != previousQuestion.id && timeSpentOnQuestions[q]['time'] != totalTime){
+                if(q != previousQuestion.id && timeSpentOnQuestions[q]['time'] != 0){
                     remaining_timespent += timeSpentOnQuestions[q]['time'];
                 }
             }
             timeSpentOnQuestions[previousQuestion.id]['time'] = timeSpent - remaining_timespent;
-            postTimePerQuestion(timeSpentOnQuestions[previousQuestion.id]['time'], previousQuestion.id);
+            console.log(timeSpentOnQuestions[previousQuestion.id]['time'], previousQuestion.id, section, previousCountForQuestionBeforeSectionChange);
+            // postTimePerQuestion(timeSpentOnQuestions[previousQuestion.id]['time'], previousQuestion.id);
         }
 
         $scope.changeQuestion = function(count, previousCount){
             if(count>=1 && count<=$scope.total_questions.length)
             {
+                previousCountForQuestionBeforeSectionChange = count;
                 if(previousCount!=undefined){
-                    previousCountForQuestionBeforeSectionChange = count;
                     saveTimeSpentOnQuestion($scope.selectedSection, previousCount);
                 }
                 $scope.currentComprehensionQuestion = [];
@@ -418,7 +449,7 @@ appmodule
                 }
                 $scope.progressValues = changeProgressValues($scope.progressValuesModel);
                 TestPageFactory.saveProgressValues($scope.selectedSection, $scope.progressValuesModel);
-                $scope.submitTestDetails(false, $scope.selectedSection);
+                // $scope.submitTestDetails(false, $scope.selectedSection);
             }catch(err){}
             }
         }, true);
@@ -433,7 +464,7 @@ appmodule
                     markQuestionVisited();
                     $scope.progressValues = changeProgressValues($scope.progressValuesModel);
                     TestPageFactory.saveProgressValues($scope.selectedSection, $scope.progressValuesModel);
-                    $scope.submitTestDetails(false, $scope.selectedSection);
+                    // $scope.submitTestDetails(false, $scope.selectedSection);
                 }
             }catch(err){}
         }, true);
@@ -467,30 +498,30 @@ appmodule
         }
 
         $scope.submitTestDetails = function(isSaveToDB, currentSection){
-            var data = { 'test_user': $stateParams.obj.test_user, 'test_key': $stateParams.obj.test_key };
+            var data = { test_user: $stateParams.obj.test_user, test_key: $stateParams.obj.test_key, sitting: $stateParams.obj.sitting };
             if(isSaveToDB){
                 saveTimeSpentOnQuestion($scope.selectedSection, $scope.currentCount);
                 data['bookmarked_questions'] = bookmarkedQuestions;
                 // Save bookmarks
                 postBookMarks(data);
                 // $scope.parentScope from $rootScope (set in LoadQuestionsController)
-                // $scope.parentScope.message = 'Your have submitted the test. Please wait for the result page to load.';
-                // $scope.parentScope.image = '../images/ellipsis.svg';
                 $scope.parentScope.$emit('from-iframe','TestFinished');
                 data['time_spent'] = $scope.totalDuration;
                 data['time_spent_on_question'] = timeSpentOnQuestions;
+                data['answers'] = $scope.answersModel;
+                data['comprehension_answers'] = $scope.comprehensionAnswersModel;
+                console.log(data);
                 TestPageFactory.saveResultToDB().save(data).$promise.then(
                     function(response){
-                        $cookies.remove('testToken');
+                        alert("You have completed your test successfully.");
                         if($stateParams.obj.show_result_on_completion){
+                            showReportPageStatus = parseInt(response.attempt_no);
                             $scope.parentScope.closeStateModal();
-                            $scope.parentScope.redirectToResultPage(testURL+'#/view/report/'+$stateParams.obj.test_user+'/'+$stateParams.obj.test_key+'/'+response.attempt_no);
+                            $scope.parentScope.showResultPage(testURL+'#/view/report/'+$stateParams.obj.test_user+'/'+$stateParams.obj.test_key+'/'+response.attempt_no);
                         }else{
-                            // $scope.parentScope.message = 'Your result has been saved. But the result cannot be shown right now. You can now close this window.';
-                            // $scope.parentScope.image = '../images/completed.png';
-                            $scope.parentScope.$emit('from-iframe','TestFinished');
+                            showReportPageStatus = -1;
                         }
-                        alert("You have completed your test successfully. You can now close this window.");
+                        $cookies.remove('testToken');
                         $window.close();
                     },
                     function(response){
@@ -521,22 +552,22 @@ appmodule
         }
 
         function updateTimeRemaining(timeData){
-            TestPageFactory.saveTimeRemainingToCache(timeData).then(
-                function(response){
-                    console.log('time updated');
-                }
-            );
+            // TestPageFactory.saveTimeRemainingToCache(timeData).then(
+            //     function(response){
+            //         console.log('time updated');
+            //     }
+            // );
         }
 
-        function postTimePerQuestion(qTimeValue, questionID){
-            var data = { 'test_user': $stateParams.obj.test_user, 'test_key': $stateParams.obj.test_key, 'qtime_spent':{}};
-            data['qtime_spent'][questionID.toString()] = qTimeValue;
-            TestPageFactory.saveTimePerQuestionToCache(data).then(
-                function(response){
-                    console.log('time per question updated');
-                }
-            );
-        }
+        // function postTimePerQuestion(qTimeValue, questionID){
+        //     // var data = { 'test_user': $stateParams.obj.test_user, 'test_key': $stateParams.obj.test_key, 'qtime_spent':{}};
+        //     // data['qtime_spent'][questionID.toString()] = qTimeValue;
+        //     // TestPageFactory.saveTimePerQuestionToCache(data).then(
+        //     //     function(response){
+        //     //         console.log('time per question updated');
+        //     //     }
+        //     // );
+        // }
 
         try{
             if(isNotEmpty($stateParams.obj)){
@@ -572,7 +603,7 @@ appmodule
                     }
                     if($scope.totalDuration === 0){
                         alert('Time Over');
-                        $scope.submitTestDetails(true, $scope.currentSection);
+                        // $scope.submitTestDetails(true, $scope.currentSection);
                     }
                 },1000, totalTime);
                 $scope.dataPresent = true;
