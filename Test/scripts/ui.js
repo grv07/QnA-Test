@@ -50,11 +50,11 @@ function changeProgressValues(object) {
     var totalKeys = 0;
     for(var key in object){
         var value = object[key]['status'];
-        if(value==="NV")
+        if(value === progressTypes[1])
             count[1] += 1;
-        else if(value==="NA")
+        else if(value === progressTypes[0])
             count[2] += 1;
-        else if(value==="A")
+        else if(value === progressTypes[2])
             count[0] += 1;        
         totalKeys+=1;
     }
@@ -174,22 +174,41 @@ function showStateModal(message, image){
     $('#stateModal').modal('show');
 }
 
-function processLoadedData(data){
-    var result = { data:data , total_questions:0, total_duration:0, total_sections:0, allSections:[] };
-    if(data['isTestNotCompleted']){
-        result.data['existingAnswers'] = $scope.userDetails.existingAnswers;
-        result.data['sectionNameWhereLeft'] = "Section#"+$scope.userDetails.sectionNoWhereLeft;
-        result.data['timeRemaining'] = $scope.userDetails.timeRemaining;
+function processLoadedData(userDetails){ 
+    var result = { 
+        data:{
+            test_key: userDetails.test_key,
+            test_user: userDetails.testUser, 
+            show_result_on_completion: userDetails.show_result_on_completion, 
+            quiz: userDetails.quiz_id, 
+            quizName: userDetails.quiz_name, 
+            quizStacks : userDetails.quizStacks, 
+            testToken: userDetails.testToken, 
+            isTestNotCompleted: userDetails.isTestNotCompleted, 
+            details : {},
+            total_duration: 0 // present here becoz it is passed to TestPageController
+        }, 
+        total_questions:0, 
+        total_sections:0, 
+        allSections:[]
+    };
+    if(userDetails.isTestNotCompleted){
+        result.data['existingAnswers'] = userDetails.existingAnswers;
+        result.data['sectionNameWhereLeft'] = "Section#"+userDetails.sectionNoWhereLeft;
+        result.data['timeRemaining'] = userDetails.timeRemaining;
+        result.data['existingTimeSpentOnQuestions'] = userDetails.timeSpentOnQuestions;
+        result.data['existingbookmarkedQuestions'] = userDetails.bookmarkedQuestions;
+        result.data['sitting'] = userDetails.existingSittingID;
     }
 
-    for(var i=0;i<data['quizStacks'].length;i++){
-        var stack = data['quizStacks'][i];
-        if(result.allSections.indexOf(data['quizStacks'][i].section_name)===-1){
+    for(var i=0;i<userDetails.quizStacks.length;i++){
+        var stack = userDetails.quizStacks[i];
+        if(result.allSections.indexOf(userDetails.quizStacks[i].section_name)===-1){
             result.data['details'][stack.section_name] = { 'duration': 0, 'questions' : 0 };
             result.allSections.push(stack.section_name);
         }
         result.total_questions += parseInt(stack.no_questions);
-        result.total_duration += parseInt(stack.duration);
+        result.data.total_duration += parseInt(stack.duration);
         result.data['details'][stack.section_name]['duration'] += parseInt(stack.duration);
         result.data['details'][stack.section_name]['questions'] += parseInt(stack.no_questions);
     }
