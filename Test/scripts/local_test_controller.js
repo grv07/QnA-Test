@@ -285,7 +285,7 @@ appmodule
                     }
                 }
                 TestPageFactory.saveSectionQuestionAnswers(sectionName, $scope.answersModel);
-                TestPageFactory.saveProgressValues(sectionName, $scope.progressValuesModel);
+                // TestPageFactory.saveProgressValues(sectionName, $scope.progressValuesModel);
                 if($stateParams.obj.isTestNotCompleted){
                     $scope.progressValues = changeProgressValues($scope.progressValuesModel);
                 }
@@ -350,13 +350,15 @@ appmodule
         $scope.bookmarkQuestion = function(questionID, que_type){
             var questionID = parseInt(questionID);
             var isAlreadyBookMarked = bookmarkedQuestions[que_type].indexOf(questionID);
-                if(isAlreadyBookMarked === -1){
-                    bookmarkedQuestions[que_type].push(questionID);
-                    $scope.isBookMarked[que_type] = 1;
-                }else{
-                    bookmarkedQuestions[que_type].splice(isAlreadyBookMarked, 1);
-                    $scope.isBookMarked[que_type] = -1;
-                }
+            console.log(isAlreadyBookMarked,'isAlreadyBookMarked');
+            if(isAlreadyBookMarked === -1){
+                bookmarkedQuestions[que_type].push(questionID);
+                $scope.isBookMarked[que_type] = 1;
+            }else{
+                bookmarkedQuestions[que_type].splice(isAlreadyBookMarked, 1);
+                $scope.isBookMarked[que_type] = -1;
+            }
+
         }
 
         function saveTimeSpentOnQuestion(section, previousCount){
@@ -412,7 +414,7 @@ appmodule
                 if($scope.progressValuesModel[$scope.currentQuestion.id].status === progressTypes[1]){
                     $scope.progressValuesModel[$scope.currentQuestion.id].status = progressTypes[0];
                     $scope.progressValues = changeProgressValues($scope.progressValuesModel);
-                    TestPageFactory.saveProgressValues($scope.selectedSection, $scope.progressValuesModel);
+                    // TestPageFactory.saveProgressValues($scope.selectedSection, $scope.progressValuesModel);
                 }
                 $scope.isBookMarked[qTypes[0]] = bookmarkedQuestions[qTypes[0]].indexOf(parseInt($scope.currentQuestion.id));
                 console.log(bookmarkedQuestions[qTypes[0]].indexOf(parseInt($scope.currentQuestion.id)));
@@ -425,7 +427,7 @@ appmodule
                 $scope.currentComprehensionQuestionCount = comprehensionCount;
                 $scope.currentComprehensionQuestion = comprehensionQuestions[comprehensionCount][comprehensionCount+1];
                 $scope.isBookMarked[qTypes[2]] = bookmarkedQuestions[qTypes[2]].indexOf(parseInt($scope.currentComprehensionQuestion.id));
-                console.log(bookmarkedQuestions[qTypes[2]].indexOf(parseInt($scope.currentQuestion.id)));
+                console.log(bookmarkedQuestions, bookmarkedQuestions[qTypes[2]].indexOf(parseInt($scope.currentQuestion.id)));
 
             }
         }
@@ -464,7 +466,7 @@ appmodule
                     markQuestionVisited();
                 }
                 $scope.progressValues = changeProgressValues($scope.progressValuesModel);
-                TestPageFactory.saveProgressValues($scope.selectedSection, $scope.progressValuesModel);
+                // TestPageFactory.saveProgressValues($scope.selectedSection, $scope.progressValuesModel);
                 // $scope.submitTestDetails(isNormalSubmission, $scope.selectedSection);
             }catch(err){}
             }
@@ -479,7 +481,7 @@ appmodule
                 if(newVal!=oldVal){
                     markQuestionVisited();
                     $scope.progressValues = changeProgressValues($scope.progressValuesModel);
-                    TestPageFactory.saveProgressValues($scope.selectedSection, $scope.progressValuesModel);
+                    // TestPageFactory.saveProgressValues($scope.selectedSection, $scope.progressValuesModel);
                 }
             }catch(err){}
         }, true);
@@ -583,21 +585,27 @@ appmodule
                         $scope.progressValuesModel[qKey] = { status:progressTypes[1] };
                         if(existingTimeSpentOnQuestions && existingTimeSpentOnQuestions.hasOwnProperty(qKey)){
                             timeSpentOnQuestions[qKey] = existingTimeSpentOnQuestions[qKey];
-                            $scope.progressValuesModel[qKey] = { status:progressTypes[0] };
+                            if(existingTimeSpentOnQuestions[qKey]['time'] === 0){
+                                continue;
+                            }else{
+                                $scope.progressValuesModel[qKey] = { status:progressTypes[0] };
+                            }
                         }else{
                             timeSpentOnQuestions[qKey] = { time: 0 };
                         }
                         if(existingbookmarkQuestions && existingbookmarkQuestions[qTypes[0]].indexOf(qKey) != -1){
-                            bookmarkedQuestions[qTypes[0]].push(qKey);
+                            bookmarkedQuestions[qTypes[0]].push(parseInt(qKey));
                         }
                         if(existingAnswers[qKey].hasOwnProperty('heading') && existingAnswers[qKey].hasOwnProperty('comprehension_questions')){
                             $scope.answersModel[qKey]['heading'] = q.heading;
                             $scope.answersModel[qKey]['comprehension_questions'] = existingAnswers[qKey]['comprehension_questions'];
                             for(var cq_id in $scope.answersModel[qKey]['comprehension_questions']){
                                 $scope.comprehensionAnswersModel[cq_id] = $scope.answersModel[qKey]['comprehension_questions'][cq_id];
-                                $scope.progressValuesModel[qKey] = { status:progressTypes[2] };
+                                if($scope.comprehensionAnswersModel[cq_id].value != null && $scope.progressValuesModel[qKey].status != progressTypes[2]){
+                                    $scope.progressValuesModel[qKey] = { status:progressTypes[2] };
+                                }
                                 if(existingbookmarkQuestions && existingbookmarkQuestions[qTypes[2]].indexOf(cq_id)!=-1){
-                                    bookmarkedQuestions[qTypes[2]].push(cq_id);
+                                    bookmarkedQuestions[qTypes[2]].push(parseInt(cq_id));
                                 }
                             }
 
@@ -614,7 +622,6 @@ appmodule
 
         try{
             if(isNotEmpty($stateParams.obj)){
-                console.log(existingTimeSpentOnQuestions);
                 // if($stateParams.obj.hasOwnProperty('existingAnswers') && $stateParams.obj.existingAnswers.hasOwnProperty('answers'))
                 // {
                 //     if($stateParams.obj.existingAnswers['answers']===null){
@@ -625,6 +632,7 @@ appmodule
                 // }
                 $scope.quiz = $stateParams.obj.quiz;
                 $scope.sectionNames = Object.keys($stateParams.obj.details).sort();
+                $scope.timeLeftWarningMsg = false
 
                 if($scope.sectionNames.length<=1){
                     $scope.hideNextSectionButton = true;
@@ -649,13 +657,23 @@ appmodule
                 // updateTimeRemaining({'test_user': $stateParams.obj.test_user, 'test_key': $stateParams.obj.test_key, 'remaining_duration': $scope.totalDuration, 'section_name': $scope.selectedSection });
 
                 $interval(function(){
-                    $scope.totalDuration -= 1;
-                    // timeCounter += 1;
-                    // if(timeCounter % 5 === 0){
-                    //     updateTimeRemaining({'test_user': $stateParams.obj.test_user, 'test_key': $stateParams.obj.test_key, 'remaining_duration': $scope.totalDuration, 'section_name': $scope.selectedSection });
-                    // }
-                    if($scope.totalDuration === 0){
-                        alert('Time Over');
+                    if($scope.totalDuration>0){
+                        $scope.totalDuration -= 1;
+                        if (totalTime-30 === $scope.totalDuration){ // replace 30 by 600 for 10 minutes
+                            $scope.timeLeftWarningMsg = '10 minutes are';
+                            $timeout(function() {
+                                $scope.timeLeftWarningMsg = false;
+                            }, 10000);
+                        }
+                        // timeCounter += 1;
+                        // if(timeCounter % 5 === 0){
+                        //     updateTimeRemaining({'test_user': $stateParams.obj.test_user, 'test_key': $stateParams.obj.test_key, 'remaining_duration': $scope.totalDuration, 'section_name': $scope.selectedSection });
+                        // }
+                        else if($scope.totalDuration === 0){
+                            alert('Time Over');
+                            // $scope.submitTestDetails(true, $scope.currentSection);
+                        }
+                    }else{
                         $scope.submitTestDetails(true, $scope.currentSection);
                     }
                 },1000, timeRemaining);

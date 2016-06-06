@@ -1,5 +1,10 @@
 <div ng-include src="'views/warning_modal.html'"></div>
 <div class="container" style="margin-top: -75px;" ng-show="dataPresent">
+	<div class="alert alert-danger" ng-if="timeLeftWarningMsg">
+		<div class="row text-center">
+			<b>Hurry! Only {{timeLeftWarningMsg}} left.</b>
+		</div>
+	</div>
 	<div class="row">
 		<div class="alert alert-warning">
 			<div class="row">

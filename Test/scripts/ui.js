@@ -87,6 +87,16 @@ function createSplineChart(chartID, text, dataPoints1, dataPoints2, dataPoints3)
       title:{
       text: text
       },
+      toolTip:{
+        contentFormatter: function (e) {
+            var content = " ";
+            for (var i=0; i<e.entries.length; i++) {
+                content+="<strong>"+e.entries[i].dataPoint.y+"  seconds</strong>";
+                content+="<br/>";
+            }
+            return content;
+        }
+      },
       axisX:{
         title: "Questions"
       },
