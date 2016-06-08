@@ -180,7 +180,7 @@ function getParamsForStateModal(action){
 
 function showStateModal(message, image){
     $('#stateModalBodyMessage').html(message);
-    $('#stateModalBodyImage').attr('src',testURL+'images/'+image);
+    $('#stateModalBodyImage').attr('src', testURL+'images/'+image);
     $('#stateModal').modal('show');
 }
 

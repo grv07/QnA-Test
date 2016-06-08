@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="Test" ng-cloak>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>QnA Test Window</title>
+    <!-- build:css styles/main.css  -->
+    <link href="css/bootstrap.css" rel="stylesheet">
+    <link href="css/styles.css" rel="stylesheet">
+    <!-- endbuild -->
+</head>
+<body>
+<header>
+  <div ui-view="header"></div>
+</header>
+<main>
+  <div ui-view="content">
+  </div>
+</main>
+<div id="stateModal" class="modal fade" role="dialog" data-keyboard="false" data-backdrop="static">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+      </div>
+      <div class="modal-body text-center">
+        <p id="stateModalBodyMessage" style="font-weight: bold;"></p>
+        <p><img id="stateModalBodyImage" src="" alt="Image not available"></p>
+      </div>
+      <div class="modal-footer">
+      </div>
+    </div>
+  </div>
+</div>
+<div id="stateModal1" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+      </div>
+      <div class="modal-body text-center">
+        <p id="stateModalBodyMessage" style="font-weight: bold;"></p>
+        <p><img id="stateModalBodyImage" src="" alt="Image not available"></p>
+      </div>
+      <div class="modal-footer">
+      </div>
+    </div>
+  </div>
+</div>
+<footer>
+  <div ui-view="footer"></div>
+</footer>
+    <!-- build:js scripts/main.js  -->	  
+q    <script src="js/jquery.js"></script>
+    <script src="js/bootstrap.js"></script>
+    <script src="js/angular.js"></script>
+    <script src="js/angular-ui-router.js"></script>
+    <script src="js/angular-resource.js"></script>
+    <script src="js/angular-cookies.js"></script>
+    <script src="js/jsPDF.js"></script>
+    <script src="js/html2canvas.js"></script>
+    <script src="js/canvas.js"></script>
+    <script src="scripts/settings.js"></script>
+    <script src="scripts/interceptors.js"></script>
+    <script src="scripts/app.js"></script>
+    <script src="scripts/services.js"></script>
+    <script src="scripts/controller.js"></script>
+    <script src="scripts/local_test_controller.js"></script>
+    <script src="scripts/third_party_test_controller.js"></script>
+    <script src="scripts/filters.js"></script>
+    <script src="scripts/ui.js"></script>
+    <!-- endbuild -->
+</body>
+</html>
