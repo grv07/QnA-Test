@@ -142,7 +142,7 @@ appmodule
 	            	$("#loader").css('display', 'none');
 	            	if(response.stop){
 	            		delete allQuestionIds;
-	            		delete allQuestionIds;
+	            		delete allQuestions;
 	            		delete count;
 	            	}
 	            },
