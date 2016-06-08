@@ -154,7 +154,7 @@ appmodule
                 parentScope.$emit('from-iframe','TestClosedOnly');
             };
             parentScope.$emit('from-iframe','TestLoading');
-            $scope.progressValue = 0.0;
+            $scope.progressValue = 0;
 
             $scope.sectionsDetails = {};
             $cookies.put('testToken', $scope.userDetails.testToken);
@@ -164,7 +164,7 @@ appmodule
             $scope.total_duration = result.data.total_duration;
             $scope.total_sections = result.total_sections;
             var allSections = result.allSections;
-            var progressFactor = 100/$scope.total_sections;
+            var progressFactor = (100/$scope.total_sections)|0;
 
             for(var i=0;i<allSections.length;i++){
                 $scope.sectionsDetails[allSections[i]] = { 'duration': data['details'][allSections[i]]['duration'], 'questions': data['details'][allSections[i]]['questions'] };
@@ -175,7 +175,7 @@ appmodule
                 LoadQuestionsFactory.loadAllQuestions($scope.userDetails.quiz_id, sectionName).query(
                     function(response){
                         TestPageFactory.addQuestionsForSection(sectionName, response.questions);
-                        $scope.progressValue += progressFactor;
+                        $scope.progressValue += (progressFactor|0);
                         if($scope.progressValue>99){
                             parentScope.$emit('from-iframe','TestLoaded');
                             $scope.startTest = function(){
@@ -540,7 +540,7 @@ appmodule
                         }else{
                             showReportPageStatus = -1;
                         }
-                        // $cookies.remove('testToken');
+                        $cookies.remove('testToken');
                         $window.close();
                     },
                     function(response){
@@ -671,7 +671,7 @@ appmodule
                         // }
                         else if($scope.totalDuration === 0){
                             alert('Time Over');
-                            // $scope.submitTestDetails(true, $scope.currentSection);
+                            $scope.submitTestDetails(true, $scope.currentSection);
                         }
                     }else{
                         $scope.submitTestDetails(true, $scope.currentSection);
