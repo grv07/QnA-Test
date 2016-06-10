@@ -218,7 +218,7 @@ appmodule
                 $scope.dataPresent = false;
             }   
         }])
-    .controller('TestPageController', ['$scope', '$controller', '$cookies', '$window', '$interval', '$stateParams', '$state', 'TestPageFactory', function($scope, $controller, $cookies, $window, $interval, $stateParams, $state, TestPageFactory) {
+    .controller('TestPageController', ['$scope', '$controller', '$cookies', '$window', '$interval', '$stateParams', '$state', '$timeout', 'TestPageFactory', function($scope, $controller, $cookies, $window, $interval, $stateParams, $state, $timeout, TestPageFactory) {
         var firstQuestionVisited = false;
         // hasAttempted means that he/she has spent 5 seconds or more without answering any question or have answered any question(s).
         var hasAttempted = true;
@@ -659,8 +659,8 @@ appmodule
                 $interval(function(){
                     if($scope.totalDuration>0){
                         $scope.totalDuration -= 1;
-                        if (totalTime-30 === $scope.totalDuration){ // replace 30 by 600 for 10 minutes
-                            $scope.timeLeftWarningMsg = '10 minutes are';
+                        if ($scope.totalDuration === totalTime - (totalTime - 30)){ // replace 30 by 600 for 10 minutes
+                            $scope.timeLeftWarningMsg = '30 seconds are';
                             $timeout(function() {
                                 $scope.timeLeftWarningMsg = false;
                             }, 10000);
