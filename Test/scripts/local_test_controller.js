@@ -659,7 +659,7 @@ appmodule
                 $interval(function(){
                     if($scope.totalDuration>0){
                         $scope.totalDuration -= 1;
-                        if ($scope.totalDuration === totalTime - (totalTime - 30)){ // replace 30 by 600 for 10 minutes
+                        if ($scope.totalDuration === 30){ // replace 30 by 600 for 10 minutes
                             $scope.timeLeftWarningMsg = '30 seconds are';
                             $timeout(function() {
                                 $scope.timeLeftWarningMsg = false;
