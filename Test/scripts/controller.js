@@ -76,21 +76,21 @@ appmodule
 			createStackedBar100Chart("categoryWiseBarGraphContainer", "colors", "", "Categories", "%age of questions", dataPoints1);
 
 			dataPoints1 = []
-			// var dataPoints2 = []
+			var dataPoints2 = []
 			var dataPoints3 = []
 			var no_of_questions = 0;
 			var value = 0;
 			for(var key in response.questions_stats){
 				no_of_questions += 1;
 				dataPoints1.push({ x: no_of_questions , y: response.questions_stats[key]['ideal_time'] });
-				// if(response.analysis.question_vs_time_result_topper.hasOwnProperty(key))
-				// {
-				// 	value = response.analysis.question_vs_time_result_topper[key];
-				// 	if(value.length>1)
-				// 		dataPoints2.push({ x: no_of_questions , y: value[1] });
-				// 	else
-				// 		dataPoints2.push({ x: no_of_questions , y: value });	
-				// }
+				if(response.analysis.question_vs_time_result_topper.hasOwnProperty(key))
+				{
+					value = response.analysis.question_vs_time_result_topper[key];
+					if(value.length>1)
+						dataPoints2.push({ x: no_of_questions , y: value[1] });
+					else
+						dataPoints2.push({ x: no_of_questions , y: value });	
+				}
 				if(response.analysis.hasOwnProperty('question_vs_time_result_user') && response.analysis.question_vs_time_result_user.hasOwnProperty(key))
 				{
 					value = response.analysis.question_vs_time_result_user[key];
@@ -100,9 +100,7 @@ appmodule
 						dataPoints3.push({ x: no_of_questions , y: value });
 				}
 			}
-			// createSplineChart("timeWiseSplineContainer", "", dataPoints1, dataPoints2, dataPoints3);
-			createSplineChart("timeWiseSplineContainer", "", dataPoints1, dataPoints3);
-
+			createSplineChart("timeWiseSplineContainer", "", dataPoints1, dataPoints2, dataPoints3);
 
 			delete response.analysis;
 			$scope.data = response;
