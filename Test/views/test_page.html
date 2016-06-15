@@ -6,56 +6,57 @@
 		</div>
 	</div>
 	<div class="row">
+		<br>
 		<!-- <div class="alert alert-warning"> -->
-			<div class="row">
-		   		<div class="col-lg-2 col-md-2 col-sm-2 text-center">
-			   		<strong>Time: <span class="black-text">{{ totalDuration | secondsToDateTime | date:'HH:mm:ss' }}</span></strong>
-			   	</div>
-				<div class="col-lg-4 col-md-4 col-sm-6">
-					<div class="col-lg-2 col-md-2 col-sm-2 text-center">
-						<label for="sectionnames">Section </label>
-					</div>
-					<div class="col-lg-10 col-md-10 col-sm-10">
-						<select class="form-control" id="sectionnames" name="sectionnames" ng-model="selectedSection" ng-change="openWarningModal('sectionChangeRequestInitiated')">
-							<option value="" disabled>Select a section</option>
-					    	<option ng-repeat="section in sectionNames" value="{{ section }}">{{ section }}</option>
-						</select>
-					</div>
+		<div class="row">
+	   		<div class="col-lg-2 col-md-2 col-sm-2 text-center">
+		   		<strong>Time: <span class="black-text">{{ totalDuration | secondsToDateTime | date:'HH:mm:ss' }}</span></strong>
+		   	</div>
+			<div class="col-lg-4 col-md-4 col-sm-6">
+				<div class="col-lg-2 col-md-2 col-sm-2 text-center">
+					<label for="sectionnames">Section </label>
 				</div>
-				<div class="col-lg-6 col-md-6 col-sm-4">
-					<div class="row">
-						<div class="col-lg-3 col-md-3 col-sm-4 text-center">
-							<label for="notVisitedQuestionsCountBar">#Not Visited
-								<div class="progress">
-								  <div id="notVisitedQuestionsCountBar" class="progress-bar progress-bar-danger black-text" role="progressbar" style="width:{{progressValues[1].percentage}}%">
-								    {{progressValues[1].count}}
-								  </div>
-								</div>
-							</label>
-						</div>
-						<div class="col-lg-4 col-md-4 col-sm-4 text-center">
-							<label for="notAttemptedQuestionsCountBar">#Not Attempted
-								<div class="progress">
-								  <div id="notAttemptedQuestionsCountBar" class="progress-bar progress-bar-warning black-text" role="progressbar" style="width:{{progressValues[2].percentage}}%">
-								    {{progressValues[2].count}}
-								  </div>
-								 </div>
-							</label>
-						</div> 
-						<div class="col-lg-3 col-md-3 col-sm-4 text-center">
-							<label for="attemptedQuestionsCountBar">#Attempted
-								<div class="progress">
-								  <div id="attemptedQuestionsCountBar" class="progress-bar progress-bar-success black-text" role="progressbar" style="width:{{progressValues[0].percentage}}%">
-								    {{progressValues[0].count}}
-								  </div>
-								</div>
-							</label>
-						</div>
-						<div class="col-lg-2 col-md-2">
-							<button class="btn btn-primary btn-md right" ng-click="openWarningModal('submitTestRequestInitiated')">Submit Test</button>
-						</div>
-					</div>				
+				<div class="col-lg-10 col-md-10 col-sm-10">
+					<select class="form-control" id="sectionnames" name="sectionnames" ng-model="selectedSection" ng-change="openWarningModal('sectionChangeRequestInitiated')">
+						<option value="" disabled>Select a section</option>
+				    	<option ng-repeat="section in sectionNames" value="{{ section }}">{{ section }}</option>
+					</select>
 				</div>
+			</div>
+			<div class="col-lg-6 col-md-6 col-sm-4">
+				<div class="row">
+					<div class="col-lg-3 col-md-3 col-sm-4 text-center">
+						<label for="notVisitedQuestionsCountBar">#Not Visited
+							<div class="progress">
+							  <div id="notVisitedQuestionsCountBar" class="progress-bar progress-bar-danger black-text" role="progressbar" style="width:{{progressValues[1].percentage}}%">
+							    {{progressValues[1].count}}
+							  </div>
+							</div>
+						</label>
+					</div>
+					<div class="col-lg-4 col-md-4 col-sm-4 text-center">
+						<label for="notAttemptedQuestionsCountBar">#Not Attempted
+							<div class="progress">
+							  <div id="notAttemptedQuestionsCountBar" class="progress-bar progress-bar-warning black-text" role="progressbar" style="width:{{progressValues[2].percentage}}%">
+							    {{progressValues[2].count}}
+							  </div>
+							 </div>
+						</label>
+					</div> 
+					<div class="col-lg-3 col-md-3 col-sm-4 text-center">
+						<label for="attemptedQuestionsCountBar">#Attempted
+							<div class="progress">
+							  <div id="attemptedQuestionsCountBar" class="progress-bar progress-bar-success black-text" role="progressbar" style="width:{{progressValues[0].percentage}}%">
+							    {{progressValues[0].count}}
+							  </div>
+							</div>
+						</label>
+					</div>
+					<div class="col-lg-2 col-md-2">
+						<button class="btn btn-primary btn-md right" ng-click="openWarningModal('submitTestRequestInitiated')">Submit Test</button>
+					</div>
+				</div>				
+			</div>
 				<!-- <div class="col-lg-2 col-md-2 col-sm-2 text-center">
 					<button ng-if="!hideNextSectionButton" class="btn btn-info btn-md" ng-click="openWarningModal('sectionChangeRequestInitiated')">Next Section</button>
 				</div> -->
@@ -87,7 +88,7 @@
 				</button>
 			</div>
 			<div class="col-lg-6 col-md-6 col-sm-6">
-				<span>{{currentQuestion.content | insertBlank}}</span>
+				<span katex-bind="currentQuestion.content"></span>
 				<br>
 				<br>
 				<div class="row question-image" ng-if="currentQuestion.figure">
@@ -98,7 +99,7 @@
 				<div class="row" ng-if="currentOptions.length!=0" ng-repeat="option in currentOptions">
 					<label>
 						<input type="radio" name="{{currentQuestion.id}}" value="{{option.id}}" ng-click="saveAnswer(currentCount, option.id)" ng-model="answersModel[currentQuestion.id].value">
-						{{option.content}}
+						<span katex-bind="option.content"></span>
 					</label><br>
 				</div>
 				<div class="row" ng-if="currentOptions.length===0">
@@ -122,8 +123,8 @@
 				<div class="col-lg-3 col-md-3 col-sm-3 col-xs-12" ng-if="currentQuestion.figure">
 					<img ng-src="{{baseURLImage}}{{currentQuestion.figure}}" class="img-thumbnail" alt="Comprehension Image is unavailable">
 				</div>
-				<div class="col-lg-9 col-md-9 col-sm-9 col-xs-12">
-					<p style="font-size: 15px;">{{currentQuestion.content}}</p>						
+				<div class="col-lg-9 col-md-9 col-sm-9 col-xs-12" ng-class="{'hscroll-large': currentQuestion.content.length > 195}">
+					<p style="font-size: 15px;"><span katex-bind="currentQuestion.content"></span></p>						
 				</div>
 			</div><hr>
 			<div class="row" style="margin: auto;">
@@ -132,18 +133,20 @@
 					<span>Comprehension Question #{{currentComprehensionQuestionCount+1}}</span>&nbsp;&nbsp;
 					<span ng-hide="currentComprehensionQuestionCount===comprehensionQuestionsLimit" class="glyphicon glyphicon-circle-arrow-right comprehensionButton pointer" ng-click="changeComprehensionQuestion(currentComprehensionQuestionCount+1)"></span>
 				</div><br><br>
-				<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-					<span>{{currentComprehensionQuestion.content | insertBlank}}</span>
+				<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
+					<div class="row">
+						<span katex-bind="currentComprehensionQuestion.content"></span>
+					</div>
 					<br><br>
 					<div class="row question-image" ng-if="currentComprehensionQuestion.figure">
 						<img ng-src="{{baseURLImage}}{{currentComprehensionQuestion.figure}}" class="img-thumbnail" alt="Comprehension Question Image is unavailable">
 					</div>
 				</div>
-				<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+				<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
 					<div class="row" ng-repeat="option in currentComprehensionQuestion.options">
 						<label>
 							<input type="radio" name="{{currentComprehensionQuestion.id}}" value="{{option.id}}" ng-model="comprehensionAnswersModel[currentComprehensionQuestion.id].value">
-							{{option.content}}
+							<span katex-bind="option.content"></span>
 						</label><br>
 					</div>
 				</div>

@@ -1,6 +1,7 @@
 /* global $ */
 appmodule
-    .controller('ViewReportContoller', ['$scope', '$stateParams', '$state', 'ReportFactory', function($scope, $stateParams, $state, ReportFactory) {
+    .controller('ViewReportContoller', ['$scope', '$stateParams', '$state', '$window', 'ReportFactory', function($scope, $stateParams, $state, $window, ReportFactory) {
+    	$window.onbeforeunload = function (){};
     	$scope.error = false;
     	var sittingID = 0;
     	ReportFactory.getReportDetails($stateParams.testUserID, $stateParams.quizKey, $stateParams.attemptNo).get().$promise.then(

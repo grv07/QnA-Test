@@ -289,8 +289,8 @@ appmodule
                 if($stateParams.obj.isTestNotCompleted){
                     $scope.progressValues = changeProgressValues($scope.progressValuesModel);
                 }
-                console.log(bookmarkedQuestions,'bookmarkedQuestions');
-                console.log(timeSpentOnQuestions,'timeSpentOnQuestions')
+                // console.log(bookmarkedQuestions,'bookmarkedQuestions');
+                // console.log(timeSpentOnQuestions,'timeSpentOnQuestions')
                 $scope.changeQuestion(1, undefined);
             }catch(err){
                 console.log(err,'------------');
@@ -362,24 +362,24 @@ appmodule
         }
 
         function saveTimeSpentOnQuestion(section, previousCount){
-            var remainingTimeSpent = 0;
-            var previousQuestion = TestPageFactory.getQuestion(section, previousCount);
-            var recordedTime = timeSpentOnQuestions[previousQuestion.id]['time'];
-            console.log(recordedTime);
-            if(recordedTime === 0){
-                recordedTime = totalTime - $scope.totalDuration;
-            }else{
-                recordedTime += totalTime - $scope.totalDuration;
-                console.log(recordedTime,totalTime,$scope.totalDuration);
-            }
-            for(var q in timeSpentOnQuestions){
-                if(timeSpentOnQuestions[q]['time'] != 0){
-                    remainingTimeSpent += timeSpentOnQuestions[q]['time'];
+            if($scope.totalDuration>=0){
+                var remainingTimeSpent = 0;
+                var previousQuestion = TestPageFactory.getQuestion(section, previousCount);
+                var recordedTime = timeSpentOnQuestions[previousQuestion.id]['time'];
+                if(recordedTime === 0){
+                    recordedTime = totalTime - $scope.totalDuration;
+                }else{
+                    recordedTime += totalTime - $scope.totalDuration;
                 }
+                for(var q in timeSpentOnQuestions){
+                    if(timeSpentOnQuestions[q]['time'] != 0){
+                        remainingTimeSpent += timeSpentOnQuestions[q]['time'];
+                    }
+                }
+                timeSpentOnQuestions[previousQuestion.id]['time'] = recordedTime - remainingTimeSpent;
+                console.log(timeSpentOnQuestions[previousQuestion.id]['time'], previousQuestion.id, section, previousCount);
+                // postTimePerQuestion(timeSpentOnQuestions[previousQuestion.id]['time'], previousQuestion.id);
             }
-            timeSpentOnQuestions[previousQuestion.id]['time'] = recordedTime - remainingTimeSpent;
-            console.log(timeSpentOnQuestions[previousQuestion.id]['time'], previousQuestion.id, section, previousCount);
-            // postTimePerQuestion(timeSpentOnQuestions[previousQuestion.id]['time'], previousQuestion.id);
         }
 
         $scope.changeQuestion = function(count, previousCount){
@@ -515,6 +515,7 @@ appmodule
         }
 
         $scope.submitTestDetails = function(isNormalSubmission, currentSection){
+            saveTimeSpentOnQuestion($scope.selectedSection, $scope.currentCount);
             var data = { test_user: $stateParams.obj.test_user, test_key: $stateParams.obj.test_key};
             data['test_data'] = {
                 'time_remaining': $scope.totalDuration,
@@ -524,7 +525,6 @@ appmodule
                 'is_normal_submission': isNormalSubmission,
                 'sitting': $stateParams.obj.sitting
             };
-            saveTimeSpentOnQuestion($scope.selectedSection, $scope.currentCount);
             if(isNormalSubmission){
                 // Save bookmarks
                 postBookMarks({'bookmarked_questions': bookmarkedQuestions, test_user: data['test_user']});
@@ -548,7 +548,7 @@ appmodule
                         // $cookies.remove('testToken');
                     }
                 );
-                console.log(data);
+                // console.log(data);
             }else{
                 data['test_data']['section_no'] = currentSection.split('#')[1];
                 data['test_data']['bookmarked_questions'] = bookmarkedQuestions;
