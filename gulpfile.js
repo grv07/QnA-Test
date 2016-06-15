@@ -60,6 +60,11 @@ gulp.task('views', function() {
   .pipe(gulp.dest('dist/views'))
 });
 
+gulp.task('katex-fonts', function() {
+  return gulp.src('Test/css/fonts/**/*')
+  .pipe(gulp.dest('dist/styles/fonts'))
+});
+
 // gulp.task('html', function () {
 //   return gulp.src('Test/views/**/*.html')
 //     .pipe(templateCache())
@@ -82,5 +87,5 @@ gulp.task('default', function(callback) {
 });
 
 gulp.task('build', function(callback) {
-  runSequence('clean:dist', ['useref', 'images', 'fonts', 'views'], callback)
+  runSequence('clean:dist', ['useref', 'images', 'fonts', 'views', 'katex-fonts'], callback)
 });
