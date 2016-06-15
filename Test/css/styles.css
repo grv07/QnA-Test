@@ -89,3 +89,12 @@ bottom : 0;
 right : 0;
 top : 0;
 }
+/*.katex { font-size: 1em !important; }*/
+.hscroll{
+	overflow-x: scroll;
+	width: 90%;
+}
+.hscroll-large{
+	overflow-x: scroll;
+	width: 95%;
+}

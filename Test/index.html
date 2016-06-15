@@ -7,6 +7,7 @@
     <title>QnA Test Window</title>
     <!-- build:css styles/main.css  -->
     <link href="css/bootstrap.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/katex.min.css">
     <link href="css/styles.css" rel="stylesheet">
     <!-- endbuild -->
 </head>
@@ -35,19 +36,23 @@
 <footer>
   <div ui-view="footer"></div>
 </footer>
-    <!-- build:js scripts/main.js  -->	  
+    <!-- build:js scripts/thirdparty.js  -->
     <script src="js/jquery.js"></script>
     <script src="js/bootstrap.js"></script>
-    <script src="js/angular.js"></script>
+    <script src="js/angular.js"></script> 
     <script src="js/angular-ui-router.js"></script>
     <script src="js/angular-resource.js"></script>
     <script src="js/angular-cookies.js"></script>
+    <script src="js/katex.min.js"></script>
     <script src="js/jsPDF.js"></script>
     <script src="js/html2canvas.js"></script>
     <script src="js/canvas.js"></script>
+    <!-- endbuild -->
+    <!-- build:js scripts/main.js  -->
     <script src="scripts/settings.js"></script>
     <script src="scripts/interceptors.js"></script>
     <script src="scripts/app.js"></script>
+    <script src="scripts/directives.js"></script>
     <script src="scripts/services.js"></script>
     <script src="scripts/controller.js"></script>
     <script src="scripts/local_test_controller.js"></script>

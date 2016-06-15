@@ -18,8 +18,8 @@
 					   	<tbody>
 					      <tr ng-repeat="(qStat, value) in questionStats.mcq">
 					      	<td>{{ $index+1 }}</td>
-					        <td class="content">{{ value.content | insertBlank }}</td>
-					        <td class="hint">{{ value.hint }}</td>
+					        <td class="content"><span katex-bind="value.content"></span></td>
+					        <td class="hint"><span katex-bind="value.hint"></span></td>
 					        <td class="status">{{ value.status }}</td>
 					      </tr>
 					   	</tbody>		   
@@ -28,10 +28,10 @@
 					      <tr ng-repeat="cq in qStat.comprehension_questions">
 					      	<td>CQ.{{ $index+1 }}</td>
 					        <td class="content">
-								{{ cq.content | insertBlank }}
+					       		<span katex-bind="cq.content"></span>
 					        </td>
 					        <td class="hint">
-								{{ cq.hint }}
+								<span katex-bind="cq.hint"></span>
 							</td>
 					        <td class="status">
 								{{ cq.status }}
