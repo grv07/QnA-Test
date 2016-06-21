@@ -166,7 +166,7 @@ appmodule
                             $scope.startTest = function(){
                                 if(!$scope.userDetails.existingSittingID){
                                     parentScope.$emit('from-iframe','TestStarted');
-                                    LoadQuestionsFactory.saveSittingUser().save({ test_user: data.test_user, quiz_id: data.quiz, existingSittingID: data.existingSittingID }).$promise.then(
+                                    LoadQuestionsFactory.saveSittingUser().save({ test_user: data.test_user, quiz_id: data.quiz, existingSittingID: data.existingSittingID, toPost: true }).$promise.then(
                                         function(response){
                                             data['sitting'] = response.sitting;
                                             $state.go('app.start-test', { obj: data});
