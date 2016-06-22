@@ -16,6 +16,13 @@ angular.module('Test').filter('capitalize', function() {
       return input;
     }
 })
+.filter('unsafe', [ '$sce', function($sce) {
+      return function(input) {
+        if(input!=undefined && input.indexOf("**")!=-1)
+          return $sce.trustAsHtml(input.replace(/\*\*/g, "<br>"));
+        return $sce.trustAsHtml(input);
+      }
+}])
 .filter('epochToDate', function() {
     return function(epoch_time) {
         return new Date(0).setSeconds(epoch_time);

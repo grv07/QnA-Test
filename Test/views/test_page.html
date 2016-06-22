@@ -77,8 +77,11 @@
 			</div>
 		</div>
 	</div>
+	<div class="row text-center" ng-if="currentQuestion.que_type === 'mcq'">
+		<span class="bold-text text-center">{{instruction}}</span><br><br>
+	</div>
 	<div class="row">
-		<div class="row text-center">
+		<div class="row left">
 			Question #{{currentCount}} {{currentQuestion.id}}
 		</div><hr>
 		<div class="row" ng-if="!isComprehension">
@@ -88,7 +91,8 @@
 				</button>
 			</div>
 			<div class="col-lg-6 col-md-6 col-sm-6">
-				<span katex-bind="currentQuestion.content"></span>
+				<!-- <span katex-bind="currentQuestion.content"></span> -->
+				<span ng-bind-html="currentQuestion.content | unsafe"></span>
 				<br>
 				<br>
 				<div class="row question-image" ng-if="currentQuestion.figure">
@@ -99,7 +103,8 @@
 				<div class="row" ng-if="currentOptions.length!=0" ng-repeat="option in currentOptions">
 					<label>
 						<input type="radio" name="{{currentQuestion.id}}" value="{{option.id}}" ng-click="saveAnswer(currentCount, option.id)" ng-model="answersModel[currentQuestion.id].value">
-						<span katex-bind="option.content"></span>
+						<!-- <span katex-bind="option.content"></span> -->
+						<span ng-bind-html="option.content | unsafe"></span>
 					</label><br>
 				</div>
 				<div class="row" ng-if="currentOptions.length===0">
@@ -120,13 +125,15 @@
 				</div>
 			</div><br>
 			<div class="row" style="margin: auto;">
-				<div class="col-lg-3 col-md-3 col-sm-3 col-xs-12" ng-if="currentQuestion.figure">
-					<img ng-src="{{baseURLImage}}{{currentQuestion.figure}}" class="img-thumbnail" alt="Comprehension Image is unavailable">
-				</div>
-				<div class="col-lg-9 col-md-9 col-sm-9 col-xs-12" ng-class="{'hscroll-large': currentQuestion.content.length > 195}">
-					<p style="font-size: 15px;"><span katex-bind="currentQuestion.content"></span></p>						
-				</div>
-			</div><hr>
+				<span ng-bind-html="currentQuestion.content | unsafe"></span>
+				<!-- <div class="col-lg-9 col-md-9 col-sm-9 col-xs-12" ng-class="{'hscroll-large': currentQuestion.content.length > 195}"> -->
+					<!-- <p style="font-size: 15px;"><span katex-bind="currentQuestion.content"></span></p>						 -->
+				<!-- </div> -->
+			</div>
+			<div class="row" ng-if="currentQuestion.figure">
+				<img ng-src="{{baseURLImage}}{{currentQuestion.figure}}" class="img-thumbnail" alt="Comprehension Image is unavailable">
+			</div>
+			<hr>
 			<div class="row" style="margin: auto;">
 				<div class="row text-center">
 					<span ng-hide="currentComprehensionQuestionCount===0" class="glyphicon glyphicon-circle-arrow-left comprehensionButton pointer" ng-click="changeComprehensionQuestion(currentComprehensionQuestionCount-1)"></span>&nbsp;&nbsp;
@@ -135,7 +142,8 @@
 				</div><br><br>
 				<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
 					<div class="row">
-						<span katex-bind="currentComprehensionQuestion.content"></span>
+						<!-- <span katex-bind="currentComprehensionQuestion.content"></span> -->
+						<span ng-bind-html="currentComprehensionQuestion.content | unsafe"></span>
 					</div>
 					<br><br>
 					<div class="row question-image" ng-if="currentComprehensionQuestion.figure">
@@ -146,7 +154,8 @@
 					<div class="row" ng-repeat="option in currentComprehensionQuestion.options">
 						<label>
 							<input type="radio" name="{{currentComprehensionQuestion.id}}" value="{{option.id}}" ng-model="comprehensionAnswersModel[currentComprehensionQuestion.id].value">
-							<span katex-bind="option.content"></span>
+							<!-- <span katex-bind="option.content"></span> -->
+							<span ng-bind-html="option.content | unsafe"></span>
 						</label><br>
 					</div>
 				</div>

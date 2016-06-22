@@ -400,11 +400,13 @@ appmodule
 
                 if($scope.currentQuestion.que_type === qTypes[0]){
                     $scope.currentOptions = $scope.currentQuestion.options;
+                    $scope.instruction = setInstruction($scope.currentQuestion.problem_type);
                 }
                 else if(($scope.currentQuestion.que_type === qTypes[1])){
                     $scope.currentOptions = [];
                 }else{
                     $scope.isComprehension = true;
+                    $scope.instruction = 'Read the given passage and answer the questions that follow:';
                     comprehensionQuestions = $scope.currentQuestion.comprehension_questions;
                     $scope.comprehensionQuestionsLimit = comprehensionQuestions.length - 1;
                     $scope.changeComprehensionQuestion(0);
@@ -446,20 +448,20 @@ appmodule
            return $scope.answersModel;
          },                       
           function(newVal, oldVal) {
-            if(newVal!=oldVal){
-            try{ 
-                if($scope.currentCount > 1 || ($scope.currentCount > 1 && $scope.currentQuestion.que_type === qTypes[0])){
-                    if($scope.progressValuesModel[$scope.currentQuestion.id].status === progressTypes[1]){
-                        $scope.progressValuesModel[$scope.currentQuestion.id].status = progressTypes[0];
+            if(newVal!=oldVal && $scope.currentQuestion.que_type === qTypes[0]){
+                try{ 
+                    if($scope.currentCount > 1 || ($scope.currentCount > 1)){
+                        if($scope.progressValuesModel[$scope.currentQuestion.id].status === progressTypes[1]){
+                            $scope.progressValuesModel[$scope.currentQuestion.id].status = progressTypes[0];
+                        }
+                        else if($scope.progressValuesModel[$scope.currentQuestion.id].status === progressTypes[0]){
+                            $scope.progressValuesModel[$scope.currentQuestion.id].status = progressTypes[2];
+                        }
+                    }else if($scope.currentCount === 1){
+                        markQuestionVisited();
                     }
-                    else if($scope.progressValuesModel[$scope.currentQuestion.id].status === progressTypes[0]){
-                        $scope.progressValuesModel[$scope.currentQuestion.id].status = progressTypes[2];
-                    }
-                }else if($scope.currentCount === 1){
-                    markQuestionVisited();
-                }
-                $scope.progressValues = changeProgressValues($scope.progressValuesModel);
-            }catch(err){}
+                    $scope.progressValues = changeProgressValues($scope.progressValuesModel);
+                }catch(err){}
             }
         }, true);
 
@@ -469,7 +471,7 @@ appmodule
          },                       
           function(newVal, oldVal) {
             try{ 
-                if(newVal!=oldVal){
+                if(newVal!=oldVal && $scope.currentQuestion.que_type === qTypes[2]){
                     markQuestionVisited();
                     $scope.progressValues = changeProgressValues($scope.progressValuesModel);
                 }
