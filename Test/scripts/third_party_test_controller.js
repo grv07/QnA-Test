@@ -227,7 +227,6 @@ appmodule
             }
         };
 
-
         $scope.baseURLImage = baseURLImage;
         $scope.progressValuesModel = {};
         $scope.answersModel = {};

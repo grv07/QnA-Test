@@ -256,13 +256,16 @@ function setInstruction(problem_type){
             instruction = 'Identify the antonyms of the given words.';
             break;
         case 'conclusion':
-            instruction = 'Two statements are given followed by four conclusions. From the given options mark the conclusion/s that definitely follow.';
+            instruction = 'Two statements are given followed by some conclusions. From the given options mark the conclusion/s that definitely follow.';
             break;
         case 'relationship':
             instruction = 'Choose the option that depicts the same relationship as the mother pair.';
             break;
         case 'best option':
             instruction = 'Read the following propositions and choose the best option that answers the questions asked.';
+            break;
+        case 'argument':
+            instruction = 'Each question below is followed by arguments. Choose the most appropriate choice from the options given.';
             break;
     }
     return instruction;
