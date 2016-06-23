@@ -12,6 +12,7 @@
 			  <table class="table">
 			    <thead>
 			    	<th></th>
+			    	<th>Section</th>
 			    	<th>Section Name</th>
 			    	<th>Total Questions</th>
 			    	<th>Duration</th>
@@ -20,12 +21,14 @@
 			    	<tr ng-repeat="(section, detail) in sectionsDetails">
 			    		<td></td>
 			    		<td>{{section}}</td>
+			    		<td>{{detail.subcategory}}</td>
 			    		<td>{{detail.questions}}</td>
 			    		<td>{{detail.duration | secondsToDateTime | date:'HH:mm:ss' }}</td>
 			    	</tr>
 			    	<tr class="bold-text">
 			    		<td>Total</td>
 			    		<td>{{total_sections}} Sections</td>
+			    		<td></td>
 			    		<td>{{total_questions}} Questions</td>
 			    		<td>{{total_duration | secondsToDateTime | date:'HH:mm:ss' }}</td>
 			    	</tr>

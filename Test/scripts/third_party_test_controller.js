@@ -283,15 +283,17 @@ appmodule
             }
         }
 
-        $scope.openWarningModal = function(action){
+        $scope.openWarningModal = function(action, counter){
             $scope.action = action;
             switch(action){
                 case "sectionChangeRequestInitiated":
                     toggleWarningModal('show', '<b>Do you really want to change the section?</b>', 'Yes I am sure.');
+                    $scope.counter = counter;
                     break;
                 case "sectionChangeRequestCancelled":
                     toggleWarningModal('hide', '', '');
                     $scope.selectedSection = $scope.currentSection;
+                    delete $scope.counter;
                     break;
                 case "submitTestRequestInitiated":
                     toggleWarningModal('show', '<b>Are you sure you want to submit the answers?</b>', 'Yes I am sure.');
@@ -307,29 +309,37 @@ appmodule
             getQuestionsBasedOnSection(sectionName);
         }
 
-        $scope.changeSection = function(currentSection){
+        $scope.changeSection = function(currentSection, counter){
             $scope.nextSection = $scope.selectedSection;
-            if($scope.sectionNames.indexOf($scope.selectedSection)<$scope.sectionNames.length && $scope.sectionNames.length>1){
+            var index = $scope.sectionNames.indexOf($scope.selectedSection);
+            if(index<$scope.sectionNames.length){
                 if($scope.currentSection === $scope.nextSection){
-                    if($scope.sectionNames.indexOf($scope.selectedSection)===$scope.sectionNames.length - 1){
-                        $scope.selectedSection = $scope.sectionNames[0];
-                    }else{
-                        $scope.selectedSection = $scope.sectionNames[$scope.sectionNames.indexOf($scope.selectedSection)+1];
-                    }
+                    $scope.selectedSection = $scope.sectionNames[index+counter];
                 }else{
                     $scope.selectedSection = $scope.sectionNames[$scope.sectionNames.indexOf($scope.nextSection)];
                 }
                 // $scope.sectionNames.splice($scope.sectionNames.indexOf($scope.currentSection), 1);
-                saveTimeSpentOnQuestion(currentSection, previousCountForQuestionBeforeSectionChange);
                 addQuestions($scope.selectedSection);
-                if($scope.sectionNames.indexOf($scope.selectedSection)===$scope.sectionNames.length-1){
+                index = $scope.sectionNames.indexOf($scope.selectedSection);
+                if(index===$scope.sectionNames.length-1){
                     $scope.hideNextSectionButton = true;
+                }
+                else{
+                    $scope.hideNextSectionButton = false;
+                }
+                if(index===0){
+                    $scope.hidePreviousSectionButton = true;
+                }
+                else{
+                    $scope.hidePreviousSectionButton = false;
                 }
                 $scope.currentSection = $scope.selectedSection;                
             }
             else{
                 $scope.hideNextSectionButton = true;
             }
+            $scope.selectedSectionName = selectedSectionNames[$scope.selectedSection];
+            firstQuestionVisited = false;
         }
 
         $scope.bookmarkQuestion = function(questionID, que_type){
@@ -419,14 +429,21 @@ appmodule
         }
 
         function markQuestionVisited(){
-            if(!firstQuestionVisited){
-                firstQuestionVisited = true;
-                if($stateParams.obj.isTestNotCompleted){
+            if($scope.currentQuestion.que_type === qTypes[2]){
+                if($scope.progressValuesModel[$scope.currentQuestion.id].status === progressTypes[0]){
                     $scope.progressValuesModel[$scope.currentQuestion.id].status = progressTypes[2];
                 }
-            }
-            if($scope.progressValuesModel[$scope.currentQuestion.id].status === progressTypes[0]){
-                $scope.progressValuesModel[$scope.currentQuestion.id].status = progressTypes[2];
+            }else{
+                if(!firstQuestionVisited){
+                    if($stateParams.obj.isTestNotCompleted){
+                        $scope.progressValuesModel[$scope.currentQuestion.id].status = progressTypes[2];
+                    }
+                    firstQuestionVisited = true;
+                }else{
+                    if($scope.progressValuesModel[$scope.currentQuestion.id].status === progressTypes[0]){
+                        $scope.progressValuesModel[$scope.currentQuestion.id].status = progressTypes[2];
+                    }
+                }
             }
         }
         
@@ -435,20 +452,23 @@ appmodule
            return $scope.answersModel;
          },                       
           function(newVal, oldVal) {
-            if(newVal!=oldVal){
-            try{ 
-                if($scope.currentCount > 1 || ($scope.currentCount > 1 && $scope.currentQuestion.que_type === qTypes[0])){
-                    if($scope.progressValuesModel[$scope.currentQuestion.id].status === progressTypes[1]){
-                        $scope.progressValuesModel[$scope.currentQuestion.id].status = progressTypes[0];
+            if(newVal!=oldVal && $scope.currentQuestion.que_type === qTypes[0]){
+                try{ 
+                    if($scope.currentCount > 1 || ($scope.currentCount > 1 && $scope.currentQuestion.que_type === qTypes[0])){
+                        if($scope.progressValuesModel[$scope.currentQuestion.id].status === progressTypes[1]){
+                            $scope.progressValuesModel[$scope.currentQuestion.id].status = progressTypes[0];
+                        }
+                        else if($scope.progressValuesModel[$scope.currentQuestion.id].status === progressTypes[0]){
+                            $scope.progressValuesModel[$scope.currentQuestion.id].status = progressTypes[2];
+                        }
+                    }else if($scope.currentCount === 1){
+                        if($scope.answersModel[$scope.currentQuestion.id].value){
+                            firstQuestionVisited = true;
+                        }
+                        markQuestionVisited();
                     }
-                    else if($scope.progressValuesModel[$scope.currentQuestion.id].status === progressTypes[0]){
-                        $scope.progressValuesModel[$scope.currentQuestion.id].status = progressTypes[2];
-                    }
-                }else if($scope.currentCount === 1){
-                    markQuestionVisited();
-                }
-                $scope.progressValues = changeProgressValues($scope.progressValuesModel);
-            }catch(err){}
+                    $scope.progressValues = changeProgressValues($scope.progressValuesModel);
+                }catch(err){}
             }
         }, true);
 
@@ -458,7 +478,7 @@ appmodule
          },                       
           function(newVal, oldVal) {
             try{ 
-                if(newVal!=oldVal){
+                if(newVal!=oldVal && $scope.currentQuestion.que_type === qTypes[2]){
                     markQuestionVisited();
                     $scope.progressValues = changeProgressValues($scope.progressValuesModel);
                 }
@@ -605,22 +625,35 @@ appmodule
                 $scope.quiz = $stateParams.obj.quiz;
                 $scope.sectionNames = Object.keys($stateParams.obj.details).sort();
                 $scope.timeLeftWarningMsg = false
-                if($scope.sectionNames.length<=1){
-                    $scope.hideNextSectionButton = true;
-                }
+
                 if(!$stateParams.obj.isTestNotCompleted){
                     $scope.selectedSection = $scope.sectionNames[0];
-                    timeRemaining = findTotalDuration($stateParams.obj.quizStacks);
+                    var result = findTotalDurationAndSectionNames($stateParams.obj.details);
+                    timeRemaining = result[0];
+                    selectedSectionNames = result[1];
                 }
                 else{
                     $scope.selectedSection = $stateParams.obj.sectionNameWhereLeft;
                     timeRemaining = $stateParams.obj.timeRemaining;
+                    selectedSectionNames = findSectionNames($stateParams.obj.details);
                     // totalTime = timeRemaining;
                     existingAnswers = $stateParams.obj.existingAnswers;
                     existingbookmarkQuestions = $stateParams.obj.existingbookmarkedQuestions;
                     existingTimeSpentOnQuestions = $stateParams.obj.existingTimeSpentOnQuestions;
                     fillUncompletedTestDataWithPartialData($scope.sectionNames);
                 }
+
+                if($scope.sectionNames.length<=1){
+                    $scope.hideNextSectionButton = true;
+                    $scope.hidePreviousSectionButton = true;
+                }else{
+                    if($scope.sectionNames.indexOf($scope.selectedSection)>0){
+                        $scope.hidePreviousSectionButton = false;
+                    }else{
+                        $scope.hidePreviousSectionButton = true;
+                    }
+                }
+                $scope.selectedSectionName = selectedSectionNames[$scope.selectedSection];
                 $scope.currentSection = $scope.selectedSection;
                 addQuestions($scope.selectedSection);
                 $scope.totalDuration = timeRemaining;

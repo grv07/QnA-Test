@@ -61,7 +61,17 @@
 					<!-- <button ng-if="!hideNextSectionButton" class="btn btn-info btn-md" ng-click="openWarningModal('sectionChangeRequestInitiated')">Next Section</button> -->
 				</div>
 			</div>
-		<!-- </div> -->
+		<div class="row">
+			<nav class="navbar navbar-default" ng-if="dataPresent">
+			  <div class="container-fluid">
+			    <div class="navbar-header">
+			      <h4 class="center bold-text">{{selectedSectionName}}</h4>
+			    </div>
+			    <button ng-if="!hidePreviousSectionButton" class="btn btn-info btn-md left test-button" ng-click="openWarningModal('sectionChangeRequestInitiated', -1)">Previous Section</button>
+			    <button ng-if="!hideNextSectionButton" class="btn btn-info btn-md right test-button" ng-click="openWarningModal('sectionChangeRequestInitiated', 1)">Next Section</button>
+			  </div>
+			</nav>
+		</div>
 		<div class="row" style="margin-top:-10px;">
 			<div class="col-lg-8 col-md-8 col-sm-8 text-center">
 				<ul class="pagination pagination-sm">
