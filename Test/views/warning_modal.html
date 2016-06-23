@@ -8,8 +8,8 @@
         <p id="warningModalBody"></p>
       </div>
       <div class="modal-footer" id="warningModalFooter" ng-if="action==='sectionChangeRequestInitiated' || action==='sectionChangeRequestCancelled'">
-        <button type="button" class="btn btn-warning" data-dismiss="modal" id="warningModalOKButton" ng-click="changeSection(currentSection)">Yes I am sure.</button>
-        <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="openWarningModal('sectionChangeRequestCancelled')">Cancel</button>
+        <button type="button" class="btn btn-warning" data-dismiss="modal" id="warningModalOKButton" ng-click="changeSection(currentSection, counter)">Yes I am sure.</button>
+        <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="openWarningModal('sectionChangeRequestCancelled', counter)">Cancel</button>
       </div>
       <div class="modal-footer" id="warningModalFooter" ng-if="action==='submitTestRequestInitiated' || action==='submitTestRequestCancelled'">
         <button type="button" class="btn btn-warning" data-dismiss="modal" id="warningModalOKButton" ng-click="submitTestDetails(true, currentSection)">Yes I am sure.</button>

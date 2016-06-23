@@ -34,13 +34,23 @@ function range(start, end, step, offset){
 }    
 
 // in seconds
-function findTotalDuration(list){
-    var total = 0;
-    for(var i=0;i<list.length;i++){
-        total += parseInt(list[i]['duration']);
+function findTotalDurationAndSectionNames(object){
+    var result = [ 0, {} ];
+    for(var key in object){
+        result[0] += parseInt(object[key]['duration']);
+        result[1][key] = object[key]['subcategory_name'].trim();
     }
-    return total;
+    return result;
 }
+
+function findSectionNames(object){
+    var result = {};
+    for(var key in object){
+        result[key] = object[key]['subcategory_name'].trim();
+    }
+    return result;
+}
+
 function toggleWarningModal(action, bodyText, okButtonText){
     $('#warningModalBody').html(bodyText);
     $('#warningModal').modal(action);
@@ -184,7 +194,7 @@ function showStateModal(message, image){
     $('#stateModal').modal('show');
 }
 
-function processLoadedData(userDetails){ 
+function processLoadedData(userDetails){
     var result = { 
         data:{
             test_key: userDetails.test_key,
@@ -214,7 +224,7 @@ function processLoadedData(userDetails){
     for(var i=0;i<userDetails.quizStacks.length;i++){
         var stack = userDetails.quizStacks[i];
         if(result.allSections.indexOf(userDetails.quizStacks[i].section_name)===-1){
-            result.data['details'][stack.section_name] = { 'duration': 0, 'questions' : 0 };
+            result.data['details'][stack.section_name] = { 'duration': 0, 'questions': 0, 'subcategory_name': userDetails.quizStacks[i].subcategory };
             result.allSections.push(stack.section_name);
         }
         result.total_questions += parseInt(stack.no_questions);
