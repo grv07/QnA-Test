@@ -387,11 +387,13 @@ appmodule
 
                 if($scope.currentQuestion.que_type === qTypes[0]){
                     $scope.currentOptions = $scope.currentQuestion.options;
+                    $scope.instruction = setInstruction($scope.currentQuestion.problem_type);
                 }
                 else if(($scope.currentQuestion.que_type === qTypes[1])){
                     $scope.currentOptions = [];
                 }else{
                     $scope.isComprehension = true;
+                    $scope.instruction = 'Read the given passage and answer the questions that follow:';
                     comprehensionQuestions = $scope.currentQuestion.comprehension_questions;
                     $scope.comprehensionQuestionsLimit = comprehensionQuestions.length - 1;
                     $scope.changeComprehensionQuestion(0);
