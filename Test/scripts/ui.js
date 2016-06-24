@@ -6,6 +6,7 @@ $(function() {
         });        
     });
 });
+
 var qTypes = ['mcq', 'objective', 'comprehension'];
 var progressTypes = ['NA', 'NV', 'A'];
 
@@ -15,38 +16,32 @@ function sortObject(obj) {
         return result;
     }, {});
 }
+
 function isNotEmpty(object){
     for(var i in object){ return true;}
     return false;
 }
+
 function showAlert(type, msg){
     $('#notification').removeClass('alert-danger').removeClass('alert-success').removeClass('alert-info').removeClass('alert-warning').addClass(type).html(msg).show();
     setTimeout(closeAlert, 5000);
 }
+
 function closeAlert(){
     $("#notification").fadeTo(0, 500).slideUp(500, function(){
         $("#notification").hide();
     });
 }
+
 function range(start, end, step, offset){ 
     start = start + 1;
     return Array.apply(null, Array((Math.abs(end - start) + ((offset||0)*2))/(step||1)+1)) .map(function(_, i) { return start < end ? i*(step||1) + start - (offset||0) :  (start - (i*(step||1))) + (offset||0) });
 }    
 
-// in seconds
-function findTotalDurationAndSectionNames(object){
-    var result = [ 0, {} ];
+function findTotalDuration(object){
+    var result = 0
     for(var key in object){
-        result[0] += parseInt(object[key]['duration']);
-        result[1][key] = object[key]['subcategory_name'].trim();
-    }
-    return result;
-}
-
-function findSectionNames(object){
-    var result = {};
-    for(var key in object){
-        result[key] = object[key]['subcategory_name'].trim();
+        result += parseInt(object[key]['duration']);
     }
     return result;
 }
@@ -55,6 +50,7 @@ function toggleWarningModal(action, bodyText, okButtonText){
     $('#warningModalBody').html(bodyText);
     $('#warningModal').modal(action);
 }
+
 function changeProgressValues(object) {
     var count = [0 ,0, 0];
     var totalKeys = 0;
@@ -69,7 +65,7 @@ function changeProgressValues(object) {
         totalKeys+=1;
     }
     return [{ percentage: (count[0]*100)/totalKeys, count: count[0] }, { percentage: (count[1]*100)/totalKeys, count: count[1] }, { percentage: (count[2]*100)/totalKeys, count: count[2] }];
-};
+}
 
 function createStackedBar100Chart(chartID, colorSet, text, titleX, titleY, dataPoints1){
     new CanvasJS.Chart(chartID,
@@ -206,7 +202,8 @@ function processLoadedData(userDetails){
             testToken: userDetails.testToken, 
             isTestNotCompleted: userDetails.isTestNotCompleted, 
             details : {},
-            total_duration: 0 // present here becoz it is passed to TestPageController
+            total_duration: 0, // present here becoz it is passed to TestPageController
+            sectionDetails: userDetails.sectionDetails
         }, 
         total_questions:0, 
         total_sections:0, 
@@ -224,7 +221,7 @@ function processLoadedData(userDetails){
     for(var i=0;i<userDetails.quizStacks.length;i++){
         var stack = userDetails.quizStacks[i];
         if(result.allSections.indexOf(userDetails.quizStacks[i].section_name)===-1){
-            result.data['details'][stack.section_name] = { 'duration': 0, 'questions': 0, 'subcategory_name': userDetails.quizStacks[i].subcategory };
+            result.data['details'][stack.section_name] = { 'duration': 0, 'questions': 0 };
             result.allSections.push(stack.section_name);
         }
         result.total_questions += parseInt(stack.no_questions);
@@ -321,6 +318,3 @@ function downloadReportAsPDF(elementID, outputFileName){
         }
     });
 }
-// function addAnswerExplanationLink(explanation){
-//     $('#answerExplanationRow').html('<a data-toggle="collapse" data-target="#answerExplanation">View Answer</a><div id="answerExplanation" class="collapse bold-text">'+explanation+'</div>')
-// }

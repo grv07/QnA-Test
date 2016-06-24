@@ -80,7 +80,8 @@ appmodule
             };
 
             function moveToLoadingState(response){
-                $scope.userData['quizStacks'] = response;
+                $scope.userData['quizStacks'] = response.data;
+                $scope.userData['sectionDetails'] = response.section_data; 
                 $rootScope.userDetails = $scope.userData;
                 $state.go('app.load-questions');
             }
@@ -164,7 +165,7 @@ appmodule
             var allSections = result.allSections;
             var progressFactor = (100/$scope.total_sections)|0;
             for(var i=0;i<allSections.length;i++){
-                $scope.sectionsDetails[allSections[i]] = { 'duration': data['details'][allSections[i]]['duration'], 'questions': data['details'][allSections[i]]['questions'], 'subcategory': data['details'][allSections[i]]['subcategory_name'] };
+                $scope.sectionsDetails[allSections[i]] = { 'duration': data['details'][allSections[i]]['duration'], 'questions': data['details'][allSections[i]]['questions'], 'subcategory_name': data.sectionDetails[allSections[i]] };
                 loadQuestions(allSections[i]);
             }
             function loadQuestions(sectionName){
@@ -228,17 +229,17 @@ appmodule
         var totalTime = $stateParams.obj.total_duration; // Used for time calculation per question - different from timer time.
         var selectedSectionNames = {};
         
-        $window.onbeforeunload = function(e) {
-            if(showReportPageStatus === 0){
-                $scope.parentScope.$emit('from-iframe','TestClosed');
-                $scope.submitTestDetails(false, $scope.selectedSection);
-                $scope.parentScope.savePartialTestDetails(partialTestData);
-            }else if(showReportPageStatus === -1){
-                $scope.parentScope.$emit('from-iframe','TestFinishedNoReport');
-            }else{
-                $scope.parentScope.closeStateModal();
-            }
-        };
+        // $window.onbeforeunload = function(e) {
+        //     if(showReportPageStatus === 0){
+        //         $scope.parentScope.$emit('from-iframe','TestClosed');
+        //         $scope.submitTestDetails(false, $scope.selectedSection);
+        //         $scope.parentScope.savePartialTestDetails(partialTestData);
+        //     }else if(showReportPageStatus === -1){
+        //         $scope.parentScope.$emit('from-iframe','TestFinishedNoReport');
+        //     }else{
+        //         $scope.parentScope.closeStateModal();
+        //     }
+        // };
         
         $scope.baseURLImage = baseURLImage;
         $scope.progressValuesModel = {};
@@ -643,25 +644,23 @@ appmodule
                 // }
                 $scope.quiz = $stateParams.obj.quiz;
                 $scope.sectionNames = Object.keys($stateParams.obj.details).sort();
-                $scope.timeLeftWarningMsg = false
+                $scope.timeLeftWarningMsg = false;
+                selectedSectionNames = $stateParams.obj.sectionDetails;
 
                 if(!$stateParams.obj.isTestNotCompleted){
                     $scope.selectedSection = $scope.sectionNames[0];
-                    var result = findTotalDurationAndSectionNames($stateParams.obj.details);
-                    timeRemaining = result[0];
-                    selectedSectionNames = result[1];
+                    timeRemaining = findTotalDuration($stateParams.obj.details);
                 }
                 else{
                     $scope.selectedSection = $stateParams.obj.sectionNameWhereLeft;
                     timeRemaining = $stateParams.obj.timeRemaining;
-                    selectedSectionNames = findSectionNames($stateParams.obj.details);
                     // totalTime = timeRemaining;
                     existingAnswers = $stateParams.obj.existingAnswers;
                     existingbookmarkQuestions = $stateParams.obj.existingbookmarkedQuestions;
                     existingTimeSpentOnQuestions = $stateParams.obj.existingTimeSpentOnQuestions;
                     fillUncompletedTestDataWithPartialData($scope.sectionNames);
                 }
-
+                alert(timeRemaining);
                 if($scope.sectionNames.length<=1){
                     $scope.hideNextSectionButton = true;
                     $scope.hidePreviousSectionButton = true;
@@ -693,7 +692,7 @@ appmodule
                         // }
                         else if($scope.totalDuration === 0){
                             alert('Time Over');
-                            $scope.submitTestDetails(true, $scope.currentSection);
+                            // $scope.submitTestDetails(true, $scope.currentSection);
                         }
                     }else{
                         $scope.submitTestDetails(true, $scope.currentSection);
@@ -705,6 +704,7 @@ appmodule
             }
         }catch(e){
             $scope.dataPresent = false;
+            console.log(e);
         }
     }]);
 
