@@ -229,17 +229,17 @@ appmodule
         var totalTime = $stateParams.obj.total_duration; // Used for time calculation per question - different from timer time.
         var selectedSectionNames = {};
         
-        // $window.onbeforeunload = function(e) {
-        //     if(showReportPageStatus === 0){
-        //         $scope.parentScope.$emit('from-iframe','TestClosed');
-        //         $scope.submitTestDetails(false, $scope.selectedSection);
-        //         $scope.parentScope.savePartialTestDetails(partialTestData);
-        //     }else if(showReportPageStatus === -1){
-        //         $scope.parentScope.$emit('from-iframe','TestFinishedNoReport');
-        //     }else{
-        //         $scope.parentScope.closeStateModal();
-        //     }
-        // };
+        $window.onbeforeunload = function(e) {
+            if(showReportPageStatus === 0){
+                $scope.parentScope.$emit('from-iframe','TestClosed');
+                $scope.submitTestDetails(false, $scope.selectedSection);
+                $scope.parentScope.savePartialTestDetails(partialTestData);
+            }else if(showReportPageStatus === -1){
+                $scope.parentScope.$emit('from-iframe','TestFinishedNoReport');
+            }else{
+                $scope.parentScope.closeStateModal();
+            }
+        };
         
         $scope.baseURLImage = baseURLImage;
         $scope.progressValuesModel = {};
@@ -692,7 +692,7 @@ appmodule
                         // }
                         else if($scope.totalDuration === 0){
                             alert('Time Over');
-                            // $scope.submitTestDetails(true, $scope.currentSection);
+                            $scope.submitTestDetails(true, $scope.currentSection);
                         }
                     }else{
                         $scope.submitTestDetails(true, $scope.currentSection);
