@@ -36,7 +36,7 @@ appmodule
           query: {
           // headers: {'Authorization': 'JWT ' + token},
           method : 'GET',
-          isArray : true,
+          isArray : false,
           }
       },
       { stripTrailingSlashes: false }

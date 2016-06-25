@@ -6,7 +6,6 @@ $(function() {
         });        
     });
 });
-
 var qTypes = ['mcq', 'objective', 'comprehension'];
 var progressTypes = ['NA', 'NV', 'A'];
 
@@ -16,41 +15,36 @@ function sortObject(obj) {
         return result;
     }, {});
 }
-
 function isNotEmpty(object){
     for(var i in object){ return true;}
     return false;
 }
-
 function showAlert(type, msg){
     $('#notification').removeClass('alert-danger').removeClass('alert-success').removeClass('alert-info').removeClass('alert-warning').addClass(type).html(msg).show();
     setTimeout(closeAlert, 5000);
 }
-
 function closeAlert(){
     $("#notification").fadeTo(0, 500).slideUp(500, function(){
         $("#notification").hide();
     });
 }
-
 function range(start, end, step, offset){ 
     start = start + 1;
     return Array.apply(null, Array((Math.abs(end - start) + ((offset||0)*2))/(step||1)+1)) .map(function(_, i) { return start < end ? i*(step||1) + start - (offset||0) :  (start - (i*(step||1))) + (offset||0) });
 }    
 
-function findTotalDuration(object){
-    var result = 0
-    for(var key in object){
-        result += parseInt(object[key]['duration']);
+// in seconds
+function findTotalDuration(list){
+    var total = 0;
+    for(var i=0;i<list.length;i++){
+        total += parseInt(list[i]['duration']);
     }
-    return result;
+    return total;
 }
-
 function toggleWarningModal(action, bodyText, okButtonText){
     $('#warningModalBody').html(bodyText);
     $('#warningModal').modal(action);
 }
-
 function changeProgressValues(object) {
     var count = [0 ,0, 0];
     var totalKeys = 0;
@@ -65,7 +59,7 @@ function changeProgressValues(object) {
         totalKeys+=1;
     }
     return [{ percentage: (count[0]*100)/totalKeys, count: count[0] }, { percentage: (count[1]*100)/totalKeys, count: count[1] }, { percentage: (count[2]*100)/totalKeys, count: count[2] }];
-}
+};
 
 function createStackedBar100Chart(chartID, colorSet, text, titleX, titleY, dataPoints1){
     new CanvasJS.Chart(chartID,
@@ -185,12 +179,13 @@ function getParamsForStateModal(action){
 }
 
 function showStateModal(message, image){
-    $('#stateModalBodyMessage').html(message);
+    $('#stateModalBodyMessage').html(	Umessa    
     $('#stateModalBodyImage').attr('src', testURL+'images/'+image);
+>>>>>>> 4bf110c43cdd44e469480236e937a9606b74797a
     $('#stateModal').modal('show');
 }
 
-function processLoadedData(userDetails){
+function processLoadedData(userDetails){ 
     var result = { 
         data:{
             test_key: userDetails.test_key,
@@ -202,8 +197,7 @@ function processLoadedData(userDetails){
             testToken: userDetails.testToken, 
             isTestNotCompleted: userDetails.isTestNotCompleted, 
             details : {},
-            total_duration: 0, // present here becoz it is passed to TestPageController
-            sectionDetails: userDetails.sectionDetails
+            total_duration: 0 // present here becoz it is passed to TestPageController
         }, 
         total_questions:0, 
         total_sections:0, 
@@ -221,7 +215,7 @@ function processLoadedData(userDetails){
     for(var i=0;i<userDetails.quizStacks.length;i++){
         var stack = userDetails.quizStacks[i];
         if(result.allSections.indexOf(userDetails.quizStacks[i].section_name)===-1){
-            result.data['details'][stack.section_name] = { 'duration': 0, 'questions': 0 };
+            result.data['details'][stack.section_name] = { 'duration': 0, 'questions' : 0 };
             result.allSections.push(stack.section_name);
         }
         result.total_questions += parseInt(stack.no_questions);
@@ -232,40 +226,6 @@ function processLoadedData(userDetails){
     result.total_sections = result.allSections.length;
     result.allSections.sort();
     return result;
-}
-
-function setInstruction(problem_type){
-    var instruction = '';
-    switch(problem_type){
-        case 'correct value':
-            instruction = 'From among the given options, Select the correct choice.';
-            break;
-        case 'incorrect sentence':
-            instruction = 'From among the given sentences, Select the incorrect sentences and mark the correct choice.';
-            break; 
-        case 'coherent paragraph':
-            instruction = 'Read the given statements and arrange them into coherent paragraphs.';
-            break;
-        case 'meaning':
-            instruction = 'Identify the meanings of the given foreign words.';
-            break;
-        case 'antonym':
-            instruction = 'Identify the antonyms of the given words.';
-            break;
-        case 'conclusion':
-            instruction = 'Two statements are given followed by some conclusions. From the given options mark the conclusion/s that definitely follow.';
-            break;
-        case 'relationship':
-            instruction = 'Choose the option that depicts the same relationship as the mother pair.';
-            break;
-        case 'best option':
-            instruction = 'Read the following propositions and choose the best option that answers the questions asked.';
-            break;
-        case 'argument':
-            instruction = 'Each question below is followed by arguments. Choose the most appropriate choice from the options given.';
-            break;
-    }
-    return instruction;
 }
 
 function downloadReportAsPDF(elementID, outputFileName){
@@ -318,3 +278,6 @@ function downloadReportAsPDF(elementID, outputFileName){
         }
     });
 }
+// function addAnswerExplanationLink(explanation){
+//     $('#answerExplanationRow').html('<a data-toggle="collapse" data-target="#answerExplanation">View Answer</a><div id="answerExplanation" class="collapse bold-text">'+explanation+'</div>')
+// }

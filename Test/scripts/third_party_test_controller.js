@@ -66,7 +66,8 @@ appmodule
             };
 
             function moveToLoadingState(response){
-                $scope.userData['quizStacks'] = response;
+                $scope.userData['quizStacks'] = response.data;
+                $scope.userData['sectionDetails'] = response.section_data;
                 $rootScope.userDetails = $scope.userData;
                 $state.go('thirdpartytest-load', {quizKey: $stateParams.quizKey, testID: $stateParams.testID, token:$stateParams.token});
             }
@@ -152,7 +153,7 @@ appmodule
             var allSections = result.allSections;
             var progressFactor = (100/$scope.total_sections)|0;
             for(var i=0;i<allSections.length;i++){
-                $scope.sectionsDetails[allSections[i]] = { 'duration': data['details'][allSections[i]]['duration'], 'questions': data['details'][allSections[i]]['questions'] };
+                $scope.sectionsDetails[allSections[i]] = { 'duration': data['details'][allSections[i]]['duration'], 'questions': data['details'][allSections[i]]['questions'], 'subcategory_name': data.sectionDetails[allSections[i]] };
                 loadQuestions(allSections[i]);
             }
 
@@ -226,7 +227,6 @@ appmodule
                 $scope.parentScope.closeStateModal();
             }
         };
-
 
         $scope.baseURLImage = baseURLImage;
         $scope.progressValuesModel = {};
@@ -625,17 +625,15 @@ appmodule
                 $scope.quiz = $stateParams.obj.quiz;
                 $scope.sectionNames = Object.keys($stateParams.obj.details).sort();
                 $scope.timeLeftWarningMsg = false
+                selectedSectionNames = $stateParams.obj.sectionDetails;
 
                 if(!$stateParams.obj.isTestNotCompleted){
                     $scope.selectedSection = $scope.sectionNames[0];
-                    var result = findTotalDurationAndSectionNames($stateParams.obj.details);
-                    timeRemaining = result[0];
-                    selectedSectionNames = result[1];
+                    timeRemaining = findTotalDuration($stateParams.obj.details);
                 }
                 else{
                     $scope.selectedSection = $stateParams.obj.sectionNameWhereLeft;
                     timeRemaining = $stateParams.obj.timeRemaining;
-                    selectedSectionNames = findSectionNames($stateParams.obj.details);
                     // totalTime = timeRemaining;
                     existingAnswers = $stateParams.obj.existingAnswers;
                     existingbookmarkQuestions = $stateParams.obj.existingbookmarkedQuestions;
