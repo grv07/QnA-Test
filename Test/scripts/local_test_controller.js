@@ -660,7 +660,6 @@ appmodule
                     existingTimeSpentOnQuestions = $stateParams.obj.existingTimeSpentOnQuestions;
                     fillUncompletedTestDataWithPartialData($scope.sectionNames);
                 }
-                alert(timeRemaining);
                 if($scope.sectionNames.length<=1){
                     $scope.hideNextSectionButton = true;
                     $scope.hidePreviousSectionButton = true;
