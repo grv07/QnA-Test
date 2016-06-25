@@ -164,10 +164,6 @@ appmodule
             $scope.total_sections = result.total_sections;
             var allSections = result.allSections;
             var progressFactor = (100/$scope.total_sections)|0;
-            for(var i=0;i<allSections.length;i++){
-                $scope.sectionsDetails[allSections[i]] = { 'duration': data['details'][allSections[i]]['duration'], 'questions': data['details'][allSections[i]]['questions'], 'subcategory_name': data.sectionDetails[allSections[i]] };
-                loadQuestions(allSections[i]);
-            }
             function loadQuestions(sectionName){
                 LoadQuestionsFactory.loadAllQuestions($scope.userDetails.quiz_id, sectionName).query(
                     function(response){
@@ -200,6 +196,10 @@ appmodule
                         $cookies.remove('testToken');
                         $window.close();
                     });
+            }
+            for(var i=0;i<allSections.length;i++){
+                $scope.sectionsDetails[allSections[i]] = { 'duration': data['details'][allSections[i]]['duration'], 'questions': data['details'][allSections[i]]['questions'], 'subcategory_name': data.sectionDetails[allSections[i]] };
+                loadQuestions(allSections[i]);
             }
         }else{
             $scope.error = true;

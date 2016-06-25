@@ -24,15 +24,15 @@
                 <div class="row">
                     <form class="col-md-12" ng-submit="postUserDetails()" name="loginForm" novalidate>
                         <div class="form-group">
-                            <span ng-show="isFormInvalid" style='color:red;'>{{ errors }}</span>                      
+                            <span class="red-text" ng-show="isFormInvalid">{{ errors }}</span>                      
                         </div>
-                        <div class="form-group" ng-class="{ 'has-error' : loginForm.name.$touched && loginForm.name.$error.required || isFormInvalid }">
+                        <div class="form-group" ng-class="{ 'has-error' : loginForm.username.$touched && loginForm.username.$error.required || isFormInvalid }">
                           <input type="text" class="form-control input-lg" name="username" ng-model="userData.username" placeholder="Name" required>
-                            <span ng-show="loginForm.name.$touched && loginForm.name.$error.required">Name is required.</span>
+                            <span class="red-text" ng-show="loginForm.username.$touched && loginForm.username.$error.required">Name is required.</span>
                         </div>                        
                         <div class="form-group" ng-class="{ 'has-error' : loginForm.email.$touched && loginForm.email.$error.required || isFormInvalid }">
                             <input type="email" name='email' ng-model="userData.email" class="form-control input-lg" placeholder="Email" required>
-                            <span ng-show="loginForm.email.$touched && loginForm.email.$error.required">Email is required.</span>
+                            <span class="red-text" ng-show="loginForm.email.$touched && loginForm.email.$error.required">Email is required.</span>
                         </div>
                         <div class="form-group">
                             <button type="submit" class="btn btn-primary btn-lg btn-block" ng-disabled='loginForm.$invalid'>Submit</button>
