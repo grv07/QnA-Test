@@ -541,7 +541,7 @@ appmodule
                 postBookMarks({'bookmarked_questions': bookmarkedQuestions, test_user: data['test_user']});
                 // $scope.parentScope from $rootScope (set in LoadQuestionsController)
                 $scope.parentScope.$emit('from-iframe','TestFinished');
-                TestPageFactory.saveResultToDB({toPost: false}).save(data).$promise.then(
+                TestPageFactory.saveResultToDBLocal().save(data).$promise.then(
                     function(response){
                         alert("You have completed your test successfully.");
                         if($stateParams.obj.show_result_on_completion){
