@@ -523,7 +523,6 @@ appmodule
                 'comprehension_answers': $scope.comprehensionAnswersModel,
                 'is_normal_submission': isNormalSubmission,
                 'sitting': $stateParams.obj.sitting,
-                'toPost': true,
             };
             if(isNormalSubmission){
                 // Save bookmarks
