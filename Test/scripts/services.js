@@ -70,8 +70,8 @@ appmodule
           { stripTrailingSlashes: false }
           );
     }
-    this.saveSittingUser = function(extraData){
-      return $resource(serverURL+"save/sitting/user/", extraData,
+    this.saveSittingUser = function(){
+      return $resource(serverURL+"save/sitting/user/", null,
         {
             save: {
             // headers: {'Authorization': 'JWT ' + token},
@@ -166,19 +166,8 @@ appmodule
             return deferred.promise;
         }
 
-        this.saveResultToDBLocal = function(){
-          return $resource(serverURL+"save/test/db/", { toPost: false },
-            {
-              save: {
-              method : 'POST',
-              }
-            },
-            { stripTrailingSlashes: false }
-            );
-        }
-
-        this.saveResultToDBThirdParty= function(){
-          return $resource(serverURL+"save/test/db/", { toPost: true },
+        this.saveResultToDB = function(){
+          return $resource(serverURL+"save/test/db/", null,
             {
               save: {
               method : 'POST',

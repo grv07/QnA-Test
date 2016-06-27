@@ -162,7 +162,7 @@ appmodule
                             $scope.startTest = function(){
                                 if(!$scope.userDetails.existingSittingID){
                                     parentScope.$emit('from-iframe','TestStarted');
-                                    LoadQuestionsFactory.saveSittingUser({ toPost: true }).save({ test_user: data.test_user, quiz_id: data.quiz, existingSittingID: data.existingSittingID }).$promise.then(
+                                    LoadQuestionsFactory.saveSittingUser().save({ test_user: data.test_user, quiz_id: data.quiz, existingSittingID: data.existingSittingID, toPost: true }).$promise.then(
                                         function(response){
                                             data['sitting'] = response.sitting;
                                             $state.go('app.start-test', { obj: data});
@@ -522,13 +522,15 @@ appmodule
                 'comprehension_answers': $scope.comprehensionAnswersModel,
                 'is_normal_submission': isNormalSubmission,
                 'sitting': $stateParams.obj.sitting,
+                'toPost': true,
             };
             if(isNormalSubmission){
                 // Save bookmarks
                 postBookMarks({'bookmarked_questions': bookmarkedQuestions, test_user: data['test_user']});
                 // $scope.parentScope from $rootScope (set in LoadQuestionsController)
                 $scope.parentScope.$emit('from-iframe','TestFinished');
-                TestPageFactory.saveResultToDBThirdParty().save(data).$promise.then(
+                console.log(data);
+                TestPageFactory.saveResultToDB().save(data).$promise.then(
                     function(response){
                         alert("You have completed your test successfully.");
                         if($stateParams.obj.show_result_on_completion){
