@@ -148,7 +148,7 @@ appmodule
             var result = processLoadedData($scope.userDetails);
             var data = result.data;
             $scope.total_questions = result.total_questions;
-            $scope.total_duration = result.total_duration;
+            $scope.total_duration = result.data.total_duration;
             $scope.total_sections = result.total_sections;
             var allSections = result.allSections;
             var progressFactor = (100/$scope.total_sections)|0;
@@ -524,6 +524,8 @@ appmodule
                 'sitting': $stateParams.obj.sitting,
                 'toPost': true,
             };
+            console.log(data);
+            data['test_data']['toPost'] = true;
             if(isNormalSubmission){
                 // Save bookmarks
                 postBookMarks({'bookmarked_questions': bookmarkedQuestions, test_user: data['test_user']});
