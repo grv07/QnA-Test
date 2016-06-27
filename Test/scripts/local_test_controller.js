@@ -5,7 +5,7 @@ appmodule
         $scope.openTest = function(){
             $window.$windowScope = $scope;
             $window.data = {quizKey: $stateParams.quizKey};
-            var child = $window.open($state.href('app.open-test', {quizKey: $stateParams.quizKey}), "Test Window", "width=1280,height=890,resizable=0");
+            var child = $window.open($state.href('app.open-test', {quizKey: $stateParams.quizKey, toPost: false}), "Test Window", "width=1280,height=890,resizable=0");
             // timer = setInterval(checkChild, 500);
             // function checkChild() {
             //     if(child.closed) {
@@ -58,7 +58,7 @@ appmodule
             $scope.error = false;
             TestUserDataFactory.getQuizAccordingToKey($window.opener.data.quizKey).get().$promise.then(
                 function(response){
-                    $scope.userData = { username:'', email:'', quiz_id: response.id, quiz_name: response.title, test_key: response.quiz_key, show_result_on_completion: response.show_result_on_completion, allow_public_access: response.allow_public_access, quizStacks: undefined, testToken: undefined };
+                    $scope.userData = { username:'', email:'', quiz_id: response.id, quiz_name: response.title, test_key: response.quiz_key, show_result_on_completion: response.show_result_on_completion, allow_public_access: response.allow_public_access, quizStacks: undefined, testToken: undefined, toPost: $window.opener.data.toPost };
                     // if(response.allow_public_access){
                     var parentScope = $window.opener.$windowScope;
                     parentScope.$emit('from-iframe','TestOpen');
@@ -174,7 +174,7 @@ appmodule
                             $scope.startTest = function(){
                                 if(!$scope.userDetails.existingSittingID){
                                     parentScope.$emit('from-iframe','TestStarted');
-                                    LoadQuestionsFactory.saveSittingUser().save({ test_user: data.test_user, quiz_id: data.quiz, existingSittingID: data.existingSittingID, toPost: false }).$promise.then(
+                                    LoadQuestionsFactory.saveSittingUser().save({ test_user: data.test_user, quiz_id: data.quiz, existingSittingID: data.existingSittingID, toPost: data.toPost }).$promise.then(
                                         function(response){
                                             data['sitting'] = response.sitting;
                                             $state.go('app.start-test', { obj: data});
@@ -527,10 +527,6 @@ appmodule
 
         $scope.submitTestDetails = function(isNormalSubmission, currentSection){
             saveTimeSpentOnQuestion($scope.selectedSection, $scope.currentCount);
-            var toPost = false;
-            if($state.current.name === "thirdpartytest-start"){
-                toPost = true;
-            }
             var data = { test_user: $stateParams.obj.test_user, test_key: $stateParams.obj.test_key};
             data['test_data'] = {
                 'time_remaining': $scope.totalDuration,
@@ -539,7 +535,7 @@ appmodule
                 'comprehension_answers': $scope.comprehensionAnswersModel,
                 'is_normal_submission': isNormalSubmission,
                 'sitting': $stateParams.obj.sitting,
-                'toPost': toPost,
+                'toPost': $stateParams.obj.toPost,
             };
             if(isNormalSubmission){
                 // Save bookmarks

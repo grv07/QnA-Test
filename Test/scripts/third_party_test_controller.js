@@ -4,7 +4,7 @@ appmodule
         $scope.openLiveTest = function(){
             $window.$windowScope = $scope;
             $window.data = {quizKey: $stateParams.quizKey};
-            $window.open($state.href('thirdpartytest-open', {quizKey: $stateParams.quizKey, testID: $stateParams.testID, token:$stateParams.token}), "Test Window", "width=1280,height=890,resizable=0");
+            $window.open($state.href('thirdpartytest-open', {quizKey: $stateParams.quizKey, testID: $stateParams.testID, token:$stateParams.token, toPost: true}), "Test Window", "width=1280,height=890,resizable=0");
         }
 
         $window.onbeforeunload = function (){
@@ -49,7 +49,7 @@ appmodule
             $scope.error = false;
             TestUserDataFactory.getQuizAccordingToKey($stateParams.quizKey).get().$promise.then(
                 function(response){
-                    $scope.userData = { username:'', email:'', quiz_id: response.id, quiz_name: response.title, test_key: response.quiz_key, show_result_on_completion:response.show_result_on_completion, 'quizStacks': undefined, 'testToken': undefined };
+                    $scope.userData = { username:'', email:'', quiz_id: response.id, quiz_name: response.title, test_key: response.quiz_key, show_result_on_completion:response.show_result_on_completion, quizStacks: undefined, testToken: undefined, toPost: $stateParams.toPost };
                     var parentScope = $window.opener.$windowScope;
                     parentScope.$emit('from-iframe','TestStart');
                     $rootScope.parentScope = parentScope;
@@ -152,11 +152,6 @@ appmodule
             $scope.total_sections = result.total_sections;
             var allSections = result.allSections;
             var progressFactor = (100/$scope.total_sections)|0;
-            for(var i=0;i<allSections.length;i++){
-                $scope.sectionsDetails[allSections[i]] = { 'duration': data['details'][allSections[i]]['duration'], 'questions': data['details'][allSections[i]]['questions'], 'subcategory_name': data.sectionDetails[allSections[i]] };
-                loadQuestions(allSections[i]);
-            }
-
             function loadQuestions(sectionName){
                 LoadQuestionsFactory.loadAllQuestions($scope.userDetails.quiz_id, sectionName).query(
                     function(response){
@@ -167,7 +162,7 @@ appmodule
                             $scope.startTest = function(){
                                 if(!$scope.userDetails.existingSittingID){
                                     parentScope.$emit('from-iframe','TestStarted');
-                                    LoadQuestionsFactory.saveSittingUser().save({ test_user: data.test_user, quiz_id: data.quiz, existingSittingID: data.existingSittingID, toPost: true }).$promise.then(
+                                    LoadQuestionsFactory.saveSittingUser().save({ test_user: data.test_user, quiz_id: data.quiz, existingSittingID: data.existingSittingID, toPost: data.toPost }).$promise.then(
                                         function(response){
                                             data['sitting'] = response.sitting;
                                             $state.go('app.start-test', { obj: data});
@@ -189,6 +184,10 @@ appmodule
                         $cookies.remove('testToken');
                         // $window.close();
                     });
+            }
+            for(var i=0;i<allSections.length;i++){
+                $scope.sectionsDetails[allSections[i]] = { 'duration': data['details'][allSections[i]]['duration'], 'questions': data['details'][allSections[i]]['questions'], 'subcategory_name': data.sectionDetails[allSections[i]] };
+                loadQuestions(allSections[i]);
             }
         }else{
             $scope.error = true;
@@ -516,10 +515,6 @@ appmodule
         $scope.submitTestDetails = function(isNormalSubmission, currentSection){
             saveTimeSpentOnQuestion($scope.selectedSection, $scope.currentCount);
             var data = { test_user: $stateParams.obj.test_user, test_key: $stateParams.obj.test_key};
-            var toPost = false;
-            if($state.current.name === "thirdpartytest-start"){
-                toPost = true;
-            }
             data['test_data'] = {
                 'time_remaining': $scope.totalDuration,
                 'time_spent_on_questions': timeSpentOnQuestions,
@@ -527,7 +522,7 @@ appmodule
                 'comprehension_answers': $scope.comprehensionAnswersModel,
                 'is_normal_submission': isNormalSubmission,
                 'sitting': $stateParams.obj.sitting,
-                'toPost': toPost,
+                'toPost': $stateParams.obj.toPost,
             };
             if(isNormalSubmission){
                 // Save bookmarks

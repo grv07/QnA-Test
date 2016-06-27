@@ -203,7 +203,8 @@ function processLoadedData(userDetails){
             isTestNotCompleted: userDetails.isTestNotCompleted, 
             details : {},
             total_duration: 0, // present here becoz it is passed to TestPageController
-            sectionDetails: userDetails.sectionDetails
+            sectionDetails: userDetails.sectionDetails,
+            toPost: userDetails.toPost,
         }, 
         total_questions:0, 
         total_sections:0, 
