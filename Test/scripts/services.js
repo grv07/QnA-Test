@@ -166,8 +166,19 @@ appmodule
             return deferred.promise;
         }
 
-        this.saveResultToDB = function(extraData){
-          return $resource(serverURL+"save/test/db/", extraData,
+        this.saveResultToDBLocal = function(){
+          return $resource(serverURL+"save/test/db/", { toPost: false },
+            {
+              save: {
+              method : 'POST',
+              }
+            },
+            { stripTrailingSlashes: false }
+            );
+        }
+
+        this.saveResultToDBThirdParty= function(){
+          return $resource(serverURL+"save/test/db/", { toPost: true },
             {
               save: {
               method : 'POST',
