@@ -204,7 +204,6 @@ function processLoadedData(userDetails){
             details : {},
             total_duration: 0, // present here becoz it is passed to TestPageController
             sectionDetails: userDetails.sectionDetails,
-            toPost: userDetails.toPost,
         }, 
         total_questions:0, 
         total_sections:0, 
