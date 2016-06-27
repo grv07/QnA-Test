@@ -4,7 +4,7 @@ appmodule
         $scope.openLiveTest = function(){
             $window.$windowScope = $scope;
             $window.data = {quizKey: $stateParams.quizKey};
-            $window.open($state.href('thirdpartytest-open', {quizKey: $stateParams.quizKey, testID: $stateParams.testID, token:$stateParams.token, toPost: true}), "Test Window", "width=1280,height=890,resizable=0");
+            $window.open($state.href('thirdpartytest-open', {quizKey: $stateParams.quizKey, testID: $stateParams.testID, token:$stateParams.token }), "Test Window", "width=1280,height=890,resizable=0");
         }
 
         $window.onbeforeunload = function (){
@@ -49,7 +49,7 @@ appmodule
             $scope.error = false;
             TestUserDataFactory.getQuizAccordingToKey($stateParams.quizKey).get().$promise.then(
                 function(response){
-                    $scope.userData = { username:'', email:'', quiz_id: response.id, quiz_name: response.title, test_key: response.quiz_key, show_result_on_completion:response.show_result_on_completion, quizStacks: undefined, testToken: undefined, toPost: $stateParams.toPost };
+                    $scope.userData = { username:'', email:'', quiz_id: response.id, quiz_name: response.title, test_key: response.quiz_key, show_result_on_completion:response.show_result_on_completion, quizStacks: undefined, testToken: undefined };
                     var parentScope = $window.opener.$windowScope;
                     parentScope.$emit('from-iframe','TestStart');
                     $rootScope.parentScope = parentScope;
@@ -162,7 +162,7 @@ appmodule
                             $scope.startTest = function(){
                                 if(!$scope.userDetails.existingSittingID){
                                     parentScope.$emit('from-iframe','TestStarted');
-                                    LoadQuestionsFactory.saveSittingUser().save({ test_user: data.test_user, quiz_id: data.quiz, existingSittingID: data.existingSittingID, toPost: data.toPost }).$promise.then(
+                                    LoadQuestionsFactory.saveSittingUser({ toPost: true }).save({ test_user: data.test_user, quiz_id: data.quiz, existingSittingID: data.existingSittingID }).$promise.then(
                                         function(response){
                                             data['sitting'] = response.sitting;
                                             $state.go('app.start-test', { obj: data});
@@ -522,14 +522,13 @@ appmodule
                 'comprehension_answers': $scope.comprehensionAnswersModel,
                 'is_normal_submission': isNormalSubmission,
                 'sitting': $stateParams.obj.sitting,
-                'toPost': $stateParams.obj.toPost,
             };
             if(isNormalSubmission){
                 // Save bookmarks
                 postBookMarks({'bookmarked_questions': bookmarkedQuestions, test_user: data['test_user']});
                 // $scope.parentScope from $rootScope (set in LoadQuestionsController)
                 $scope.parentScope.$emit('from-iframe','TestFinished');
-                TestPageFactory.saveResultToDB().save(data).$promise.then(
+                TestPageFactory.saveResultToDB({ toPost: true }).save(data).$promise.then(
                     function(response){
                         alert("You have completed your test successfully.");
                         if($stateParams.obj.show_result_on_completion){

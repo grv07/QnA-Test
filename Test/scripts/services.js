@@ -70,8 +70,8 @@ appmodule
           { stripTrailingSlashes: false }
           );
     }
-    this.saveSittingUser = function(){
-      return $resource(serverURL+"save/sitting/user/", null,
+    this.saveSittingUser = function(extraData){
+      return $resource(serverURL+"save/sitting/user/", extraData,
         {
             save: {
             // headers: {'Authorization': 'JWT ' + token},
@@ -166,8 +166,8 @@ appmodule
             return deferred.promise;
         }
 
-        this.saveResultToDB = function(quizKey){
-          return $resource(serverURL+"save/test/db/", null,
+        this.saveResultToDB = function(extraData){
+          return $resource(serverURL+"save/test/db/", extraData,
             {
               save: {
               method : 'POST',
