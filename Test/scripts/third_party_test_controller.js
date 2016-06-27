@@ -516,6 +516,7 @@ appmodule
         $scope.submitTestDetails = function(isNormalSubmission, currentSection){
             saveTimeSpentOnQuestion($scope.selectedSection, $scope.currentCount);
             var data = { test_user: $stateParams.obj.test_user, test_key: $stateParams.obj.test_key};
+            var toPost = true;
             data['test_data'] = {
                 'time_remaining': $scope.totalDuration,
                 'time_spent_on_questions': timeSpentOnQuestions,
@@ -523,6 +524,7 @@ appmodule
                 'comprehension_answers': $scope.comprehensionAnswersModel,
                 'is_normal_submission': isNormalSubmission,
                 'sitting': $stateParams.obj.sitting,
+                'toPost': toPost
             };
             if(isNormalSubmission){
                 // Save bookmarks
