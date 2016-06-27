@@ -527,6 +527,10 @@ appmodule
 
         $scope.submitTestDetails = function(isNormalSubmission, currentSection){
             saveTimeSpentOnQuestion($scope.selectedSection, $scope.currentCount);
+            var toPost = false;
+            if($state.current.name === "thirdpartytest-start"){
+                toPost = true;
+            }
             var data = { test_user: $stateParams.obj.test_user, test_key: $stateParams.obj.test_key};
             data['test_data'] = {
                 'time_remaining': $scope.totalDuration,
@@ -535,7 +539,7 @@ appmodule
                 'comprehension_answers': $scope.comprehensionAnswersModel,
                 'is_normal_submission': isNormalSubmission,
                 'sitting': $stateParams.obj.sitting,
-                'toPost': false,
+                'toPost': toPost,
             };
             if(isNormalSubmission){
                 // Save bookmarks
