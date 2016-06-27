@@ -165,7 +165,7 @@ appmodule
                                     LoadQuestionsFactory.saveSittingUser().save({ test_user: data.test_user, quiz_id: data.quiz, existingSittingID: data.existingSittingID, toPost: true }).$promise.then(
                                         function(response){
                                             data['sitting'] = response.sitting;
-                                            $state.go('app.start-test', { obj: data});
+                                            $state.go('thirdpartytest-start', { obj: data});
                                         }, 
                                         function(response){
                                             alert('Error in getting test details.');
@@ -524,14 +524,11 @@ appmodule
                 'sitting': $stateParams.obj.sitting,
                 'toPost': true,
             };
-            console.log(data);
-            data['test_data']['toPost'] = true;
             if(isNormalSubmission){
                 // Save bookmarks
                 postBookMarks({'bookmarked_questions': bookmarkedQuestions, test_user: data['test_user']});
                 // $scope.parentScope from $rootScope (set in LoadQuestionsController)
                 $scope.parentScope.$emit('from-iframe','TestFinished');
-                console.log(data);
                 TestPageFactory.saveResultToDB().save(data).$promise.then(
                     function(response){
                         alert("You have completed your test successfully.");
@@ -543,7 +540,7 @@ appmodule
                             showReportPageStatus = -1;
                         }
                         $cookies.remove('testToken');
-                        // $window.close();
+                        $window.close();
                     },
                     function(response){
                         alert('Error in submitting test!');

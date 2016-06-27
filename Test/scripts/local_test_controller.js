@@ -542,7 +542,6 @@ appmodule
                 postBookMarks({'bookmarked_questions': bookmarkedQuestions, test_user: data['test_user']});
                 // $scope.parentScope from $rootScope (set in LoadQuestionsController)
                 $scope.parentScope.$emit('from-iframe','TestFinished');
-                console.log(data);
                 TestPageFactory.saveResultToDB().save(data).$promise.then(
                     function(response){
                         alert("You have completed your test successfully.");
@@ -554,7 +553,7 @@ appmodule
                             showReportPageStatus = -1;
                         }
                         $cookies.remove('testToken');
-                        // $window.close();
+                        $window.close();
                     },
                     function(response){
                         alert('Error in submitting test!');
