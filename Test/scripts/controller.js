@@ -49,32 +49,32 @@ appmodule
 			}
 			createStackedBar100Chart("sectionWiseBarGraphContainer", "colors", "", "Sections", "%age of questions", dataPoints1);
 
-			dataPoints1 = [
-			{
-				type: "stackedColumn100",
-	            name: "Correct",
-	            showInLegend: "true",
-	            dataPoints: []
-			},
-			{
-				type: "stackedColumn100",
-	            name: "Incorrect",
-	            showInLegend: "true",
-	            dataPoints: []
-			},
-			{
-				type: "stackedColumn100",
-	            name: "Unattempted",
-	            showInLegend: "true",
-	            dataPoints: []
-			}];
+			// dataPoints1 = [
+			// {
+			// 	type: "stackedColumn100",
+	  //           name: "Correct",
+	  //           showInLegend: "true",
+	  //           dataPoints: []
+			// },
+			// {
+			// 	type: "stackedColumn100",
+	  //           name: "Incorrect",
+	  //           showInLegend: "true",
+	  //           dataPoints: []
+			// },
+			// {
+			// 	type: "stackedColumn100",
+	  //           name: "Unattempted",
+	  //           showInLegend: "true",
+	  //           dataPoints: []
+			// }];
 
-			for (var key in response.analysis.filter_by_category) {	
-				dataPoints1[0].dataPoints.push({ y: response.analysis.filter_by_category[key][1], label: key });
-				dataPoints1[1].dataPoints.push({ y: response.analysis.filter_by_category[key][0], label: key });
-		    	dataPoints1[2].dataPoints.push({ y: response.analysis.filter_by_category[key][2], label: key });
-			}
-			createStackedBar100Chart("categoryWiseBarGraphContainer", "colors", "", "Categories", "%age of questions", dataPoints1);
+			// for (var key in response.analysis.filter_by_category) {	
+			// 	dataPoints1[0].dataPoints.push({ y: response.analysis.filter_by_category[key][1], label: key });
+			// 	dataPoints1[1].dataPoints.push({ y: response.analysis.filter_by_category[key][0], label: key });
+		 //    	dataPoints1[2].dataPoints.push({ y: response.analysis.filter_by_category[key][2], label: key });
+			// }
+			// createStackedBar100Chart("categoryWiseBarGraphContainer", "colors", "", "Categories", "%age of questions", dataPoints1);
 
 			dataPoints1 = []
 			var dataPoints2 = []
