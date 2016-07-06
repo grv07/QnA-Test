@@ -305,15 +305,18 @@ function downloadReportAsPDF(elementID, outputFileName){
             var imgData = document.querySelector("#sectionWiseBarGraphContainer canvas").toDataURL('image/jpeg');
             pdf.addImage(imgData, 'JPEG', 40, 130, 500, 300);
 
-            pdf.text(40, 470, 'Category Wise Result');
-            var imgData = document.querySelector("#categoryWiseBarGraphContainer canvas").toDataURL('image/jpeg');
-            pdf.addImage(imgData, 'JPEG', 40, 490, 500, 300);
+            // pdf.text(40, 470, 'Category Wise Result');
+            // var imgData = document.querySelector("#categoryWiseBarGraphContainer canvas").toDataURL('image/jpeg');
+            // pdf.addImage(imgData, 'JPEG', 40, 490, 500, 300);
 
-            pdf.addPage();
-            pdf.text(40, 70, 'Time Wise Result');
+            // pdf.addPage();
+            // pdf.text(40, 70, 'Time Wise Result');
+            // var imgData = document.querySelector("#timeWiseSplineContainer canvas").toDataURL('image/jpeg');
+            // pdf.addImage(imgData, 'JPEG', 40, 100, 500, 300);
+
+            pdf.text(40, 460, 'Time Wise Result');
             var imgData = document.querySelector("#timeWiseSplineContainer canvas").toDataURL('image/jpeg');
-            pdf.addImage(imgData, 'JPEG', 40, 100, 500, 300);
-
+            pdf.addImage(imgData, 'JPEG', 40, 470, 500, 300);
             pdf.save(outputFileName+'.pdf');
         }
     });
